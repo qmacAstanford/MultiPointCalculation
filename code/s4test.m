@@ -10,7 +10,7 @@ RR_ON=0;
 %Chain structural information
 N=4;
 NM_WL=logspace(-1,1,1);
-NM_GS=1 ;
+NM_GS=10 ;
 NM_RR=1;
 
 %Chain chemical information

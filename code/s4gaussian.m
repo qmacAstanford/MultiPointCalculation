@@ -590,7 +590,7 @@ if sum(power(Q1+Q2+Q3+Q4,2)) <= MIN
 end
 end
 
-function S4=case1(S4,N,NM,R1,R12,R3,F,MIN)
+function S4=case1(S4,N,NM,R1,R12,R3,F,~)
 % Case 1: J1==J2==J3==J4
     E1=R1;
     E12=R12;
@@ -607,7 +607,7 @@ function S4=case1(S4,N,NM,R1,R12,R3,F,MIN)
     if abs(E3)<offset
         E3=offset;
     end
-    MIN=(10^-2)/NM;
+    MIN=(10^-4)/NM;
     if max(abs([E1,E12,E3]))<MIN
         valeq=NM^4*(NM*(E1+E12+E3)+5)/120;
     elseif max(abs([E1,E12]))<MIN
@@ -658,7 +658,7 @@ function out=chicken(a,b,c,NM)
     +24*(expl(1,NM*c)-NM*(a+b))*c ...
     +24*expl(1,NM*c)*(a+b))/(24*c^5);
 end
-function S4=case2(S4,N,NM,R1,R12,R3,Z1,Z1L,F,DF,SDEL,A1,A2,MIN)
+function S4=case2(S4,N,NM,R1,R12,R3,Z1,Z1L,F,DF,SDEL,A1,A2,~)
 % Case 2: J1 <J2==J3==J4
     if N<2
         return
@@ -736,7 +736,7 @@ function S4=case2(S4,N,NM,R1,R12,R3,Z1,Z1L,F,DF,SDEL,A1,A2,MIN)
     end
 end
 
-function S4=case3(S4,N,NM,R1,R12,R3,Z12,Z12L,F,DF,SDEL,A2,A3,MIN)
+function S4=case3(S4,N,NM,R1,R12,R3,Z12,Z12L,F,DF,SDEL,A2,A3,~)
 % Case 3: J1==J2 <J3==J4
     if N<2
         return
@@ -758,7 +758,7 @@ function S4=case3(S4,N,NM,R1,R12,R3,Z12,Z12L,F,DF,SDEL,A2,A3,MIN)
     if abs(E3)<offset
         E3=offset;
     end
-    MIN=10^-5;
+    MIN=(10^-4)/NM;
     if max(abs([E1,E12,E3]))<MIN
         valeq=NM^4*(NM*(E1-E12+E3)+3)/12;
     elseif max(abs([E1,E12]))<MIN
@@ -831,7 +831,7 @@ function S4=case3(S4,N,NM,R1,R12,R3,Z12,Z12L,F,DF,SDEL,A2,A3,MIN)
     end
 end
 
-function S4=case4(S4,N,NM,R1,R12,R3,Z3,Z3L,F,DF,SDEL,A3,A4,MIN)
+function S4=case4(S4,N,NM,R1,R12,R3,Z3,Z3L,F,DF,SDEL,A3,A4,~)
     if N<2
         return
     end
@@ -943,7 +943,7 @@ function valeq=case4Int(E1,E12,E3,NM)
     end
 end
 
-function S4=case5(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,F,DF,SDEL,A1,A2,A3,MIN)
+function S4=case5(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,F,DF,SDEL,A1,A2,A3,~)
     if N<3
         return
     end
@@ -987,7 +987,6 @@ function S4=case5(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,F,DF,SDEL,A1,A2,A3,MIN)
     valeq=case6Int(E3,E12,E1,NM);
   
     % on different monomers
-    MIN=5e-3;
     valne=zeros(2,2);
     for I1=1:2
         for I2=1:2
@@ -1028,7 +1027,7 @@ function S4=case5(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,F,DF,SDEL,A1,A2,A3,MIN)
     end
 end
 
-function S4=case6(S4,N,NM,R1,R12,R3,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A2,A3,A4,MIN)
+function S4=case6(S4,N,NM,R1,R12,R3,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A2,A3,A4,~)
     if N<3
         return
     end
@@ -1043,7 +1042,6 @@ function S4=case6(S4,N,NM,R1,R12,R3,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A2,A3,A4,MIN)
     valeq=case6Int(E1,E12,E3,NM);
     
     % on different monomers
-    MIN=5e-3;
     valne=zeros(2,2);
     for I1=1:2
         for I2=1:2
@@ -1084,43 +1082,51 @@ function valeq=case6Int(E1,E12,E3,NM)
     if abs(E3)<offset
         E3=offset;
     end
-    
-    MIN=10^-5;
+    MIN=(10^-4)/NM;
     if max(abs([E1,E12,E3]))<MIN
         valeq=NM^4*(2*NM*E1-NM*E12+6)/12;
+        flag=1;
     elseif max(abs([E1,E12]))<MIN
         valeq=NM^2*exp(NM*E3)*expl(1,-NM*E3)*(3*(E12+E3)*expl(2,-NM*E3)-3*NM*E3^2 ...
               +NM*(E1+E12)*E3*expl(1,-NM*E3))/(6*E3^3);
+        flag=2;
     elseif max(abs([E12,E3]))<MIN
         valeq=(NM^2/(E1^3))*((E1+E12)*expl(2,NM*E1)-0.5*NM*E1*E12*expl(1,NM*E1));
-    elseif max(abs([E1,E3]))
+        flag=3;
+    elseif max(abs([E1,E3]))<MIN
         valeq=(NM/(2*E12^4))*(2*(E1+E12+E3)*...
                (expl(3,NM*E12)+expl(3,-NM*E12)+NM*E12*expl(2,-NM*E12))+...
                NM^2*(E1+E3)*E12^2*expl(1,-NM*E12)+...
                NM*E12*E3*(expl(2,-NM*E12)-expl(2,NM*E12)));
+        flag=4;
     elseif(abs(E1-E12)<MIN && abs(E12-E3)<MIN)
        valeq=(exp(1).^E1).^((-1).*NM).*((-1)+(exp(1).^E1).^NM).*NM.*log(exp(1) ...
        .^E1).^(-3).*(1+(exp(1).^E1).^NM.*((-1)+NM.*log(exp(1).^E1)));
+       flag=5;
     elseif abs(E1-E12)<MIN
        valeq=(exp(1).^E1).^((-1).*NM).*(1+(-1).*(exp(1).^E3).^((-1).*NM)).*(( ...
        exp(1).^E1).^NM+(-1).*(exp(1).^E3).^NM).*log(exp(1).^E1).^(-2).*( ...
        1+(exp(1).^E1).^NM.*((-1)+NM.*log(exp(1).^E1))).*(log(exp(1).^E1)+ ...
        (-1).*log(exp(1).^E3)).^(-1).*log(exp(1).^E3).^(-1);
+       flag=6;
     elseif abs(E1-E3)<MIN
        valeq=(exp(1).^E12).^((-1).*NM).*(1+(-1).*(exp(1).^E1).^((-1).*NM)).*(( ...
        exp(1).^E1).^NM+(-1).*(exp(1).^E12).^NM).*log(exp(1).^E1).^(-2).*( ...
        log(exp(1).^E1)+(-1).*log(exp(1).^E12)).^(-2).*log(exp(1).^E12).^( ...
        -1).*((-1).*((-1)+(exp(1).^E12).^NM).*log(exp(1).^E1)+((-1)+(exp( ...
        1).^E1).^NM).*log(exp(1).^E12));
+       flag=7;
     elseif abs(E12-E3)<MIN
        valeq=(1+(-1).*(exp(1).^E12).^((-1).*NM)).*NM.*log(exp(1).^E1).^(-1).*( ...
        log(exp(1).^E1)+(-1).*log(exp(1).^E12)).^(-1).*log(exp(1).^E12).^( ...
        -2).*((-1).*((-1)+(exp(1).^E12).^NM).*log(exp(1).^E1)+((-1)+(exp( ...
        1).^E1).^NM).*log(exp(1).^E12));
+       flag=8;
     else
         valeq=expl(1,NM*E1)*(expl(1,-NM*E1)-expl(1,-NM*E12))*...
               ( expl(2,NM*E3)*E12 - expl(2,NM*E12)*E3 )/...
               (E1*E12*E3*(E12-E3)*(E1-E12));
+        flag=9;
 %        valeq=(-1).*(exp(1).^E12).^((-1).*NM).*(1+(-1).*(exp(1).^E3).^((-1).*NM) ...
 %        ).*((exp(1).^E12).^NM+(-1).*(exp(1).^E3).^NM).*log(exp(1).^E1).^( ...
 %        -1).*(log(exp(1).^E1)+(-1).*log(exp(1).^E12)).^(-1).*log(exp(1) ...
@@ -1128,9 +1134,13 @@ function valeq=case6Int(E1,E12,E3,NM)
 %        -1)+(exp(1).^E1).^NM).*log(exp(1).^E12)).*(log(exp(1).^E12)+(-1).* ...
 %        log(exp(1).^E3)).^(-1).*log(exp(1).^E3).^(-1);
     end
+    if valeq<0
+        sprintf('a=%g, b=%g, c=%g, valeq=%g, flag=%d',E1,E12,E3,valeq,flag)
+        error('valeq<0')
+    end
 end
 
-function S4=case7(S4,N,NM,R1,R12,R3,Z1,Z1L,Z3,Z3L,F,DF,SDEL,A1,A2,A4,MIN)
+function S4=case7(S4,N,NM,R1,R12,R3,Z1,Z1L,Z3,Z3L,F,DF,SDEL,A1,A2,A4,~)
     if N<3
         return
     end
@@ -1142,7 +1152,7 @@ function S4=case7(S4,N,NM,R1,R12,R3,Z1,Z1L,Z3,Z3L,F,DF,SDEL,A1,A2,A4,MIN)
     ZE3=[Z3,Z3L];
 
     % on same monomer
-    MIN=10^-5;
+    MIN=(10^-4)/NM;
     if (abs(E1-E12)<MIN && abs(E12-E3)<MIN)
        valeq=(1/2).*(exp(1).^E1).^((-1).*NM).*((-1)+(exp(1).^E1).^NM).^2.* ...
        NM.^2.*log(exp(1).^E1).^(-2);
@@ -1209,7 +1219,7 @@ function S4=case7(S4,N,NM,R1,R12,R3,Z1,Z1L,Z3,Z3L,F,DF,SDEL,A1,A2,A4,MIN)
     end
 end
 
-function S4=case8(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A1,A2,A3,A4,MIN)
+function S4=case8(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A1,A2,A3,A4,~)
     if N<4
         return
     end
@@ -1219,7 +1229,7 @@ function S4=case8(S4,N,NM,R1,R12,R3,Z1,Z1L,Z12,Z12L,Z3,Z3L,F,DF,SDEL,A1,A2,A3,A4
     ZE1=[Z1,Z1L];
     ZE12=[Z12,Z12L];
     ZE3=[Z3,Z3L];
-    MIN=10^-4;
+    MIN=(10^-4)/NM;
     if max(abs([E1,E12,E3]))<MIN
        valeq=NM^4;
     elseif max(abs([E1,E12]))<MIN
