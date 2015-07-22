@@ -419,11 +419,9 @@ legend('accuracy')
 
 
 figure
-p=loglog(x,oabc_ac,'-o',x,o_abc_ac,'-x',x,oab_c_ac,'x',x,oa_bc_ac,'.',x,oa_b_c_ac,'o',...
-            x,o_ab_c_ac,'.',x,o_a_bc_ac,'o',x,accuracyRecord,'r-');
-title('Choosing betwene expressions')
-xlabel('1-a')
-ylabel('upper bound estimate on error')
-set(p(8),'LineWidth',2)
+loglog(x,oabc_ac,'-o',x,o_abc_ac,'-x',x,oab_c_ac,'x',x,oa_bc_ac,'.',x,oa_b_c_ac,'o',...
+            x,o_ab_c_ac,'.',x,o_a_bc_ac,'o',x,accuracyRecord,'-');
+
+
 legend('oabc','o abc','oab c','oa bc','oa b c','o ab c','o a bc','best')
 
