@@ -866,6 +866,8 @@ function S4=case4(S4,N,NM,R1,R12,R3,Z3,Z3L,F,DF,SDEL,A3,A4,MIN)
 end
 
 function valeq=case4Int(E1,E12,E3,NM)
+% This function calculates the intigral for case 4
+% This is the same intigral as case 2 with arguements exchanged
     offset=10^-12;
     if abs(E1)<offset
         E1=offset;
