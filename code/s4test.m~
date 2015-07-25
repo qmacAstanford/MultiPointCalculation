@@ -8,9 +8,9 @@ GS_ON=1;
 RR_ON=0;
 
 %Chain structural information
-N=25;
+N=6;
 NM_WL=logspace(-1,1,1);
-NM_GS=1 ;
+NM_GS=10 ;
 NM_RR=1;
 
 %Chain chemical information
@@ -30,7 +30,7 @@ Q1=zeros(length(QM),1);
 Q2=zeros(length(QM),1);
 Q3=zeros(length(QM),1); 
 Q4=zeros(length(QM),1);
-ang1=pi/3;
+ang1=pi/5;
 ang2=pi-ang1;
 for ii=1:length(QM)
     pert1 = 0;%[1,0,0]*QM(ii)*1e-5;
@@ -76,8 +76,8 @@ if (GS_ON==1)
                                      Q3(ii,1:3)/N/NM_GS,...
                                      Q4(ii,1:3)/N/NM_GS,d);
        g4=g4/power(N*NM_GS,4);
-       g4aaaa(ii,1:8)=squeeze(g4(:,1,1,1,1))';
-       g4aaaa(ii,9)=sum(g4aaaa(ii,1:8));
+       g4aaaa(ii,:)=squeeze(g4(:,1,1,1,1))';
+       g4aaaaTotal(ii)=sum(
        %g4aaab(ii)=g4(1,1,1,2);
        %g4aaba(ii)=g4(1,1,2,1);
        %g4abaa(ii)=g4(1,2,1,1);
