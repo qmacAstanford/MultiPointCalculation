@@ -23,8 +23,8 @@ if sum(power(Q1+Q2+Q3,2)) <= MIN
     RHO23=sum(EQ2.*EQ3);
     RHO13=sum(EQ1.*EQ3);
     
-    PL12=legendrep(-RHO12,ORDL);
-    PL23=legendrep(-RHO23,ORDL);
+    PL12=legendrep(-RHO12,ORDL); % legendre Polynomial
+    PL23=legendrep(-RHO23,ORDL); % P(n,x)
     PL13=legendrep(-RHO13,ORDL);
    
     R1=MatRoots(Q1MAG,3,ORDEig);

@@ -14,8 +14,8 @@ NM_GS=1 ;
 NM_RR=1;
 
 %Chain chemical information
-FA=0.8;
-LAM=0.25;
+FA=1;
+LAM=1;
 
 %Calculation parameters
 d=3;
@@ -66,26 +66,28 @@ end
 
 %%%% Gaussian Chain %%%%
 if (GS_ON==1)
-    g4aaaa=zeros(length(QM),1);
-    g4aaab=zeros(length(QM),1);
-    g4aaba=zeros(length(QM),1);
-    g4abaa=zeros(length(QM),1);
+    g4aaab=zeros(length(QM),8);
+%     g4aaab=zeros(length(QM),1);
+%     g4aaba=zeros(length(QM),1);
+%     g4abaa=zeros(length(QM),1);
     for ii=1:length(QM)
        g4=s4gaussian(N,NM_GS,LAM,FA,Q1(ii,1:3)/N/NM_GS,...
                                      Q2(ii,1:3)/N/NM_GS,...
                                      Q3(ii,1:3)/N/NM_GS,...
                                      Q4(ii,1:3)/N/NM_GS,d);
        g4=g4/power(N*NM_GS,4);
-       g4aaaa(ii)=g4(1,1,1,1);
-       g4aaab(ii)=g4(1,1,1,2);
-       g4aaba(ii)=g4(1,1,2,1);
-       g4abaa(ii)=g4(1,2,1,1);
+       g4aaaa(ii)=squeeze(g4(1,1,1,1))';
+       %g4aaab(ii)=g4(1,1,1,2);
+       %g4aaba(ii)=g4(1,1,2,1);
+       %g4abaa(ii)=g4(1,2,1,1);
     end
-
-    plot(QM,g4aaaa,'k-',...
-        QM,g4aaba,'b-',...
-        QM,g4abaa,'r-','linewidth',2);
-
+    p=plot(QM,g4aaaa);
+    set(p(8),'LineWidth',2)
+    set(p(2),'LineWidth',2)
+%     plot(QM,g4aaaa,'k-',...
+%         QM,g4aaba,'b-',...
+%         QM,g4abaa,'r-','linewidth',2);
+    g4aaaa
     g4aaaa=zeros(length(QM),1);
     g4aaab=zeros(length(QM),1);
     g4aaba=zeros(length(QM),1);

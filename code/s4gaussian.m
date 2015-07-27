@@ -1,4 +1,4 @@
-function S4split=s4gaussian(N,NM,LAM,FA,Q1,Q2,Q3,Q4,d)
+function S4=s4gaussian(N,NM,LAM,FA,Q1,Q2,Q3,Q4,d)
 %S4 is a four point correlation function
 %For example:
 %   S4(1,1,1,1)=SAAAA
@@ -634,7 +634,7 @@ end
     
     %new
     S4=zeros(2,2,2,2);
-    S4split=zeros(8,2,2,2,2);
+    %S4split=zeros(8,2,2,2,2);
     orders = perms(1:4);
     for orderNum=1:24
         order=orders(orderNum,:);
@@ -655,7 +655,16 @@ end
         Z12L=Z12*LAM;
         Z4L=Z4*LAM;
         
+        S4=S4+case1(N,NM,R1,R12,R4,F);
+        S4=S4+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
+        S4=S4+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
+        S4=S4+case4(N,NM,R1,R12,R4,                Z4,Z4L,F,order);
+        S4=S4+case5(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,       F,order);
+        S4=S4+case6(N,NM,R1,R12,R4,       Z12,Z12L,Z4,Z4L,F,order);
+        S4=S4+case7(N,NM,R1,R12,R4,Z1,Z1L,         Z4,Z4L,F,order);
+        S4=S4+case8(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,Z4,Z4L,F,order);
         
+%{        
         S4split(1,:,:,:,:)=squeeze(S4split(1,:,:,:,:))+case1(N,NM,R1,R12,R4,F);
         S4split(2,:,:,:,:)=squeeze(S4split(2,:,:,:,:))+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
         S4split(3,:,:,:,:)=squeeze(S4split(3,:,:,:,:))+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
@@ -664,6 +673,7 @@ end
         S4split(6,:,:,:,:)=squeeze(S4split(6,:,:,:,:))+case6(N,NM,R1,R12,R4,       Z12,Z12L,Z4,Z4L,F,order);
         S4split(7,:,:,:,:)=squeeze(S4split(7,:,:,:,:))+case7(N,NM,R1,R12,R4,Z1,Z1L,         Z4,Z4L,F,order);
         S4split(8,:,:,:,:)=squeeze(S4split(8,:,:,:,:))+case8(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,Z4,Z4L,F,order);
+%}
 
     end
     
