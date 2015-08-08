@@ -70,7 +70,7 @@ if sum(power(Q1+Q2+Q3+Q4,2)) <= MIN
     YLM223=zeros(ORDL,ORDL);
     YLM224=zeros(ORDL,ORDL);
     YLM331=zeros(ORDL,ORDL);
-    YLM332=zeros(ORDL,ORDL);
+    YLM332=zeros(ORDL,ORDL); 
     YLM334=zeros(ORDL,ORDL);
     YLM441=zeros(ORDL,ORDL);
     YLM442=zeros(ORDL,ORDL);
@@ -380,7 +380,7 @@ function S4=case1(S4,N,NM,N1,N2,N3,M,R1,R12,R3,GL1,GLM12,GL3,YLM112,YLM443,F,SDE
                         sum(sum((conj(YLM112(:,M+1))*transpose(YLM443(:,M+1)))....
                         *(GL1(:,N1)*transpose(GL3(:,N3))).*GLM12(:,:,M+1,N2)));
                 end
-            end
+            end 
         end
     end
     
@@ -806,7 +806,6 @@ function S4=case7(S4,N,NM,N1,N2,N3,M,R1,R12,R3,GL1,GLM12,GL3,YLM112,YLM443,Z1,Z1
         end
     end
 end
-
 
 function S4=case8(S4,N,NM,N1,N2,N3,M,R1,R12,R3,GL1,GLM12,GL3,YLM112,YLM443,Z1,Z1L,Z12,Z12L,Z3,Z3L,F,DF,SDEL,MIN)
     E1=R1(N1);
@@ -1337,8 +1336,9 @@ end
 end
 
 function [RHO,PHI]=rotvec(E1,E2)
+% E1 and E2 are unit vectors
 B1=acos(E1(3));
-A1=atan2(E1(2),E1(1));
+A1=atan2(E1(2),E1(1)); 
 
 ROTZ=[cos(-A1) -sin(-A1) 0;sin(-A1) cos(-A1) 0;0 0 1];
 ROTY=[cos(-B1) 0 sin(-B1);0 1 0;-sin(-B1) 0 cos(-B1)];
@@ -1348,3 +1348,4 @@ E2=ROTY*ROTZ*E2;
 RHO=E2(3);
 PHI=atan2(E2(2),E2(1));
 end
+

@@ -1,0 +1,21 @@
+MatRoots.m - eigenvalues for G_00^0 (NEig=20)
+MatRoots.m - eigenvalues for G_L0^0 (NEig=20)
+MatRootsLM.m - eigenvalues for G_LL'^M (NEig=20)
+
+CalRes.m - 
+takes eigenvalues from MatRoots, calculates residuals for G_00^0 (ResLayer=500)
+(included low k asymptote)
+
+gl.m -
+takes eigenvalues from MatRoots.m, calculates residuals for G_L0^0
+(included low k asymptote, by Shifan)
+
+glsmall.m -
+takes eigenvalues from MatRoots.m, calculates residuals for G_L0^0
+(only with low k asymptote, by Shifan)
+
+glm.m
+takes eigenvalues from MatRootsLM.m, calculates residuals for G_LL'^M
+
+chkeig.m
+checks MatRoots.m, CalRes.m, gl.m (07/31/15)

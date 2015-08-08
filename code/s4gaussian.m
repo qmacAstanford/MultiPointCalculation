@@ -632,7 +632,6 @@ if CasesIncluded(8)
 end
 %}    
     
-    %new
     S4=zeros(2,2,2,2);
     %S4split=zeros(8,2,2,2,2);
     orders = perms(1:4);
