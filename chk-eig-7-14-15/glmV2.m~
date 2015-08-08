@@ -61,16 +61,8 @@ for M=0:(ORDL-1) % M is mu
         end
         
         for lam0=M:(ORDL-1)
-            if lam0==M % then the first term is zero
-                X1prime=( 0 + 1  ...
-                          -a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) );
-                if a(lam0+1) ~= 0
-                    error('should be zero')
-                end
-            else
-                X1prime=( -a(lam0+1)^2*K*djm(lam0+1-1)/((jm(lam0+1-1))^2) +1  ...
-                          -a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) );
-            end
+            X1prime=( -a(lam0+1)^2*K*djm(lam0+1-1)/((jm(lam0+1-1))^2) +1  ...
+                      -a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) );          
             for lam=M:(ORDL-1)
                 if lam==lam0
                     G=1/X1prime;

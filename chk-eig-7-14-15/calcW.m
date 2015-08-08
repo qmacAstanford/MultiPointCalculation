@@ -1,4 +1,4 @@
-function GLMK=glmV2(K,EigK,ORDEig,ORDL,NumLayer)
+function GLMK=calcW(K,EigK,ORDEig,ORDL,NumLayer)
 % output GLM(lamda1+1,lamda2+1,mu+1,l+1)
 % this function does not contain the small K limit
 % K is the magnitude
@@ -61,16 +61,8 @@ for M=0:(ORDL-1) % M is mu
         end
         
         for lam0=M:(ORDL-1)
-            if lam0==M % then the first term is zero
-                X1prime=( 0 + 1  ...
-                          -a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) );
-                if a(lam0+1) ~= 0
-                    error('should be zero')
-                end
-            else
-                X1prime=( -a(lam0+1)^2*K*djm(lam0+1-1)/((jm(lam0+1-1))^2) +1  ...
-                          -a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) );
-            end
+            X1prime=( -a(lam0+1)^2*K*djm(lam0+1)/((jm(lam0+1))^2) +1  ...
+                      -a(lam0+2)^2*K*djp(lam0+2)/((jp(lam0+2))^2) );          
             for lam=M:(ORDL-1)
                 if lam==lam0
                     G=1/X1prime;
@@ -93,7 +85,6 @@ for M=0:(ORDL-1) % M is mu
 %                      disp(a(1:ORDL+2))
 %                      sprintf('Quinns version M=%g, K=%g, L=%g, G=%g',M,K, L ,G)
 % 
-%                      Denom=a(lam0+1)^2*K*djm(lam0+1)^2 + P(lam0+1)
 %                      disp('---------------------------------------------')
 %                  end
             end

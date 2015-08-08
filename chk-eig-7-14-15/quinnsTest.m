@@ -42,7 +42,7 @@ if prefactor
     usingCalRes=zeros(npts,ORDEig);
     for count=1:npts
         GLMK_largeKV2(count,:,:,:,:)=glmV2(K(count),squeeze(R(count,:,:)),ORDEig,ORDL,500);  
-        GLMK_largeK(count,:,:,:,:)=  glm(K(count),squeeze(R(count,:,:)),ORDEig,ORDL,501);    
+ %       GLMK_largeK(count,:,:,:,:)=  glm(K(count),squeeze(R(count,:,:)),ORDEig,ORDL,501);    
         
         for lam1=0:ORDL-1
             for lam2=0:ORDL-1
@@ -93,13 +93,12 @@ if prefactor
 
         lam1=3;
         lam2=3;
-        mu=0;
-        L=2;
+        mu=2;
+        L=1;
         hold on
-        semilogx(K,real(GLMK_largeK(:,lam1+1,lam2+1,mu+1,L+1)),...
-                 K,real(GLMK_largeKV2(:,lam1+1,lam2+1,mu+1,L+1)),'x',...
+        semilogx(K,real(GLMK_largeKV2(:,lam1+1,lam2+1,mu+1,L+1)),'x',...
                  K,real(GLMK_smallK(:,lam1+1,lam2+1,mu+1,L+1)));
-        legend('largK','v2','smallk')
+        legend('largK','smallk')
         title(sprintf('Re(G_l_m(K)) lam1=%d, lam2=%d, mu=%d, L=%d',lam1,lam2,mu,L))
         xlabel('K')
         ylim([-2,2])
@@ -107,10 +106,9 @@ if prefactor
 
         figure(2)
         hold on
-          loglog(K,abs(real(GLMK_largeK(:,lam1+1,lam2+1,mu+1,L+1))),...
-                 K,abs(real(GLMK_largeKV2(:,lam1+1,lam2+1,mu+1,L+1))),'x',...
+          loglog(K,abs(real(GLMK_largeKV2(:,lam1+1,lam2+1,mu+1,L+1))),'x',...
                  K,abs(real(GLMK_smallK(:,lam1+1,lam2+1,mu+1,L+1))));
-        legend('largK','v2','smallk')
+        legend('largK','smallk')
         title(sprintf('Compair methodes lam1=%d, lam2=%d, mu=%d, L=%d',lam1,lam2,mu,L))
         xlabel('K')  
         hold off  
