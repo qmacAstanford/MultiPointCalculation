@@ -3,34 +3,34 @@
 clear;
 
 %Which chains?
-WLC_ON=0;
-GS_ON=1;
+WLC_ON=1;
+GS_ON=0;
 RR_ON=0;
 
 %Chain structural information
-N=2;
+N=4;
 NM_WL=logspace(-1,1,1);
-NM_GS=1 ;
+NM_GS=1;
 NM_RR=1;
 
 %Chain chemical information
-FA=0.8;
-LAM=0.25;
+FA=1;
+LAM=1;
 
 %Calculation parameters
 d=3;
 ORDEig=5;
-ORDL=5;
-NumLayer=500;
+ORDL=3;
+NumLayer=100;
 
 %wavevector and structure factor
 figure;hold;set(gca,'fontsize',10);leg=[];
-QM=logspace(-4,3,40);
+QM=logspace(-4,3,10);
 Q1=zeros(length(QM),1);
 Q2=zeros(length(QM),1);
 Q3=zeros(length(QM),1); 
 Q4=zeros(length(QM),1);
-ang1=pi/3;
+ang1=pi/3.1;
 ang2=pi-ang1;
 for ii=1:length(QM)
     pert1 = 0;%[1,0,0]*QM(ii)*1e-5;
@@ -51,13 +51,15 @@ if (WLC_ON==1)
             col=(cnt-1)/(length(NM_WL)-1)
         end
         for ii=1:length(QM)
-            s4=s4wlc(N,NM_WLC,LAM,FA,Q1(ii,1:3)/N/NM_WLC,...
+            s4=s4wlcV2(N,NM_WLC,LAM,FA,Q1(ii,1:3)/N/NM_WLC,...
                                      Q2(ii,1:3)/N/NM_WLC,...
                                      Q3(ii,1:3)/N/NM_WLC,...
                                      Q4(ii,1:3)/N/NM_WLC,...
                                      ORDEig,ORDL,NumLayer);
             s4aaaa(ii)=s4(1,1,1,1);
         end
+        format long
+        disp([QM', s4aaaa'/power(N*NM_WLC,4)])
         plot(QM,s4aaaa/power(N*NM_WLC,4),'linewidth',2,'color',[0 0 1-col]);
         leg=[leg {['WLC NM=',sprintf('%.2f',NM_WLC)]}];
         cnt=cnt+1;
