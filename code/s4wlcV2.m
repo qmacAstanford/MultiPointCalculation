@@ -129,7 +129,7 @@ for orderNum=1:24
                     Z4L=  Z4*LAM;
                     
                     S4term=zeros(2,2,2,2);
-%                     S4term=S4term+case1(N,NM,R1,R12,R4,F);
+                    S4term=S4term+case1(N,NM,R1,R12,R4,F);
                     S4term=S4term+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
                     S4term=S4term+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
                     S4term=S4term+case4(N,NM,R1,R12,R4,                Z4,Z4L,F,order);
@@ -186,7 +186,7 @@ for orderNum=1:24
 %                     v3= ( squeeze(GL4((M+1):ORDL,1,1,L3)).*conj(secondD((M+1):ORDL,M+1)) ); % column mtrx by lam3
 %                     mtrx= squeeze(GLM12((M+1):ORDL,(M+1):ORDL,M+1,L2+1); % matrix (lam2,lam3)
 %                     RotTerm=v2*mtrx*v3;                   
-                    S4=S4+real(S4term*RotTerm);
+                    S4=S4+S4term*RotTerm;
 %                     sprintf('M=%d,K1=%g,K2=%g,K3=%g, L1=%d, L2=%d, L3=%d, S4term=%g+%gi, RotTerm=%g+%gi',...
 %                             M,norm(q1),norm(q2),norm(q3),L1,L2,L3,real(S4term(1,1,1,1)),imag(S4term(1,1,1,1)),real(RotTerm),imag(RotTerm))
                 end

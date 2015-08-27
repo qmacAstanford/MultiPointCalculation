@@ -25,6 +25,28 @@ else
     b=ab;
 end
 
+goodEnough=0.001;
+% 1ab
+oab=(-N*(N+1)*(N^2-3*N+2)/24)*(2-a-b)+...
+    N*(N+1)*(4*N-16)/24+N;
+oab_ac=max(N*(1-a),N*(1-b));
+if oab_ac<goodEnough
+    out=oab;
+    return
+end
+
+% a~b~0
+abz=-a*b*(2-N);
+abz_ac=abs(a)+abs(b);
+if abz_ac<goodEnough
+    out=abz;
+    return
+end
+
+% 1 !~ a !~ b~0
+% o_a_bz=-a*b*(a^2*(N-1)-a*(N-2)-a^N)/((a-b)*(a-1)^2);
+% o_a_bz_ac=
+
 % 1 a b
 M1=[...
     0   -1  2   -1;...
@@ -40,6 +62,10 @@ if isnan(ratio)
     o_a_b_ac=100;
 else
     o_a_b_ac=ratio*10^(-ndigits);
+end
+if o_a_b_ac<goodEnough
+    out=o_a_b;
+    return
 end
 
 % 1 ab
@@ -63,10 +89,11 @@ if isnan(ratio)
 else
     o_ab_ac=max(ratio*10^(-ndigits),N*abs((a-b)/a));
 end
-% 1ab
-oab=(-N*(N+1)*(N^2-3*N+2)/24)*(2-a-b)+...
-    N*(N+1)*(4*N-16)/24+N;
-oab_ac=max(N*(1-a),N*(1-b));
+if o_ab_ac<goodEnough
+    out=o_ab;
+    return
+end
+
 
 % 1a b
 M1=[...
@@ -86,15 +113,6 @@ if isnan(ratio)
 else
     oa_b_ac=max(ratio*10^(-ndigits),N*(1-a));
 end
-
-% a~b~0
-abz=-a*b*(2-N);
-abz_ac=abs(a)+abs(b);
-
-% 1 !~ a !~ b~0
-% o_a_bz=-a*b*(a^2*(N-1)-a*(N-2)-a^N)/((a-b)*(a-1)^2);
-% o_a_bz_ac=
-
 
 
  %[o_a_b_ac,o_ab_ac,oab_ac,oa_b_ac]

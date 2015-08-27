@@ -1,5 +1,5 @@
 function Eig=LargeKEigenValues(k,ORDEig,ORDL,d)
-% Returs an ORDEig x ORDEig  where entries are for l+1,mu+1
+% Returs an ORDEig x ORDL  where entries are for l+1,mu+1
 % where l is the order of the eigenvalue
 % and mu is is the azimuthal quantum number (i.e. m)
 
@@ -13,6 +13,14 @@ for I=1:floor(ORDEig/2)
     Eig(2*l+2,:)=conj(Eig(2*l+1,:));
 end
 
+% Q.J.M. added this loop 8/16/15
+for M=0:(ORDL-1)
+    if ORDEig-M<1
+        Eig(:,M+1)=zeros(ORDEig,1)*NaN;
+    else  
+        Eig(:,M+1)=[zeros(M,1)*NaN;Eig(1:(ORDEig-M),M+1)];
+    end
+end
     
 end
 

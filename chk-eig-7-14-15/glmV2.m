@@ -10,7 +10,7 @@ if NumLayer-3 < ORDL
 end
 
 GLMK=zeros(ORDL,ORDL,ORDL,ORDEig)*NaN; % lam1+1, lam2+1, mu+1, L+1 
-
+Denoms=zeros(ORDL,ORDL,ORDEig)*NaN;
 
 for M=0:(ORDL-1) % M is mu
     % pre calculate a, rows refer to lambda+1
@@ -84,21 +84,40 @@ for M=0:(ORDL-1) % M is mu
                     G=1i^(lam0-lam)*prod(a((lam+1):(lam0+1-1)))/(X1prime*X2);
                 end
                 GLMK(lam0+1,lam+1,M+1,L+1)=G;
-%                  if M==2 && lam==3 && lam0==3 && L==0 
+                if M==2 && lam==3 && lam0==3 && L==1 && 0
 %                      disp('djm quinns')
 %                      disp(djm)
 %                      disp('djp quinns')
 %                      disp(djp(1:(ORDL+2)))
 %                      disp('a quinns')
 %                      disp(a(1:ORDL+2))
-%                      sprintf('Quinns version M=%g, K=%g, L=%g, G=%g',M,K, L ,G)
-% 
-%                      Denom=a(lam0+1)^2*K*djm(lam0+1)^2 + P(lam0+1)
-%                      disp('---------------------------------------------')
-%                  end
+                     sprintf('Quinns version M=%g, lam0=%g, lam=%g, K=%g, L=%g, G=%g',M,lam0,lam,K, L ,G)
+%                      format longEng
+%                      disp('P,jp,djp,jm,djm')
+%                      disp([P(1:7)',jp(1:7),djp(1:7),jm(1:7),djm(1:7)])
+%                      disp('first term')
+%                      disp(-a(lam0+1)^2*K*djm(lam0+1-1)/((jm(lam0+1-1))^2))
+%                      disp('second term')
+%                      disp(-a(lam0+2)^2*K*djp(lam0+1+1)/((jp(lam0+1+1))^2) )
+                      Denom=a(lam0+1)^2*K*jm(lam0+1-1)^(-1) + P(lam0+1) + a(lam0+1+1)^2*K*jp(lam0+1+1)^(-1);
+                      sprintf('The denominator at the pole is %g',Denom)
+                      disp('---------------------------------------------')
+                end
+                if lam0 == M
+                    Denom=P(lam0+1) + a(lam0+1+1)^2*K*jp(lam0+1+1)^(-1);
+                else    
+                    Denom=a(lam0+1)^2*K*jm(lam0+1-1)^(-1) + P(lam0+1) + a(lam0+1+1)^2*K*jp(lam0+1+1)^(-1);
+                end
+
+                  Denoms(lam0+1,M+1,L+1)=Denom;
+                  
+%                 if abs(Denom) > 10^-5
+%                     sprintf('M=%g, lam0=%g, lam=%g, K=%g, L=%g, G=%g',M,lam0,lam,K, L ,G)
+%                     sprintf('Denominator =%g',Denom)
+%                     error('bad pole')
+%                 end
             end
         end
     end
 end
-
 end

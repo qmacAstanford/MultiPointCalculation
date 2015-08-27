@@ -15,7 +15,7 @@ function S4=case1(N,NM,R1,R12,R3,F)
     if abs(E3)<offset
         E3=offset;
     end   
-    MIN=(10^-3)/NM;
+%{
     if max(abs([E1,E12,E3]))<MIN
         valeq=NM^4*(NM*(E1+E12+E3)+5)/120;
     elseif max(abs([E1,E12]))<MIN
@@ -31,7 +31,7 @@ function S4=case1(N,NM,R1,R12,R3,F)
         valeq=E1.^(-3).*(E1+(-1).*E3).^(-2).*E3.^(-2).*(2.*((-1)+exp(1).^(E1.* ...
           NM)).*E3.^3+(2+exp(1).^(E1.*NM)).*E1.^2.*E3.^2.*NM+E1.^3.*((-1)+ ...
           exp(1).^(E3.*NM)+(-1).*E3.*NM)+(-1).*E1.*E3.^2.*((-3)+E3.*NM+exp( ...
-          1).^(E1.*NM).*(3+E3.*NM)));
+          1).^(E1.*NM).*(3+E3.*NM)));    
     elseif (abs(E1-E3)<MIN )%&& abs(E1-E12)>=MIN)
 %         valeq=E1.^(-3).*(E1+(-1).*E12).^(-2).*E12.^(-2).*(2.*((-1)+exp(1).^(E1.* ...
 %           NM)).*E12.^3+(2+exp(1).^(E1.*NM)).*E1.^2.*E12.^2.*NM+E1.^3.*((-1)+ ...
@@ -54,8 +54,18 @@ function S4=case1(N,NM,R1,R12,R3,F)
           NM)).*E3.^3+(-1).*E12.*E3.^3.*NM+E12.^3.*(1+(-1).*exp(1).^(E3.*NM) ...
           +E3.*NM)));
     end
+%}
+    valeq=case1Int(E1,E12,E3,NM);
     
+    if valeq<0 && isreal(E1) && isreal(E12) && isreal(E3)
+        sprintf('E1=%g, E12=%g, E3=%g',E1,E12,E3)
+        error('shouldnt be negitive')
+    end
+
+
+    %sprintf('valeq=%g+%gi',real(valeq),imag(valeq))
     S4=zeros(2,2,2,2);
     S4(1,1,1,1)=S4(1,1,1,1)+F(1)*N*valeq;
     S4(2,2,2,2)=S4(2,2,2,2)+F(2)*N*valeq;
+    
 end

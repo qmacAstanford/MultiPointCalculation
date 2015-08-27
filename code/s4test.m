@@ -8,7 +8,7 @@ GS_ON=0;
 RR_ON=0;
 
 %Chain structural information
-N=4;
+N=5;
 NM_WL=logspace(-1,1,1);
 NM_GS=1;
 NM_RR=1;
@@ -25,12 +25,12 @@ NumLayer=100;
 
 %wavevector and structure factor
 figure;hold;set(gca,'fontsize',10);leg=[];
-QM=logspace(-4,3,10);
+QM=logspace(-3,2,20);
 Q1=zeros(length(QM),1);
 Q2=zeros(length(QM),1);
 Q3=zeros(length(QM),1); 
 Q4=zeros(length(QM),1);
-ang1=pi/3.1;
+ang1=pi/3;
 ang2=pi-ang1;
 for ii=1:length(QM)
     pert1 = 0;%[1,0,0]*QM(ii)*1e-5;

@@ -29,7 +29,7 @@ if N<4
     return
 end
 
-    goodEnough=0.002;
+    goodEnough=0.001;
     
     if isreal(a) && isreal(b) && isreal(c)
         order=sort([c,b,a]);
@@ -73,6 +73,15 @@ end
             out=oa_bcz;
             return
         end  
+        
+        % a~b~c~z
+        abcz=a*b*c*(N-3);
+        abcz_ac=sum(abs([a,b,c]));
+        if abcz_ac<goodEnough
+            out=abcz;
+            return
+        end
+        
         
         % 1~a !~ b~c
         M1=[...
@@ -403,11 +412,6 @@ end
             out=oa_b_c;
             return
         end 
-        
-                
-        % a~b~c~z
-        abcz=a*b*c*(N-3);
-        abcz_ac=sum(abs([a,b,c]));
         
         % a !~ b~c~z  also includes 1~a !~ b~c~z
         a_bcz_ac=abs(b)+abs(c);
