@@ -52,7 +52,7 @@ for orderNum=1:24
         % if q2=0 we may as well point it perpendicular to the other two
         cosB1=0;
         cosB2=0;
-        alpha=dot(Q1_n,Q3_n);
+        alpha1=dot(Q1_n,Q3_n);
     elseif abs(Q2_n-Q1_n) < aligned
         cosB1=1;
         alpha1=0;
@@ -79,29 +79,10 @@ for orderNum=1:24
     R4mtrx=Eigenvalues(norm(q3),ORDEig,ORDL); % won't need all of output
     % index: (l+1,M+1)
     
-    GL1=Residues(norm(q1),R1mtrx,ORDEig,ORDL,NumLayer);  % won't need all of output
-    GLM12=Residues(norm(q2),R12mtrx,ORDEig,ORDL,NumLayer);
-    GL4=Residues(norm(q3),R4mtrx,ORDEig,ORDL,NumLayer);  % won't need all of output
+    GL1=Residues(norm(q1),R1mtrx,ORDEig,ORDL,NumLayer,1);  % won't need all of output
+    GLM12=Residues(norm(q2),R12mtrx,ORDEig,ORDL,NumLayer,ORDL);
+    GL4=Residues(norm(q3),R4mtrx,ORDEig,ORDL,NumLayer,1);  % won't need all of output
     % index: (lam1+1, lam2+1, mu+1, l+1)
-
-    display=0;
-    if display
-        disp('---------------------------')
-        sprintf('K1=%g, K12=%g, K4=%g',norm(q1),norm(q2),norm(q3))
-        disp('Q')
-        disp(Q)
-        format short
-        disp('Eigenvalues 12 (l+1,M+1)')
-        disp(R12mtrx)
-        disp('Residues 1 (lam2+1, mu+1, l+1)')
-        disp(squeeze(GL1(1,:,:,:)))
-        disp('Residues 12 (lam1+1, lam2+1, mu+1, l+1)')
-        disp(GLM12)
-        disp('firstD')
-        disp(firstD)
-        disp('secondD')
-        disp(secondD)
-    end
     
     
     for M=0:(ORDL-1)
@@ -128,15 +109,44 @@ for orderNum=1:24
                     Z12L=Z12*LAM;
                     Z4L=  Z4*LAM;
                     
-                    S4term=zeros(2,2,2,2);
-                    S4term=S4term+case1(N,NM,R1,R12,R4,F);
-                    S4term=S4term+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
-                    S4term=S4term+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
-                    S4term=S4term+case4(N,NM,R1,R12,R4,                Z4,Z4L,F,order);
-                    S4term=S4term+case5(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,       F,order);
-                    S4term=S4term+case6(N,NM,R1,R12,R4,       Z12,Z12L,Z4,Z4L,F,order);
-                    S4term=S4term+case7(N,NM,R1,R12,R4,Z1,Z1L,         Z4,Z4L,F,order);
-                    S4term=S4term+case8(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,Z4,Z4L,F,order);
+%                     S4term=zeros(2,2,2,2);
+%                     S4term=S4term+case1(N,NM,R1,R12,R4,F);
+%                     S4term=S4term+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
+%                     S4term=S4term+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
+%                     S4term=S4term+case4(N,NM,R1,R12,R4,                Z4,Z4L,F,order);
+%                     S4term=S4term+case5(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,       F,order);
+%                     S4term=S4term+case6(N,NM,R1,R12,R4,       Z12,Z12L,Z4,Z4L,F,order);
+%                     S4term=S4term+case7(N,NM,R1,R12,R4,Z1,Z1L,         Z4,Z4L,F,order);
+%                     S4term=S4term+case8(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,Z4,Z4L,F,order);
+
+                    valsne=zeros(2,2,2,8);
+                    valseq=zeros(8,1);
+                    
+                    valseq(1)=case1Int(R1,R12,R4,NM);
+                    valsne(:,:,:,1)=ones(2,2,2)*N;
+                    
+                    valseq(2)=case4Int(R4,R12,R1,NM);
+                    valsne(:,:,:,2)=case2sum(N,Z1,Z1L);
+                    
+                    valseq(3)=case3Int(R1,R12,R4,NM);
+                    valsne(:,:,:,3)=case3sum(N,Z12,Z12L);
+                    
+                    valseq(4)=case4Int(R1,R12,R4,NM); % Case 4: J1==J2==J3 <J4
+                    valsne(:,:,:,4)=case4sum(N,Z4,Z4L);
+                    
+                    valseq(5)=case6Int(R4,R12,R1,NM); % Case 5: J1 <J2 <J3==J4
+                    valsne(:,:,:,5)=case5sum(N,Z1,Z1L,Z12,Z12L);
+                    
+                    valseq(6)=case6Int(R1,R12,R4,NM); % Case 6: J1==J2 <J3 <J4
+                    valsne(:,:,:,6)=case6sum(N,Z12,Z12L,Z4,Z4L);
+                    
+                    valseq(7)=case7Int(R1,R12,R4,NM);% Case 7: J1 <J2==J3 <J4
+                    valsne(:,:,:,7)=case7sum(N,Z1,Z1L,Z4,Z4L);
+                    
+                    valseq(8)=case8Int(R1,R12,R4,NM);
+                    valsne(:,:,:,8)=case8sum(N,Z1,Z1L,Z12,Z12L,Z4,Z4L);
+                    
+                    S4term=BinomialSum(valseq,valsne,order,F);
                     
                     if isnan(S4term)
                         error('S4 term is NaN')
@@ -186,7 +196,7 @@ for orderNum=1:24
 %                     v3= ( squeeze(GL4((M+1):ORDL,1,1,L3)).*conj(secondD((M+1):ORDL,M+1)) ); % column mtrx by lam3
 %                     mtrx= squeeze(GLM12((M+1):ORDL,(M+1):ORDL,M+1,L2+1); % matrix (lam2,lam3)
 %                     RotTerm=v2*mtrx*v3;                   
-                    S4=S4+S4term*RotTerm;
+                    S4=S4+sum(S4term,5)*RotTerm;
 %                     sprintf('M=%d,K1=%g,K2=%g,K3=%g, L1=%d, L2=%d, L3=%d, S4term=%g+%gi, RotTerm=%g+%gi',...
 %                             M,norm(q1),norm(q2),norm(q3),L1,L2,L3,real(S4term(1,1,1,1)),imag(S4term(1,1,1,1)),real(RotTerm),imag(RotTerm))
                 end
@@ -194,18 +204,6 @@ for orderNum=1:24
         end
     end
     
-   
-    
-%{    
-    S4split(1,:,:,:,:)=squeeze(S4split(1,:,:,:,:))+case1(N,NM,R1,R12,R4,F);
-    S4split(2,:,:,:,:)=squeeze(S4split(2,:,:,:,:))+case2(N,NM,R1,R12,R4,Z1,Z1L,                F,order);
-    S4split(3,:,:,:,:)=squeeze(S4split(3,:,:,:,:))+case3(N,NM,R1,R12,R4,       Z12,Z12L,       F,order);
-    S4split(4,:,:,:,:)=squeeze(S4split(4,:,:,:,:))+case4(N,NM,R1,R12,R4,                Z4,Z4L,F,order);
-    S4split(5,:,:,:,:)=squeeze(S4split(5,:,:,:,:))+case5(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,       F,order);
-    S4split(6,:,:,:,:)=squeeze(S4split(6,:,:,:,:))+case6(N,NM,R1,R12,R4,       Z12,Z12L,Z4,Z4L,F,order);
-    S4split(7,:,:,:,:)=squeeze(S4split(7,:,:,:,:))+case7(N,NM,R1,R12,R4,Z1,Z1L,         Z4,Z4L,F,order);
-    S4split(8,:,:,:,:)=squeeze(S4split(8,:,:,:,:))+case8(N,NM,R1,R12,R4,Z1,Z1L,Z12,Z12L,Z4,Z4L,F,order);
-%}
    
 end
 
@@ -367,25 +365,27 @@ for L=0:(ORDL-1)
 end
 end
 
-function out=Residues(K,EigK,ORDEig,ORDL,NumLayer)
+function out=Residues(K,EigK,ORDEig,ORDL,NumLayer,ORDMU)
 % To speed this function up you may not need to return all M values,
 % you could separate out a ORDM
-% Returns a ORDL x ORDL x ORDL x ORDEig matrix
+% Returns a ORDL x ORDL x ORDMU x ORDEig matrix
 % Index (lam1+1, lam2+1, mu+1, l+1)
+% I haved included the ORDMU separate from ORDL to save computation time
 
 cutoff=10^(-11); % chosen by looking at graph
 
-largeK=glm(K,EigK,ORDEig,ORDL,NumLayer);
+largeK=glm(K,EigK,ORDEig,ORDL,NumLayer,ORDMU);
 
 smallK=zeros(ORDL,ORDL,ORDL,ORDEig)*NaN;
-out=zeros(ORDL,ORDL,ORDL,ORDEig)*NaN;
+out=zeros(ORDL,ORDL,ORDMU,ORDEig)*NaN;
 
 for lam1=0:ORDL-1
     for lam2=0:ORDL-1
         for iEig=1:ORDEig
-            for mu=0:min(lam1,lam2)
+            for mu=0:min([lam1,lam2,ORDMU-1])
+
                 smallK(lam1+1,lam2+1,mu+1,iEig)=SmallAsympRes(K,iEig,lam1,lam2,mu,3);
-                if smallK(lam1+1,lam2+1,mu+1,iEig) < cutoff
+                if abs(smallK(lam1+1,lam2+1,mu+1,iEig)) < cutoff
                     out(lam1+1,lam2+1,mu+1,iEig)=smallK(lam1+1,lam2+1,mu+1,iEig);
                 else
                     out(lam1+1,lam2+1,mu+1,iEig)=largeK(lam1+1,lam2+1,mu+1,iEig);
@@ -394,7 +394,6 @@ for lam1=0:ORDL-1
         end
     end
 end
-
 
 
 end
@@ -454,24 +453,23 @@ end
 GLK=Res1*Res2;
 end
 
-function GLMK=glm(K,EigK,ORDEig,ORDL,NumLayer)
+function GLMK=glm(K,EigK,ORDEig,ORDL,NumLayer,ORDMU)
 % output GLM(lamda1+1,lamda2+1,mu+1,l+1)
 % this function does not contain the small K limit
 % K is the magnitude
 % EigK: eigenvalues associated with K.  This is a ORDEig x ORDL matrix.
-GLMK=zeros(ORDL,ORDL,ORDL,ORDEig);
+GLMK=zeros(ORDL,ORDL,ORDMU,ORDEig);
 MIN=1e-10;
 
 if abs(K)<MIN
-    for M=0:(ORDL-1)
-    for L1=M:(ORDL-1)
-        GLMK(L1+1,L1+1,M+1,:)=1;
+    for M=0:(ORDMU-1)
+        for L1=M:(ORDL-1)
+            GLMK(L1+1,L1+1,M+1,:)=1;
+        end
     end
-    end
-
 else
  
-for M=0:(ORDL-1)
+for M=0:(ORDMU-1)
     AL=zeros(NumLayer,1);
     for iEig=1:ORDEig
         

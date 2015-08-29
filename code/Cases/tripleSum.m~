@@ -7,6 +7,11 @@ function out=tripleSum(a,b,N)
 %         end
 %     end
 % end
+if abs(a*b*c)<1e-100
+        out=0;
+        return 
+end
+
 if N<3
     out=0;
     return
@@ -25,6 +30,28 @@ else
     b=ab;
 end
 
+goodEnough=0.001;
+% 1ab
+oab=(-N*(N+1)*(N^2-3*N+2)/24)*(2-a-b)+...
+    N*(N+1)*(4*N-16)/24+N;
+oab_ac=max(N*(1-a),N*(1-b));
+if oab_ac<goodEnough
+    out=oab;
+    return
+end
+
+% a~b~0
+abz=-a*b*(2-N);
+abz_ac=abs(a)+abs(b);
+if abz_ac<goodEnough
+    out=abz;
+    return
+end
+
+% 1 !~ a !~ b~0
+% o_a_bz=-a*b*(a^2*(N-1)-a*(N-2)-a^N)/((a-b)*(a-1)^2);
+% o_a_bz_ac=
+
 % 1 a b
 M1=[...
     0   -1  2   -1;...
@@ -35,11 +62,15 @@ vL=[a^N,a^2,a,1];
 vR=[b^N,b^2,b,1]';
 prefac=-a*b/((a-b)*(1-a)^2*(1-b)^2);
 o_a_b=vL*M1*vR*prefac;
-ratio=abs( max(max(abs(kron(vL'),vR').*M1)))*prefac/o_a_b );
+ratio=abs( max(max(abs((vL')*(vR').*M1)))*prefac/o_a_b );
 if isnan(ratio)
     o_a_b_ac=100;
 else
     o_a_b_ac=ratio*10^(-ndigits);
+end
+if o_a_b_ac<goodEnough
+    out=o_a_b;
+    return
 end
 
 % 1 ab
@@ -56,17 +87,18 @@ vR=[(a-b)*N^2, (a-b)*N, a-b,N,1]';
 vL=(a*ones(1,8)).^([N+4,N+3,N+2,N+1,5,4,3,2]);
 prefac=1/(2*a*(1-a)^4);
 o_ab=vL*M1*vR*prefac;
-ratio=abs(max(max(abs(kron(vL',vR').*M1)))*prefac...
+ratio=abs(max(max(abs((vL')*(vR').*M1)))*prefac...
       /abs(o_ab));
 if isnan(ratio)
         o_ab_ac=100;
 else
     o_ab_ac=max(ratio*10^(-ndigits),N*abs((a-b)/a));
 end
-% 1ab
-oab=(-N*(N+1)*(N^2-3*N+2)/24)*(2-a-b)+...
-    N*(N+1)*(4*N-16)/24+N;
-oab_ac=max(N*(1-a),N*(1-b));
+if o_ab_ac<goodEnough
+    out=o_ab;
+    return
+end
+
 
 % 1a b
 M1=[...
@@ -80,21 +112,12 @@ vL=(b*ones(1,6)).^[N+2,N+1,4,3,2,1];
 vR=[N^3*(1-a),N^2*(1-a),N*(1-a),(1-a),N^2,N,1]';
 prefac=1/(-6*(1-b)^4);
 oa_b=vL*M1*vR*prefac;
-ratio=abs(max(max(abs(kron(vL',vR').*M1)))*prefac/oa_b);
+ratio=abs(max(max(abs((vL')*(vR').*M1)))*prefac/oa_b);
 if isnan(ratio)
     oa_b_ac=100;
 else
     oa_b_ac=max(ratio*10^(-ndigits),N*(1-a));
 end
-
-% a~b~0
-abz=-a*b*(2-N);
-abz_ac=abs(a)+abs(b);
-
-% 1 !~ a !~ b~0
-% o_a_bz=-a*b*(a^2*(N-1)-a*(N-2)-a^N)/((a-b)*(a-1)^2);
-% o_a_bz_ac=
-
 
 
  %[o_a_b_ac,o_ab_ac,oab_ac,oa_b_ac]

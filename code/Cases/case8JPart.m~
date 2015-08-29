@@ -20,7 +20,7 @@ function out=case8JPart(a,b,c,N)
 % hard on getting the relitive accuaracy for small output values.  Vary
 % large N values can also cause problems (eg N~100,000).
 % The variable "accuracy" can be used to estimate the accuaracy.
-if abs(a*b*c)<1e-60
+if abs(a*b*c)<1e-50
         out=0;
         return 
 end

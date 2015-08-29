@@ -1,5 +1,6 @@
-function S4=case1(N,NM,R1,R12,R3,F)
+function S4=case1(N,NM,R1,R12,R3,F)   
 % Case 1: J1==J2==J3==J4
+% if separate return both valeq and valne
     E1=R1;
     E12=R12;
     E3=R3;
@@ -62,10 +63,9 @@ function S4=case1(N,NM,R1,R12,R3,F)
         error('shouldnt be negitive')
     end
 
-
     %sprintf('valeq=%g+%gi',real(valeq),imag(valeq))
     S4=zeros(2,2,2,2);
     S4(1,1,1,1)=S4(1,1,1,1)+F(1)*N*valeq;
     S4(2,2,2,2)=S4(2,2,2,2)+F(2)*N*valeq;
-    
+
 end

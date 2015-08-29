@@ -7,6 +7,11 @@ function out=tripleSum(a,b,N)
 %         end
 %     end
 % end
+if abs(a*b)<1e-40
+        out=0;
+        return 
+end
+
 if N<3
     out=0;
     return

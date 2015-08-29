@@ -1,16 +1,39 @@
 function sandbox()
-NM=1.4;
-E1=0.54;
-E12=0.48;
-E3=0.38;
-addpath('Cases')
 
 
-expl(1,NM*E1)*(expl(1,-NM*E1)-expl(1,-NM*E12))*...
-              ( expl(2,NM*E3)*E12 - expl(2,NM*E12)*E3 )/...
-              (E1*E12*E3*(E12-E3)*(E1-E12))
+n=5000;
+A=rand(2,2,2,2,8);
 
-          
+tic()
+for ii=1:n
+    reshape(A(1,1,1,1,:),[8,1]);
+end
+toc()
+
+tic()
+for ii=1:n
+    squeeze(A(1,1,1,1,:));
+end
+toc()
+
+
+
+% NM=1.4;
+% E1=0.54;
+% E12=0.48;
+% E3=0.38;
+% addpath('Cases')
+% 
+% 
+% expl(1,NM*E1)*(expl(1,-NM*E1)-expl(1,-NM*E12))*...
+%               ( expl(2,NM*E3)*E12 - expl(2,NM*E12)*E3 )/...
+%               (E1*E12*E3*(E12-E3)*(E1-E12))
+% 
+% 
+
+
+
+
           
 % % 0~E1
 % valeq=(expl(1,NM*E3)*(expl(2,-NM*E12)+NM*E12*expl(1,-NM*E12))...

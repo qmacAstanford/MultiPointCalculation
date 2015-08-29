@@ -25,7 +25,7 @@ NumLayer=100;
 
 %wavevector and structure factor
 figure;hold;set(gca,'fontsize',10);leg=[];
-QM=logspace(-3,2,20);
+QM=logspace(-2,3,6);
 Q1=zeros(length(QM),1);
 Q2=zeros(length(QM),1);
 Q3=zeros(length(QM),1); 

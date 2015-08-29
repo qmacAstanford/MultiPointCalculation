@@ -7,7 +7,7 @@ function out = expl(m,x)
     if floor(m)~=m
         error('First arguement must be an interger');
     end
-    if isscalar(x)
+%    if isscalar(x)
         if abs(x) < 0.1
             if m==0
                 out=exp(x);
@@ -26,18 +26,20 @@ function out = expl(m,x)
                 out=out-x^j/fact(j+1); %the j+1 is becuase matlab starts at 1
             end
         end
-    else 
-        out=zeros(size(x));
-        for j = m:11
-            out=out+(abs(x)<0.1).*x.^j/factorial(j);
-        end
-        out=out+(abs(x)>=0.1).*exp(x);
-        if m==0
-            return
-        end
-        for j=0:m-1
-            out=out-(abs(x)>=0.1).*x.^j/factorial(j);
-        end
+%    else
 
-    end
+% Here is how to vertorize if needed
+%         out=zeros(size(x));
+%         for j = m:11
+%             out=out+(abs(x)<0.1).*x.^j/factorial(j);
+%         end
+%         out=out+(abs(x)>=0.1).*exp(x);
+%         if m==0
+%             return
+%         end
+%         for j=0:m-1
+%             out=out-(abs(x)>=0.1).*x.^j/factorial(j);
+%         end
+
+%    end
 end
