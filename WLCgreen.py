@@ -20,7 +20,7 @@ from numba import jit
 
 @jit(nopython=True)
 def get_a(lam,mu,d=3):
-    return np.sqrt((lam-mu)*(lam+mu+d-3)/((2*lam+d-2)*(2*lam+d-4)))
+    return np.sqrt((lam-mu)*(lam+mu+d-3)/                   float((2*lam+d-2)*(2*lam+d-4)))
 
 
 # ## Eigenvalues
