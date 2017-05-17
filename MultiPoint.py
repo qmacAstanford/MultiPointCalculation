@@ -226,7 +226,7 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
     if p2.K < K0cuttoff:
-        if lam0==0 and lam==0:
+        if lam0_2==0 and lam_2==0:
             return IAAAAresumK2is0(N*fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
         #else:
         #    return 0+0j
@@ -234,13 +234,13 @@ def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     tol = 10**-15
     for l1 in range(0,p1.ORDEig):
         e1=p1.eig[l1]
-        R1=p1.res[l1][lam0,lam]
+        R1=p1.res[l1][lam0_1,lam_1]
         for l2 in range(0,p2.ORDEig):
             e2=p2.eig[l2]
-            R2=p2.res[l2][lam0,lam]
+            R2=p2.res[l2][lam0_2,lam_2]
             for l3 in range(0,p3.ORDEig):
                 e3=p3.eig[l3]
-                R3=p3.res[l3][lam0,lam]
+                R3=p3.res[l3][lam0_3,lam_3]
                 #if abs(e2)<10**-7:
                 #    print('epsilon of zero incountered')
                 #    print('e1',e1,'e2',e2,'e3',e3)
@@ -250,12 +250,12 @@ def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
                 if abs(temp/(out+tol))<tol:
                     break
     
-    G1=p1.G0[lam0,lam]
-    G2=p2.G0[lam0,lam]
-    G3=p3.G0[lam0,lam]
-    dG1=p1.dG0[lam0,lam]
-    dG2=p2.dG0[lam0,lam]
-    dG3=p3.dG0[lam0,lam]
+    G1=p1.G0[lam0_1,lam_1]
+    G2=p2.G0[lam0_2,lam_2]
+    G3=p3.G0[lam0_3,lam_3]
+    dG1=p1.dG0[lam0_1,lam_1]
+    dG2=p2.dG0[lam0_2,lam_2]
+    dG3=p3.dG0[lam0_3,lam_3]
     
     out = out + N*fa*G1*G2*G3 + dG1*G2*G3 + G1*dG2*G3 + G1*G2*dG3
     return out
@@ -347,7 +347,7 @@ def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3):
 
 #@jit#(nopython=True)
 def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
-    if p2.K < K0cuttoff and lam0==0 and lam==0:
+    if p2.K < K0cuttoff and lam0_2==0 and lam_2==0:
         return IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
     fb=1.0-fa
     out=0.0+0.0j
@@ -414,7 +414,7 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
     
     G1=p1.G0[lam0_1,lam_1]
     dG1=p1.dG0[lam0_1,lam_1]
-    dG3=p3.dG0[lam0_2,lam_2]   
+    dG3=p3.dG0[lam0_3,lam_3]   
     
     for l3 in range(0,p3.ORDEig):
         e3=p3.eig[l3]
@@ -446,7 +446,7 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
 # In[25]:
 
 def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
-    if p2.K < K0cuttoff and lam0==0 and lam==0:
+    if p2.K < K0cuttoff and lam0_2==0 and lam_2==0:
         return IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
     fb=1.0-fa
     out=0.0+0.0j
@@ -515,6 +515,6 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
 
 def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
     fb=1.0-fa
-    out=IAAresum(N*fa,lam0_1,lam_1,p1)*IAAresum(N*fb,lam0_3,lam_3,p3)
+    out=IAAresum(N,fa,lam0_1,lam_1,p1)*IAAresum(N,fb,lam0_3,lam_3,p3)
     return out
 
