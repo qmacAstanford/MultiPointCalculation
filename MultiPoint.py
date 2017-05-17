@@ -54,7 +54,7 @@ def IAAresum(N,fa,lam0,lam,p1):
         #out=out-res[l][lam0,lam]*(eig[l]**-2)
         #out=out-res[l][lam0,lam]*(N/eig[l])
         
-    out=out+N*G0[lam0,lam]
+    out=out+N*fa*G0[lam0,lam]
     out=out+dG0[lam0,lam]
     return out*2
 
