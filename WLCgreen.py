@@ -67,7 +67,7 @@ def make_E(n,mu,K,d=3):
             right=-1j*get_a(j+mu,mu,d) # for above diagonal
             if row>0:
                 left=-1j*get_a(j+mu-1,mu,d) # for below diagonal
-            diag=(mu+j-1)*(mu+j+d-3)/K # diagonal element
+            diag=(mu+j-1)*(mu+j+d-3.0)/K # diagonal element
             if row==0:
                 E[row,0:2]=[diag,right]
             elif row==n-1:
@@ -82,7 +82,7 @@ def make_E(n,mu,K,d=3):
 # Returns top ORDEig eigenvalus using Intermediate K methode
 #@jit #(nopython=True)
 def IntermediateKEigenValues(K,ORDEig,mu,d=3):
-    N=int(2*(np.ceil(ORDEig/2))) # Eigenvalues come in pairs
+    N=int(2*(np.ceil(ORDEig/2.0))) # Eigenvalues come in pairs
     
     n=int(4*N) # Calculate extra 
     E=make_E(n,mu,K,d)
@@ -114,15 +114,15 @@ def IntermediateKEigenValues(K,ORDEig,mu,d=3):
 # implementation equivalent to table II fore E
 def Epsilon(l,d,alpha,mu):
     beta=-np.sqrt(2)/4*(1+1j);
-    m=mu+(d-3)/2;  # Q.J.M. changes this line 8/1/15
+    m=mu+(d-3)/2.0;  # Q.J.M. changes this line 8/1/15
     n=2*l+m+1;  # also know as s
 
-    epsilon_0=(-1/2/beta)**(-1)*(n/2);
-    epsilon_1=(-1/2/beta)**( 0)*(-1/8*(n**2+3-3*m**2)-m*(m+1));
-    epsilon_2=(-1/2/beta)**( 1)*(-1/2**5*n*(n**2+3-9*m**2));
-    epsilon_3=(-1/2/beta)**( 2)*(-1/2**8*(5*n**4+34*n**2+9)-(102*n**2+42)*m**2+33*m**4);
-    epsilon_4=(-1/2/beta)**( 3)*(-1/2**11*n*(33*n**4+410*n**2+405)-(1230*n**2+1722)*m**2                                        +813*m**4);
-    epsilon_5=(-1/2/beta)**( 4)*(-1/2**12*9*(7*n**6+140*n**4+327*n**2                                        +54-(420*n**4+1350*n**2+286)*m**2                                        +(495*n**2+314)*m**4-82*m**6));
+    epsilon_0=(-1.0/2/beta)**(-1)*(n/2.0);
+    epsilon_1=(-1.0/2/beta)**( 0)*(-1.0/8*(n**2+3-3*m**2)-m*(m+1));
+    epsilon_2=(-1.0/2/beta)**( 1)*(-1.0/2**5*n*(n**2+3-9*m**2));
+    epsilon_3=(-1.0/2/beta)**( 2)*(-1.0/2**8*(5*n**4+34*n**2+9)-(102*n**2+42)*m**2+33*m**4);
+    epsilon_4=(-1.0/2/beta)**( 3)*(-1.0/2**11*n*(33*n**4+410*n**2+405)-(1230*n**2+1722)*m**2                                        +813*m**4);
+    epsilon_5=(-1.0/2/beta)**( 4)*(-1.0/2**12*9*(7*n**6+140*n**4+327*n**2                                        +54-(420*n**4+1350*n**2+286)*m**2                                        +(495*n**2+314)*m**4-82*m**6));
 
     value=epsilon_0/alpha+epsilon_1+epsilon_2*alpha+epsilon_3*alpha**2+           epsilon_4*alpha**3+epsilon_5*alpha**4;
     return value
@@ -138,8 +138,8 @@ def Epsilon(l,d,alpha,mu):
 def LargeKEigenValues(k,ORDEig,mu,d=3):
     Eig=np.zeros(ORDEig+1,dtype='complex')*np.NaN
     for l in range(0,ORDEig,2):
-        alpha=1/np.sqrt(8*k)
-        Eig[l]=1j*k-mu*(mu+d-2)-Epsilon(l/2,d,alpha,mu)
+        alpha=1.0/np.sqrt(8*k)
+        Eig[l]=1j*k-mu*(mu+d-2)-Epsilon(l/2.0,d,alpha,mu)
         Eig[l+1]=np.conj(Eig[l])
         
     out=np.zeros(ORDEig,'complex')*np.NaN

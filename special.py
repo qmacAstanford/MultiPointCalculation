@@ -24,11 +24,11 @@ def expl(x,n,maxn=15):
     if abs(x)<0.001:
         out=0
         for ii in range(n,maxn):
-            out=out+x**ii/np.math.factorial(ii)
+            out=out+x**ii/float(np.math.factorial(ii))
     else:
         out=np.exp(x)
         for ii in range(0,n):
-            out=out-x**ii/np.math.factorial(ii) 
+            out=out-x**ii/float(np.math.factorial(ii))
     return out
 
 
@@ -69,28 +69,28 @@ def f2(j,e1,e2,N):
     tol=0.001
     nmax=10
     if abs(e2-e1)<tol:
-        x=(e2-e1)/2
-        y=(e2+e1)/2
+        x=(e2-e1)/2.0
+        y=(e2+e1)/2.0
         if j == 1:
             out=0.0
             for n in range(0,nmax+1,2):
                 temp=0.0
                 for m in seq(0,n+1):
-                    temp=temp-(-N*y)**m / fact[m]
+                    temp=temp-(-N*y)**m / float(fact[m])
                 out=out+temp*(x**n)*np.exp(N*y)*(y**(-n-2))
         elif j == 2:
             out=0.0
             for n in range(0,nmax+1,2):
                 temp=0.0
                 for m in seq(0,n+1):
-                    temp=temp-(n+2-m)*(-N*y)**m / fact[m]
+                    temp=temp-(n+2-m)*(-N*y)**m / float(fact[m])
                 out=out+temp*(x**n)*np.exp(N*y)*(y**(-n-3))
         elif j== 3:
             out=0.0
             for n in range(0,nmax+1,2):
                 temp=0.0
                 for m in seq(0,n+1):
-                    temp=temp-0.5*(n+3-m)*(n+2-m)*(-N*y)**m / fact[m]
+                    temp=temp-0.5*(n+3-m)*(n+2-m)*(-N*y)**m / float(fact[m])
                 out=out+temp*(x**n)*np.exp(N*y)*(y**(-n-4))
     else:
         out=(np.exp(N*e1)/(e1**j) - np.exp(N*e2)/(e2**j))/(e1-e2)
