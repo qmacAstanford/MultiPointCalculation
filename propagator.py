@@ -1,13 +1,13 @@
 
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 import numpy as np
 import WLCgreen as wlc
 
 
-# In[13]:
+# In[2]:
 
 class propagator:
     
@@ -144,4 +144,56 @@ class propagator:
             self.otherG.update({name: self.get_G_matrix(eig)})
             return self.otherG[name][lam0,lam,:]
             
+
+
+# In[3]:
+
+class vectorPropagator:
+    
+    def __init__(self,kvec,nlam=10,lamMax=500,ORDEig=25,d=3):
+        self.kvec = kvec
+        self.lamMax = lamMax
+        self.nlam = nlam
+        self.ORDEig = ORDEig
+        self.d =d  
+        
+        self.mu_dict = {} # dictionary of scalar propagators
+        self.D= None # Wigner D matrix
+        
+    def prop(self,mu):
+        if mu in self.mu_dict:
+            # Already exists, just return it
+            return self.mu_dict[mu]
+        else:
+            # Calculate
+            name=(mu,self.kvec)
+            self.mu_dict[mu]=propagator(name,                                        np.linalg.norm(self.kvec),                                        mu,                                        nlam=self.nlam,                                        lamMax=self.lamMax,                                        ORDEig=self.ORDEig,                                        d=self.d)
+            return self.mu_dict[mu]        
+
+
+# In[4]:
+
+# Set of propagators being used in a particular problem.
+# This reuses propagators rather than recalculate them.
+class prop_set:
+    
+    def __init__(self,ktol=10**-14,nlam=10,lamMax=500,ORDEig=25,d=3):
+        self.ktol = ktol
+        self.ndecimals = int(np.ceil(-np.log10(ktol)))
+        self.lamMax = lamMax
+        self.nlam = nlam
+        self.ORDEig = ORDEig
+        self.d =d         
+        self.prop_dict = {}
+    
+    def get_vec_prop(self,kvec):
+        kapprox  = np.round(np.array(kvec),self.ndecimals)
+        key=(kapprox[0],kapprox[1],kapprox[2])
+        if key in self.prop_dict:
+            return self.prop_dict[key]
+        else:
+            self.prop_dict[key]=vectorPropagator(kapprox,                                                     self.nlam,                                                     self.lamMax,                                                     self.ORDEig,                                                     self.d)
+            return self.prop_dict[key]
+        
+        
 
