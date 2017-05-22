@@ -958,3 +958,8 @@ def bothResidues(K,eig,l,mu,nlam=10,d=3):
             resSmall[lam0,lam]=SmallAysmpRes(K,l,lam,lam0,mu,d=d)
     return res, resSmall
 
+
+# In[ ]:
+
+
+
