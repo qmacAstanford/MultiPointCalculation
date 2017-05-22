@@ -27,7 +27,7 @@ def IAAexplicit(N,fa,lam0,lam,p1):
     eig=p1.eig
     res=p1.res
     out=0.0
-    for l in range(0,len(eig)):
+    for l in range(p1.mu,p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
         #out=out+2*R*((np.exp(N*eps)-1)/(eps**2)-N/eps)
@@ -47,9 +47,8 @@ def IAAresum(N,fa,lam0,lam,p1):
     eig=p1.eig
     G0=p1.G0
     dG0=p1.dG0
-    ORDEig=len(eig)
     out = 0.0
-    for l in range(0,ORDEig):
+    for l in range(p1.mu,p1.ORDEig):
         out=out+np.exp(eig[l]*N*fa)*(eig[l]**-2)*res[l][lam0,lam]
         #out=out-res[l][lam0,lam]*(eig[l]**-2)
         #out=out-res[l][lam0,lam]*(N/eig[l])
@@ -73,7 +72,7 @@ def IABexplicit(N,fa,lam0,lam,p1):
     res=p1.res
     fb=1-fa
     out=0.0
-    for l in range(0,len(eig)):
+    for l in range(p1.mu,p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
         out=out+2*R*(sp.expl(N*fa*eps,1)*sp.expl(N*fb*eps,1))/(eps**2)
@@ -95,7 +94,7 @@ def IABresum(N,fa,lam0,lam,p1):
     dG0=p1.dG0
     fb=1-fa
     out=0.0
-    for l in range(0,len(eig)):
+    for l in range(p1.mu,p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
         out=out+2*R*(np.exp(N*eps) - np.exp(N*fa*eps) - np.exp(N*fb*eps))/(eps**2)
@@ -116,8 +115,8 @@ def IABresum(N,fa,lam0,lam,p1):
 
 def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             eps1=p1.eig[l1]
             eps2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -136,8 +135,8 @@ def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0
     tol=10**-6
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             eps1=p1.eig[l1]
             eps2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -155,13 +154,13 @@ def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 def IAAAresumOld(N,lam0,lam,p1,p2):
     out=0.0+0.0j
-    for l in range(0,p1.ORDEig):
+    for l in range(p1.mu,p1.ORDEig):
         eps=p1.eig[l]
         R=p1.res[l][lam0,lam]
         G=p2.G_other(lam0,lam,p2,l)
         out=out+(eps**-2)*np.exp(eps*N)*R
         
-    for l in range(0,p2.ORDEig):
+    for l in range(p2.mu,p2.ORDEig):
         eps=p2.eig[l]
         R=p2.res[l][lam0,lam]
         G=p1.G_other(lam0,lam,p1,l)
@@ -186,8 +185,8 @@ def IAAAresumOld(N,lam0,lam,p1,p2):
 def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
     fb=1.0-fa
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -196,14 +195,14 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
             out=out+R1*R2*(np.exp(N*fa*e1)*sp.f2(1,e1,e2,N*fb)/e1                            - sp.f2(2,e1,e2,N*fb))
     
     temp=0.0
-    for l2 in range(0,p2.ORDEig):     
+    for l2 in range(p2.mu,p2.ORDEig):     
         e2=p2.eig[l2]
         R2=p2.res[l2][lam0_2,lam_2]
         temp=temp+R2*np.exp(N*fb*e2)/(e2**2)
     out = out + temp*p1.G0[lam0_1,lam_1]
          
     temp=0.0
-    for l1 in range(0,p1.ORDEig):     
+    for l1 in range(p1.mu,p1.ORDEig):     
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
         temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
@@ -226,25 +225,25 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
     if p2.K < K0cuttoff:
-        if lam0_2==0 and lam_2==0:
-            return IAAAAresumK2is0(N*fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
-        #else:
-        #    return 0+0j
+            return IAAAAresumK2is0(N,fa,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,p1,p3)
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(0,p1.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(0,p2.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(0,p3.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
                 #if abs(e2)<10**-7:
                 #    print('epsilon of zero incountered')
                 #    print('e1',e1,'e2',e2,'e3',e3)
                 #    print('l1',l1,'l2',l2,'l3',l3)
+                if lam_1 == 1 and lam_2 ==1 and p2.mu ==0 and p2.K<K0cuttoff:
+                    print('e1',e1,'e2',e2,'e3',e3)
+                    print('Error, Need to evaluate only one ')
                 temp= - R1*R2*R3*sp.f3(2,e1,e2,e3,N*fa)
                 out=out+temp
                 if abs(temp/(out+tol))<tol:
@@ -267,39 +266,66 @@ def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
 
 # In[20]:
 
-def IAAAAresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3):
-    out=0.0+0.0j
-    for l1 in range(0,p1.ORDEig):
-        for l3 in range(0,p3.ORDEig): 
-            e1=p1.eig[l1]
-            e3=p1.eig[l3]
-            R1=p1.res[l1][lam0_1,lam_1]
-            R3=p3.res[l3][lam0_3,lam_3]
-            
-            out=out+R1*R3*sp.f2(3,e1,e3,N*fa)
-            
-    G1=p1.G0[lam0_1,lam_1]
-    G3=p3.G0[lam0_3,lam_3]
-    dG1=p1.dG0[lam0_1,lam_1]
-    dG3=p3.dG0[lam0_3,lam_3]    
-    
-    #This look can be replaced by next derivative
-    ddG1=0.0
-    for l1 in range(0,p1.ORDEig):
-        e1=p1.eig[l1]
-        R1=p1.res[l1][lam0_1,lam_1]
-        ddG1=ddG1-R1/(e1**3) 
-       
-    #This look can be replaced by next derivative
-    ddG3=0.0
-    for l3 in range(0,p3.ORDEig):
-        e3=p3.eig[l3]
-        R3=p3.res[l3][lam0_3,lam_3]
-        ddG3=ddG3-R3/(e3**3) 
-    
-    out=out+G1*ddG3 + dG1*dG3 + ddG1*G3 +         N*fa*G1*dG3 + N*fa*dG1*G3+0.5*N*fa*N*fa*G1*G3
+def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,                         lam0_3,lam_3,p1,p3):
+    if lam0_2 != lam_2:
+        return 0.0
+    elif lam0_2==0 and lam_2==0:
+        out=0.0+0.0j
+        for l1 in range(p1.mu,p1.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig): 
+                e1=p1.eig[l1]
+                e3=p1.eig[l3]
+                R1=p1.res[l1][lam0_1,lam_1]
+                R3=p3.res[l3][lam0_3,lam_3]
 
-    return out
+                out=out+R1*R3*sp.f2(3,e1,e3,N*fa)
+
+        G1=p1.G0[lam0_1,lam_1]
+        G3=p3.G0[lam0_3,lam_3]
+        dG1=p1.dG0[lam0_1,lam_1]
+        dG3=p3.dG0[lam0_3,lam_3]    
+
+        #This look can be replaced by next derivative
+        ddG1=0.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            ddG1=ddG1-R1/(e1**3) 
+
+        #This look can be replaced by next derivative
+        ddG3=0.0
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]
+            ddG3=ddG3-R3/(e3**3) 
+
+        out=out+G1*ddG3 + dG1*dG3 + ddG1*G3 +             N*fa*G1*dG3 + N*fa*dG1*G3+0.5*N*fa*N*fa*G1*G3
+        return out
+    else: # lam_2 == lam_2
+        out=0.0+0.0j
+        tol = 10**-15
+        e2=-lam_2*(lam_2 + p1.d -2)
+        R2=1.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            for l3 in range(p3.mu,p3.ORDEig):
+                e3=p3.eig[l3]
+                R3=p3.res[l3][lam0_3,lam_3]
+                temp= - R1*R2*R3*sp.f3(2,e1,e2,e3,N*fa)
+                out=out+temp
+
+        
+        G1=p1.G0[lam0_1,lam_1]
+        G2=-1.0/e2
+        G3=p3.G0[lam0_3,lam_3]
+        dG1=p1.dG0[lam0_1,lam_1]
+        dG2=-1.0/(e2**2)
+        dG3=p3.dG0[lam0_3,lam_3]
+
+        out = out + N*fa*G1*G2*G3 + dG1*G2*G3 + G1*dG2*G3 + G1*G2*dG3        
+        return out
+    
 
 
 # In[21]:
@@ -321,9 +347,9 @@ def case1(e1,e2,e3,N):
 def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3):
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
-            for l3 in range(0,p3.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig):
                 e1=p1.eig[l1]
                 e2=p2.eig[l2]
                 e3=p3.eig[l3]
@@ -347,18 +373,18 @@ def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3):
 
 #@jit#(nopython=True)
 def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
-    if p2.K < K0cuttoff and lam0_2==0 and lam_2==0:
-        return IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
+    if p2.K < K0cuttoff:
+        return IAAABresumK2is0(N,fa,lam0_1,lam_1                               ,lam0_2,lam_2                               ,lam0_3,lam_3,p1,p3)
     fb=1.0-fa
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(0,p1.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(0,p2.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(0,p3.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
@@ -372,8 +398,8 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     G3=p3.G0[lam0_3,lam_3]          
                 
     temp=0.0
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -382,7 +408,7 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out+temp*G3
             
     temp=0.0    
-    for l3 in range(0,p3.ORDEig):
+    for l3 in range(p3.mu,p3.ORDEig):
         e3=p3.eig[l3]
         R3=p3.res[l3][lam0_3,lam_3]
         temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
@@ -400,38 +426,77 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
 
 # In[24]:
 
-def IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
-    fb=1.0-fa
-    out=0.0+0.0j
-    for l1 in range(0,p1.ORDEig):
-        for l3 in range(0,p3.ORDEig): 
-            e1=p1.eig[l1]
-            e3=p1.eig[l3]
-            R1=p1.res[l1][lam0_1,lam_1]
-            R3=p3.res[l3][lam0_3,lam_3]
-            
-            out=out+R1*R3*sp.f2(2,e1,e3,N*fa)*(np.exp(N*fb*e3)-1)/e3
-    
-    G1=p1.G0[lam0_1,lam_1]
-    dG1=p1.dG0[lam0_1,lam_1]
-    dG3=p3.dG0[lam0_3,lam_3]   
-    
-    for l3 in range(0,p3.ORDEig):
-        e3=p3.eig[l3]
-        R3=p3.res[l3][lam0_3,lam_3]
-        out=out-G1*R3*np.exp(N*fb*e3)*(1+N*fa*e3)/(e3**3)
-        out=out-dG1*R3*np.exp(N*fb*e3)/(e3**2)
-       
-    #This look can be replaced by next derivative
-    ddG3=0.0
-    for l3 in range(0,p3.ORDEig):
-        e3=p3.eig[l3]
-        R3=p3.res[l3][lam0_3,lam_3]
-        ddG3=ddG3-R3/(e3**3) 
-    
-    out=out-G1*ddG3-dG1*dG3-N*fa*G1*dG3
+def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2                        ,lam0_3,lam_3                        ,p1,p3):
+    if lam0_2 != lam_2:
+        return 0.0
+    elif lam0_2==0 and lam_2==0:
+        fb=1.0-fa
+        out=0.0+0.0j
+        for l1 in range(p1.mu,p1.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig): 
+                e1=p1.eig[l1]
+                e3=p1.eig[l3]
+                R1=p1.res[l1][lam0_1,lam_1]
+                R3=p3.res[l3][lam0_3,lam_3]
 
-    return out
+                out=out+R1*R3*sp.f2(2,e1,e3,N*fa)*(np.exp(N*fb*e3)-1)/e3
+
+        G1=p1.G0[lam0_1,lam_1]
+        dG1=p1.dG0[lam0_1,lam_1]
+        dG3=p3.dG0[lam0_3,lam_3]   
+
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]
+            out=out-G1*R3*np.exp(N*fb*e3)*(1+N*fa*e3)/(e3**3)
+            out=out-dG1*R3*np.exp(N*fb*e3)/(e3**2)
+
+        #This look can be replaced by next derivative
+        ddG3=0.0
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]
+            ddG3=ddG3-R3/(e3**3) 
+
+        out=out-G1*ddG3-dG1*dG3-N*fa*G1*dG3
+        return out
+    else: # lam_2 == lam_2
+        fb=1.0-fa
+        out=0.0+0.0j
+        tol = 10**-15
+        e2=-lam_2*(lam_2 + p1.d -2)
+        R2=1.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            for l3 in range(p3.mu,p3.ORDEig):
+                e3=p3.eig[l3]
+                R3=p3.res[l3][lam0_3,lam_3]
+
+                temp= R1*R2*R3*( sp.f3(2,e1,e2,e3,N*fa) -                                 np.exp(N*fb*e3)*                                 sp.f3(1,e1,e2,e3,N*fa)/e3 )
+                out=out+temp
+
+        G1=p1.G0[lam0_1,lam_1]
+        G2=-1.0/e2
+        G3=p3.G0[lam0_3,lam_3]          
+
+        temp=0.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]  
+            temp=temp+R1*R2*sp.f2(2,e1,e2,N*fa)
+        out=out+temp*G3
+
+        temp=0.0    
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]
+            temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
+        out=out-temp*G1*G2
+
+        out = out - G1*G2*p3.dG0[lam0_3,lam_3] 
+        
+        return out        
 
 
 # ### AABB
@@ -446,18 +511,18 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
 # In[25]:
 
 def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
-    if p2.K < K0cuttoff and lam0_2==0 and lam_2==0:
-        return IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3,p1,p3)
+    if p2.K < K0cuttoff:
+            return IAABBresumK2is0(N,fa,lam0_1,lam_1                                       ,lam0_2,lam_2                                       ,lam0_3,lam_3,p1,p3)
     fb=1.0-fa
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(0,p1.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(0,p2.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(0,p3.ORDEig):
+            for l3 in range(p3.mu,p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
@@ -470,8 +535,8 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     G3=p3.G0[lam0_3,lam_3]
            
     temp=0.0
-    for l1 in range(0,p1.ORDEig):
-        for l2 in range(0,p2.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
+        for l2 in range(p2.mu,p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -480,8 +545,8 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out-temp*G3
 
     temp=0.0
-    for l2 in range(0,p2.ORDEig):
-        for l3 in range(0,p3.ORDEig):
+    for l2 in range(p2.mu,p2.ORDEig):
+        for l3 in range(p3.mu,p3.ORDEig):
             e3=p3.eig[l3]
             e2=p2.eig[l2]
             R3=p3.res[l3][lam0_3,lam_3]
@@ -490,14 +555,14 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out-temp*G1    
 
     temp=0.0    
-    for l1 in range(0,p1.ORDEig):
+    for l1 in range(p1.mu,p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
         temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
     out=out+temp*G2*G3    
     
     temp=0.0    
-    for l3 in range(0,p3.ORDEig):
+    for l3 in range(p3.mu,p3.ORDEig):
         e3=p3.eig[l3]
         R3=p3.res[l3][lam0_3,lam_3]
         temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
@@ -513,8 +578,61 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
 
 # In[26]:
 
-def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_3,lam_3                    ,p1,p3):
-    fb=1.0-fa
-    out=IAAresum(N,fa,lam0_1,lam_1,p1)*IAAresum(N,fb,lam0_3,lam_3,p3)
-    return out
+def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                    ,p1,p3):
+    if lam0_2 != lam_2:
+        return 0.0
+    elif lam0_2==0 and lam_2==0:
+        fb=1.0-fa
+        out=IAAresum(N,fa,lam0_1,lam_1,p1)*IAAresum(N,fb,lam0_3,lam_3,p3)
+        return out
+    else:
+        fb=1.0-fa
+        out=0.0+0.0j
+        tol = 10**-15
+        e2=-lam_2*(lam_2 + p1.d -2)
+        R2=1.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            for l3 in range(p3.mu,p3.ORDEig):
+                e3=p3.eig[l3]
+                R3=p3.res[l3][lam0_3,lam_3]
+
+                temp= R1*R2*R3*( sp.f2(1,e1,e2,N*fa)*sp.f2(1,e2,e3,N*fb) )
+                out=out+temp
+                
+        G1=p1.G0[lam0_1,lam_1]
+        G2=-1.0/e2
+        G3=p3.G0[lam0_3,lam_3]
+
+        temp=0.0
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]  
+            temp=temp+R1*R2*sp.f2(2,e1,e2,N*fa)
+        out=out-temp*G3
+
+        temp=0.0
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]  
+            temp=temp+R2*R3*sp.f2(2,e2,e3,N*fb)
+        out=out-temp*G1    
+
+        temp=0.0    
+        for l1 in range(p1.mu,p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
+        out=out+temp*G2*G3    
+
+        temp=0.0    
+        for l3 in range(p3.mu,p3.ORDEig):
+            e3=p3.eig[l3]
+            R3=p3.res[l3][lam0_3,lam_3]
+            temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
+        out=out+temp*G1*G2
+
+        out = out - G1*(-1.0/(e2**2))*G3
+        return out
 
