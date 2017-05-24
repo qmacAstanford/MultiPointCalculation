@@ -15,7 +15,11 @@ class propagator:
     def __init__(self,name,K,mu,nlam=10,lamMax=500,ORDEig=25,d=3):
         self.name = name
         self.K = K
-        self.mu = mu
+        if d != 3 and mu <0:
+            print('Error in propagator:')
+            print('I assumed that G(mu)=G(-mu).')
+            print('This appears to be only true if d=3.')
+        self.mu = abs(mu)
         self.lamMax = lamMax
         self.nlam = nlam
         self.ORDEig = ORDEig
@@ -35,9 +39,14 @@ class propagator:
         eigvals = wlc.wlc_eigvals(K,ORDEig,mu,d=d)
         eig=[]
         res=[]
-        for l in range(mu,ORDEig):
-            eig.append(eigvals[l])
-            res.append(wlc.residues(K,eigvals[l],l,mu,nlam=nlam,d=d))
+        
+        for l in range(0,ORDEig):
+            if l<mu:
+                eig.append(np.NaN)
+                res.append(np.NaN)
+            else:
+                eig.append(eigvals[l])
+                res.append(wlc.residues(K,eigvals[l],l,mu,nlam=nlam,d=d))
         return eig, res
     
     # Calculate G(0) and dG(0)/dp
@@ -51,7 +60,7 @@ class propagator:
         if K<10**-10: # special K=0 case
             G0=np.zeros((nlam,nlam),dtype=type(1+1j))
             dG0=np.zeros((nlam,nlam),dtype=type(1+1j))
-            for lam0 in range(mu,nlam):
+            for lam0 in range(abs(mu),nlam):
                 lam=lam0 # zero unless lam=lam0
                 # G= 1/( p + lam*(lam+d-2) )
                 if lam0==0: # pole at G(0)
@@ -77,8 +86,8 @@ class propagator:
         
         G0=np.zeros((nlam,nlam),dtype=type(1+1j))*np.NaN
         dG0=np.zeros((nlam,nlam),dtype=type(1+1j))*np.NaN
-        for lam0 in range(mu,nlam):
-            for lam in range(mu,nlam):
+        for lam0 in range(abs(mu),nlam):
+            for lam in range(abs(mu),nlam):
                 a=1
                 G0[lam0,lam]=wlc.get_G_zero(lam,lam0,mu,K,jm,jp,W,d)
                 dG0[lam0,lam]=wlc.get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d)
@@ -98,8 +107,8 @@ class propagator:
             jp=wlc.get_jp(p,mu,K,lamMax)
             jm=wlc.get_jm(p,mu,K,lamMax)
             W=wlc.get_W(p,mu,K,lamMax,jp,jm)
-            for lam0 in range(mu,nlam):
-                for lam in range(mu,nlam):
+            for lam0 in range(abs(mu),nlam):
+                for lam in range(abs(mu),nlam):
                     out[lam0,lam,ii]=wlc.get_G(p,lam,lam0,mu,K,jm,jp,W)
         return out
     
@@ -161,17 +170,21 @@ class vectorPropagator:
         self.D= None # Wigner D matrix
         
     def prop(self,mu):
-        if mu in self.mu_dict:
+        if abs(mu) in self.mu_dict:
             # Already exists, just return it
-            return self.mu_dict[mu]
+            return self.mu_dict[abs(mu)]
         else:
+            if self.d != 3 and mu <0:
+                print('Error in vectorPropagator')
+                print('I assumed that G(mu)=G(-mu).')
+                print('This appears to be only true if d=3.')
             # Calculate
-            name=(mu,self.kvec)
-            self.mu_dict[mu]=propagator(name,                                        np.linalg.norm(self.kvec),                                        mu,                                        nlam=self.nlam,                                        lamMax=self.lamMax,                                        ORDEig=self.ORDEig,                                        d=self.d)
-            return self.mu_dict[mu]        
+            name=(abs(mu),self.kvec)
+            self.mu_dict[abs(mu)]=propagator(name,                                        np.linalg.norm(self.kvec),                                        abs(mu),                                        nlam=self.nlam,                                        lamMax=self.lamMax,                                        ORDEig=self.ORDEig,                                        d=self.d)
+            return self.mu_dict[abs(mu)]        
 
 
-# In[4]:
+# In[5]:
 
 # Set of propagators being used in a particular problem.
 # This reuses propagators rather than recalculate them.
@@ -196,4 +209,9 @@ class prop_set:
             return self.prop_dict[key]
         
         
+
+
+# In[ ]:
+
+
 

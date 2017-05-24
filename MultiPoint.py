@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 import numpy as np
 import WLCgreen as wlc
@@ -27,11 +27,11 @@ def IAAexplicit(N,fa,lam0,lam,p1):
     eig=p1.eig
     res=p1.res
     out=0.0
-    for l in range(p1.mu,p1.ORDEig):
+    for l in range(abs(p1.mu),p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
         #out=out+2*R*((np.exp(N*eps)-1)/(eps**2)-N/eps)
-        out=out+2*R*sp.expl(N*fa*eps,2)/(eps**2)
+        out=out+R*sp.expl(N*fa*eps,2)/(eps**2)
     return out  
 
 
@@ -48,14 +48,14 @@ def IAAresum(N,fa,lam0,lam,p1):
     G0=p1.G0
     dG0=p1.dG0
     out = 0.0
-    for l in range(p1.mu,p1.ORDEig):
+    for l in range(abs(p1.mu),p1.ORDEig):
         out=out+np.exp(eig[l]*N*fa)*(eig[l]**-2)*res[l][lam0,lam]
         #out=out-res[l][lam0,lam]*(eig[l]**-2)
         #out=out-res[l][lam0,lam]*(N/eig[l])
         
     out=out+N*fa*G0[lam0,lam]
     out=out+dG0[lam0,lam]
-    return out*2
+    return out
 
 
 # ### AB
@@ -72,10 +72,10 @@ def IABexplicit(N,fa,lam0,lam,p1):
     res=p1.res
     fb=1-fa
     out=0.0
-    for l in range(p1.mu,p1.ORDEig):
+    for l in range(abs(p1.mu),p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
-        out=out+2*R*(sp.expl(N*fa*eps,1)*sp.expl(N*fb*eps,1))/(eps**2)
+        out=out+R*(sp.expl(N*fa*eps,1)*sp.expl(N*fb*eps,1))/(eps**2)
     return out   
 
 
@@ -94,11 +94,11 @@ def IABresum(N,fa,lam0,lam,p1):
     dG0=p1.dG0
     fb=1-fa
     out=0.0
-    for l in range(p1.mu,p1.ORDEig):
+    for l in range(abs(p1.mu),p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
-        out=out+2*R*(np.exp(N*eps) - np.exp(N*fa*eps) - np.exp(N*fb*eps))/(eps**2)
-    out=out-2*dG0[lam0,lam]
+        out=out+R*(np.exp(N*eps) - np.exp(N*fa*eps) - np.exp(N*fb*eps))/(eps**2)
+    out=out-dG0[lam0,lam]
     return out   
 
 
@@ -115,8 +115,8 @@ def IABresum(N,fa,lam0,lam,p1):
 
 def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             eps1=p1.eig[l1]
             eps2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -135,8 +135,8 @@ def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0
     tol=10**-6
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             eps1=p1.eig[l1]
             eps2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -154,13 +154,13 @@ def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 def IAAAresumOld(N,lam0,lam,p1,p2):
     out=0.0+0.0j
-    for l in range(p1.mu,p1.ORDEig):
+    for l in range(abs(p1.mu),p1.ORDEig):
         eps=p1.eig[l]
         R=p1.res[l][lam0,lam]
         G=p2.G_other(lam0,lam,p2,l)
         out=out+(eps**-2)*np.exp(eps*N)*R
         
-    for l in range(p2.mu,p2.ORDEig):
+    for l in range(abs(p2.mu),p2.ORDEig):
         eps=p2.eig[l]
         R=p2.res[l][lam0,lam]
         G=p1.G_other(lam0,lam,p1,l)
@@ -185,8 +185,8 @@ def IAAAresumOld(N,lam0,lam,p1,p2):
 def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
     fb=1.0-fa
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -195,14 +195,14 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
             out=out+R1*R2*(np.exp(N*fa*e1)*sp.f2(1,e1,e2,N*fb)/e1                            - sp.f2(2,e1,e2,N*fb))
     
     temp=0.0
-    for l2 in range(p2.mu,p2.ORDEig):     
+    for l2 in range(abs(p2.mu),p2.ORDEig):     
         e2=p2.eig[l2]
         R2=p2.res[l2][lam0_2,lam_2]
         temp=temp+R2*np.exp(N*fb*e2)/(e2**2)
     out = out + temp*p1.G0[lam0_1,lam_1]
          
     temp=0.0
-    for l1 in range(p1.mu,p1.ORDEig):     
+    for l1 in range(abs(p1.mu),p1.ORDEig):     
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
         temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
@@ -228,25 +228,22 @@ def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
             return IAAAAresumK2is0(N,fa,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,p1,p3)
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(p1.mu,p1.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(p2.mu,p2.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
                 #if abs(e2)<10**-7:
                 #    print('epsilon of zero incountered')
                 #    print('e1',e1,'e2',e2,'e3',e3)
                 #    print('l1',l1,'l2',l2,'l3',l3)
-                if lam_1 == 1 and lam_2 ==1 and p2.mu ==0 and p2.K<K0cuttoff:
-                    print('e1',e1,'e2',e2,'e3',e3)
-                    print('Error, Need to evaluate only one ')
                 temp= - R1*R2*R3*sp.f3(2,e1,e2,e3,N*fa)
                 out=out+temp
-                if abs(temp/(out+tol))<tol:
+                if abs(temp/(out+tol))<tol and l3>max(lam0_3,lam_3):
                     break
     
     G1=p1.G0[lam0_1,lam_1]
@@ -271,11 +268,11 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
         return 0.0
     elif lam0_2==0 and lam_2==0:
         out=0.0+0.0j
-        for l1 in range(p1.mu,p1.ORDEig):
-            for l3 in range(p3.mu,p3.ORDEig): 
-                e1=p1.eig[l1]
+        for l1 in range(abs(p1.mu),p1.ORDEig):
+            e1=p1.eig[l1]
+            R1=p1.res[l1][lam0_1,lam_1]
+            for l3 in range(abs(p3.mu),p3.ORDEig): 
                 e3=p1.eig[l3]
-                R1=p1.res[l1][lam0_1,lam_1]
                 R3=p3.res[l3][lam0_3,lam_3]
 
                 out=out+R1*R3*sp.f2(3,e1,e3,N*fa)
@@ -287,14 +284,14 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
 
         #This look can be replaced by next derivative
         ddG1=0.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]
             ddG1=ddG1-R1/(e1**3) 
 
         #This look can be replaced by next derivative
         ddG3=0.0
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]
             ddG3=ddG3-R3/(e3**3) 
@@ -306,10 +303,10 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
         tol = 10**-15
         e2=-lam_2*(lam_2 + p1.d -2)
         R2=1.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
                 temp= - R1*R2*R3*sp.f3(2,e1,e2,e3,N*fa)
@@ -328,8 +325,9 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
     
 
 
-# In[21]:
+# In[11]:
 
+#@jit
 def case1(e1,e2,e3,N):
     e3,e2,e1 = sp.arrange(e1,e2,e3)
     tol=10**-6
@@ -347,16 +345,19 @@ def case1(e1,e2,e3,N):
 def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3):
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
-            for l3 in range(p3.mu,p3.ORDEig):
-                e1=p1.eig[l1]
-                e2=p2.eig[l2]
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        e1=p1.eig[l1]
+        R1=p1.res[l1][lam0_1,lam_1]
+        for l2 in range(abs(p2.mu),p2.ORDEig):
+            e2=p2.eig[l2]
+            R2=p2.res[l2][lam0_2,lam_2]
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
-                R1=p1.res[l1][lam0_1,lam_1]
-                R2=p2.res[l2][lam0_2,lam_2]
                 R3=p3.res[l3][lam0_3,lam_3]
-                out=out+R1*R2*R3*case1(e1,e2,e3,N*fa)
+                temp = R1*R2*R3*case1(e1,e2,e3,N*fa)
+                out=out+temp
+                if abs(temp/(out+tol))<tol and l3>max(lam0_3,lam_3):
+                    break
     return out
 
 
@@ -378,19 +379,19 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     fb=1.0-fa
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(p1.mu,p1.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(p2.mu,p2.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
                 temp= R1*R2*R3*( sp.f3(2,e1,e2,e3,N*fa) -                                     np.exp(N*fb*e3)*sp.f3(1,e1,e2,e3,N*fa)/e3 )
                 out=out+temp
-                if abs(temp/(out+tol))<tol:
+                if abs(temp/(out+tol))<tol and l3>max(lam0_3,lam_3):
                     break
 
     G1=p1.G0[lam0_1,lam_1]
@@ -398,8 +399,8 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     G3=p3.G0[lam0_3,lam_3]          
                 
     temp=0.0
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -408,7 +409,7 @@ def IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out+temp*G3
             
     temp=0.0    
-    for l3 in range(p3.mu,p3.ORDEig):
+    for l3 in range(abs(p3.mu),p3.ORDEig):
         e3=p3.eig[l3]
         R3=p3.res[l3][lam0_3,lam_3]
         temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
@@ -432,8 +433,8 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
     elif lam0_2==0 and lam_2==0:
         fb=1.0-fa
         out=0.0+0.0j
-        for l1 in range(p1.mu,p1.ORDEig):
-            for l3 in range(p3.mu,p3.ORDEig): 
+        for l1 in range(abs(p1.mu),p1.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig): 
                 e1=p1.eig[l1]
                 e3=p1.eig[l3]
                 R1=p1.res[l1][lam0_1,lam_1]
@@ -445,7 +446,7 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
         dG1=p1.dG0[lam0_1,lam_1]
         dG3=p3.dG0[lam0_3,lam_3]   
 
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]
             out=out-G1*R3*np.exp(N*fb*e3)*(1+N*fa*e3)/(e3**3)
@@ -453,7 +454,7 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
 
         #This look can be replaced by next derivative
         ddG3=0.0
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]
             ddG3=ddG3-R3/(e3**3) 
@@ -466,10 +467,10 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
         tol = 10**-15
         e2=-lam_2*(lam_2 + p1.d -2)
         R2=1.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
@@ -481,14 +482,14 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
         G3=p3.G0[lam0_3,lam_3]          
 
         temp=0.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]  
             temp=temp+R1*R2*sp.f2(2,e1,e2,N*fa)
         out=out+temp*G3
 
         temp=0.0    
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]
             temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
@@ -516,27 +517,27 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     fb=1.0-fa
     out=0.0+0.0j
     tol = 10**-15
-    for l1 in range(p1.mu,p1.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
-        for l2 in range(p2.mu,p2.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e2=p2.eig[l2]
             R2=p2.res[l2][lam0_2,lam_2]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
                 temp= R1*R2*R3*( sp.f2(1,e1,e2,N*fa)*sp.f2(1,e2,e3,N*fb) )
                 out=out+temp
-                if abs(temp/(out+tol))<tol:
+                if abs(temp/(out+tol))<tol and l3>max(lam0_3,lam_3):
                     break
     G1=p1.G0[lam0_1,lam_1]
     G2=p2.G0[lam0_2,lam_2]
     G3=p3.G0[lam0_3,lam_3]
            
     temp=0.0
-    for l1 in range(p1.mu,p1.ORDEig):
-        for l2 in range(p2.mu,p2.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        for l2 in range(abs(p2.mu),p2.ORDEig):
             e1=p1.eig[l1]
             e2=p2.eig[l2]
             R1=p1.res[l1][lam0_1,lam_1]
@@ -545,8 +546,8 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out-temp*G3
 
     temp=0.0
-    for l2 in range(p2.mu,p2.ORDEig):
-        for l3 in range(p3.mu,p3.ORDEig):
+    for l2 in range(abs(p2.mu),p2.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             e2=p2.eig[l2]
             R3=p3.res[l3][lam0_3,lam_3]
@@ -555,14 +556,14 @@ def IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,
     out=out-temp*G1    
 
     temp=0.0    
-    for l1 in range(p1.mu,p1.ORDEig):
+    for l1 in range(abs(p1.mu),p1.ORDEig):
         e1=p1.eig[l1]
         R1=p1.res[l1][lam0_1,lam_1]
         temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
     out=out+temp*G2*G3    
     
     temp=0.0    
-    for l3 in range(p3.mu,p3.ORDEig):
+    for l3 in range(abs(p3.mu),p3.ORDEig):
         e3=p3.eig[l3]
         R3=p3.res[l3][lam0_3,lam_3]
         temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
@@ -591,10 +592,10 @@ def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                 
         tol = 10**-15
         e2=-lam_2*(lam_2 + p1.d -2)
         R2=1.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]
-            for l3 in range(p3.mu,p3.ORDEig):
+            for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
 
@@ -606,28 +607,28 @@ def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                 
         G3=p3.G0[lam0_3,lam_3]
 
         temp=0.0
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]  
             temp=temp+R1*R2*sp.f2(2,e1,e2,N*fa)
         out=out-temp*G3
 
         temp=0.0
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]  
             temp=temp+R2*R3*sp.f2(2,e2,e3,N*fb)
         out=out-temp*G1    
 
         temp=0.0    
-        for l1 in range(p1.mu,p1.ORDEig):
+        for l1 in range(abs(p1.mu),p1.ORDEig):
             e1=p1.eig[l1]
             R1=p1.res[l1][lam0_1,lam_1]
             temp=temp+R1*np.exp(N*fa*e1)/(e1**2)
         out=out+temp*G2*G3    
 
         temp=0.0    
-        for l3 in range(p3.mu,p3.ORDEig):
+        for l3 in range(abs(p3.mu),p3.ORDEig):
             e3=p3.eig[l3]
             R3=p3.res[l3][lam0_3,lam_3]
             temp=temp+R3*np.exp(N*fb*e3)/(e3**2)
