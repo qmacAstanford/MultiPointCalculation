@@ -25,7 +25,7 @@ def get_a(lam,mu,d=3):
 
 # ## Eigenvalues
 
-# In[2]:
+# In[3]:
 
 # eigvals = wlc.wlc_eigvals(k,ORDEig,mu,d=3)
 
@@ -102,7 +102,7 @@ def IntermediateKEigenValues(K,ORDEig,mu,d=3):
         evals=evals*K
     
     out=np.zeros(ORDEig,'complex')*np.NaN
-    out[mu:]=evals[0:ORDEig-mu]
+    out[abs(mu):]=evals[0:ORDEig-abs(mu)]
     return out
     
 
@@ -594,7 +594,7 @@ def InvGprime(p,lam,lam0,mu,K,jp,jm,djp,djm,d=3):
 @jit(nopython=True)
 def get_jm_zero(mu,K,lamMax,d=3):
     jm=np.zeros(lamMax+1,dtype=type(1+1j))*np.NaN
-    if mu>0:    
+    if mu!=0:    
         jm[mu]=get_P(mu,0,d) 
         for lam in seq(mu+1,lamMax):
             jm[lam]=get_P(lam,0,d) + (get_a(lam,mu,d)*K)**2 /jm[lam-1]
@@ -640,7 +640,7 @@ def get_wm_zero(jm,lamMax):
 @jit(nopython=True)
 def get_djm_zero(mu,K,lamMax,jm,d=3):
     djm=np.zeros(lamMax+1,dtype=type(1+1j))*np.NaN
-    if mu>0:
+    if mu!=0:
         djm[mu]= 1.0
         for lam in seq(mu+1,lamMax):
             djm[lam] = 1.0 - (get_a(lam,mu,d)*K)**2 * djm[lam-1]/(jm[lam-1]**2)
@@ -667,7 +667,7 @@ def get_djm_zero(mu,K,lamMax,jm,d=3):
 @jit(nopython=True)
 def get_dwm_zero(jm,djm,K,lamMax,mu,d=3):
     dwm=np.zeros(lamMax+1,dtype=type(1+1j))*np.NaN
-    if mu>0:
+    if mu!=0:
         dwm[mu:]=-1.0*djm[mu:]/(jm[mu:]**2)
     elif mu==0:
         dwm[0]=(-1.0+0j)*np.Inf
@@ -689,7 +689,7 @@ def get_dwm_zero(jm,djm,K,lamMax,mu,d=3):
 @jit(nopython=True)
 def get_W_zero(mu,K,lamMax,jp,jm,d=3):
     W=np.zeros(lamMax+1,dtype=type(1+1j))*np.NaN
-    if mu>0:
+    if mu!=0:
         lam=mu
         W[lam]=get_P(lam,0,d)+(get_a(lam+1,mu,d)*K)**2 / jp[lam+1]
         for lam in seq(mu+1,lamMax-1):
@@ -719,7 +719,7 @@ def get_W_zero(mu,K,lamMax,jp,jm,d=3):
 @jit(nopython=True)
 def get_dW_zero(mu,K,lamMax,dwp,dwm,W,d=3):
     dW=np.zeros(lamMax+1,dtype=type(1+1j))*np.NaN
-    if mu>0:
+    if mu!=0:
         lam=mu
         dW[lam]=1.0 + (get_a(lam+1,mu,d)*K)**2 * dwp[lam+1]
         for lam in seq(mu+1,lamMax-1):
@@ -783,7 +783,7 @@ def get_G_zero(lam,lam0,mu,K,jm,jp,W,d=3):
 # \left(\partial_{p}W_{\lambda_{0}}^{\mu}+W_{\lambda_{0}}^{\mu}\left(\sum_{\tilde{\lambda}=\lambda+3}^{\lambda_{0}}\frac{\partial_{p}w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}{w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}-\frac{2}{\left(a_{1}^{0}K\right)^{2}}\right)\right)\left(-\frac{a_{2}^{\mu}}{a_{1}^{\mu}}\right)\left(\prod_{\tilde{\lambda}=\lambda+3}^{\lambda_{0}}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}-1}^{\mu\left(-\right)}\right) & \lambda_{0}>2,\ \lambda=\mu=0\\
 # \left(W_{\lambda_{0}}^{\mu}\partial_{p}w_{1}^{\mu\left(-\right)}\right)iKa_{2}^{\mu} & \lambda_{0}=2,\ \lambda=1,\ \mu=0\\
 # \left(W_{\lambda_{0}}^{\mu}\partial_{p}w_{1}^{\mu\left(-\right)}\right)iKa_{2}^{\mu}\left(\prod_{\tilde{\lambda}=\lambda+2}^{\lambda_{0}}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}-1}^{\mu\left(-\right)}\right) & \lambda_{0}>2,\ \lambda=1,\mu=0\\
-# \left(\partial_{p}W_{\lambda_{0}}^{\mu}+W_{\lambda_{0}}^{\mu}\sum_{\tilde{\lambda}=\lambda+1}^{\lambda_{0}}\frac{\partial_{p}w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}{w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}\right)\prod_{\tilde{\lambda}=\lambda+1}^{\lambda_{0}}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}-1}^{\mu\left(-\right)} & \lambda_{0}>\lambda>1
+# \left(\partial_{p}W_{\lambda_{0}}^{\mu}+W_{\lambda_{0}}^{\mu}\sum_{\tilde{\lambda}=\lambda+1}^{\lambda_{0}}\frac{\partial_{p}w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}{w_{\tilde{\lambda}-1}^{\mu\left(-\right)}}\right)\prod_{\tilde{\lambda}=\lambda+1}^{\lambda_{0}}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}-1}^{\mu\left(-\right)} & \lambda_{0}>\lambda>1\ \mathrm{or}\ \left(\lambda_{0}>\lambda\ \mathrm{and}\ \mu\neq0\right)
 # \end{cases}
 # $$
 
@@ -820,7 +820,7 @@ def get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
         for lamt in seq(lam+2,lam0):
             Prod=Prod*1j*K*get_a(lamt,mu,d)/jm[lamt-1]   
         return Prod
-    elif lam0>lam and lam>1:
+    elif lam0>lam and (lam>1 or mu !=0):
         Sum=0.0
         Prod=1.0
         for lamt in seq(lam+1,lam0):
@@ -860,8 +860,8 @@ def largeKResidues(K,eig,mu,nlam=10,lamMax=500,d=3):
     djm=get_djm(p,mu,K,lamMax,jm)
     #W=get_W(p,mu,K,lamMax,jp,jm)
     Res=np.zeros((nlam,nlam),dtype=type(1+1j))*np.NaN
-    for lam in range(mu,nlam):
-        for lam0 in range(mu,nlam):
+    for lam in range(abs(mu),nlam):
+        for lam0 in range(abs(mu),nlam):
             Res[lam0,lam]=1.0/InvGprimeGeneral(p,lam,lam0,mu,K,jp,jm,djp,djm,d)
             #IG=InvG(p,lam,lam0,mu,K,jp,jm,d=3)
             #tol=0.0001
@@ -927,16 +927,16 @@ def residues(K,eig,l,mu,nlam=10,d=3,lamMax=500,cutoff=10**-11):
     # use small K limit if K<10^-3 or the limit < cutoff
     if K<10**-3:
         res=np.zeros((nlam,nlam),dtype=type(1+1j))*np.NaN
-        for lam in range(mu,nlam):
-            for lam0 in range(mu,nlam):
+        for lam in range(abs(mu),nlam):
+            for lam0 in range(abs(mu),nlam):
                 #print('lam0=',lam0,'lam',lam,'mu',mu)
                 smallK=SmallAysmpRes(K,l,lam,lam0,mu,d=d)
                 res[lam0,lam]=smallK
         return res   
     
     res=largeKResidues(K,eig,mu,nlam,lamMax=lamMax)
-    for lam in range(mu,nlam):
-        for lam0 in range(mu,nlam):
+    for lam in range(abs(mu),nlam):
+        for lam0 in range(abs(mu),nlam):
             #print('lam0=',lam0,'lam',lam,'mu',mu)
             smallK=SmallAysmpRes(K,l,lam,lam0,mu,d=d)
             if abs(smallK)<cutoff:
@@ -952,8 +952,8 @@ def bothResidues(K,eig,l,mu,nlam=10,d=3):
     lamMax=500
     res=largeKResidues(K,eig,mu,nlam,lamMax=lamMax)
     resSmall=res*np.NaN
-    for lam in range(mu,nlam):
-        for lam0 in range(mu,nlam):
+    for lam in range(abs(mu),nlam):
+        for lam0 in range(abs(mu),nlam):
             #print('lam0=',lam0,'lam',lam,'mu',mu)
             resSmall[lam0,lam]=SmallAysmpRes(K,l,lam,lam0,mu,d=d)
     return res, resSmall
