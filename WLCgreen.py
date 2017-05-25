@@ -328,13 +328,13 @@ def get_dW(p,mu,K,lamMax,dwp,dwm,W,d=3):
     return (-dW*(W**2))
 
 
-# \[
+# $$
 # \mathcal{G}_{\lambda_{0}\lambda}^{\mu}=\begin{cases}
 # W_{\lambda_{0}}^{\mu} & \lambda_{0}=\lambda\\
 # W_{\lambda_{0}}^{\mu}\prod_{\tilde{\lambda}=\lambda_{0}+1}^{\lambda}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}}^{\mu\left(+\right)} & \lambda_{0}<\lambda\\
 # W_{\lambda_{0}}^{\mu}\prod_{\tilde{\lambda}=\lambda+1}^{\lambda_{0}}iKa_{\tilde{\lambda}}^{\mu}w_{\tilde{\lambda}-1}^{\mu\left(-\right)} & \lambda_{0}>\lambda
 # \end{cases}
-# \]
+# $$
 
 # In[84]:
 
@@ -812,7 +812,7 @@ def get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
         for lamt in seq(lam+3,lam0):
             Prod=Prod*1j*K*get_a(lamt,mu,d)/jm[lamt-1]
             Sum=Sum+dwm[lamt-1] * jm[lamt-1]
-        return ((dW[lam0] + W[lam0]*Sum)*Prod)
+        return ((dW[lam0] + W[lam0]*Sum)*(-get_a(2,0,d)/get_a(1,0,d))*Prod)
     elif lam0==2 and lam==1 and mu==0:
         return W[lam0]*dwm[1]*1j*K*get_a(2,0,d)
     elif lam0>2 and lam==1 and mu==0:
@@ -889,7 +889,7 @@ def largeKResidues(K,eig,mu,nlam=10,lamMax=500,d=3):
 
 @jit(nopython=True)
 def get_C(K,l,lam,mu,d=3):
-    prod=1
+    prod=1+0*1j
     Wi=l*(l+d-2)
     if l>lam:
         for j in seq(lam,l-1):  # lam to l-1
