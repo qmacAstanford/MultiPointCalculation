@@ -1,16 +1,48 @@
-
-# coding: utf-8
-
-# In[1]:
-
 import numpy as np
 import WLCgreen as wlc
 
 
-# In[2]:
+# Find all shared Eignevalues
+# returns of list of overlaps of the format out[l_2]=l_1
+# assumes no repeated values within tol
+def IntersectEig(set1,set2,tol=10**-4):
+    out=np.zeros(len(set1),dtype='int')-1
+    # The following is a O(n^2) precess
+    # This can be accelerated useing the fact that they are sorted
+    for l1 in range(0,len(set1)):
+        for l2 in range(0,len(set2)):
+            if abs(set1[l1]-set2[l2])<tol:
+                out[l1]=l2
+                # check to see if next is closer
+                if(l2<len(set2)-1):
+                    if abs(set1[l1]-set2[l2+1])<abs(set1[l1]-set2[l2]):
+                        out[l1]=l2+1
+
+                break
+    
+
+   # Assumes two reverse ordered lists with no repeated values
+   # 
+   # l1=0
+   # l2=0
+   # while l1<len(set1) and l2<len(set2):
+   #     if abs(set1[l1]-set2[l2])<tol:
+   #         out[l1]=l2
+   #         l1=l1+1
+   #         l2=l2+1
+   #         continue  
+   #     if set1[l1].real >= set2[l2].real + tol:
+   #         l1=l1+1
+   #     elif set1[l1].real <= set2[l2].real - tol:
+   #         l2=l2+1
+   #     elif set1[l1].imag >= set2[l2].imag:
+   #         l1=l1+1
+   #     else
+   #         l2=l2+1
+        
+    return out
 
 class propagator:
-    
     # Calculate eigenvalues and residues on creation
     def __init__(self,name,K,mu,nlam=10,lamMax=500,ORDEig=25,d=3):
         self.name = name
@@ -24,10 +56,44 @@ class propagator:
         self.nlam = nlam
         self.ORDEig = ORDEig
         self.d =d
-        self.eig, self.res = self.calc_resData_G()
+        self.eig, self.res, self.a, self.b = self.calc_resData_G()
         self.G0, self.dG0 = self.calcZeroPterms()
         self.otherG = {}
-        
+       
+    def __str__(self):
+        temp=np.get_printoptions()
+        np.set_printoptions(precision=3)
+        print('---Propagator ',self.name,'---')
+        print('nlam',self.nlam)
+        print('eig:')
+        print(self.eig[0:5])
+        print('res of lam=lam0=mu:')
+        print(self.res[0:5][sel.mu,self.mu])
+        print('a of lam=lam0=mu:')
+        print(self.a[0:5][self.mu,self.mu])
+        print('b of lam=lam0=mu:')
+        print(self.b[0:5][self.mu,self.mu])
+        print('Other G:')
+        for key, value in self.otherG.items():
+            print(key,end='')
+        print('')
+        np.set_printoptions(**temp)
+        return('G(K='+str(self.K)+',mu='+str(self.mu)+')= <'+str(self.name)+'>')
+     
+    def printOther(self,key=None):
+        temp=np.get_printoptions()
+        np.set_printoptions(precision=3)
+        print('Other Name:',key)
+        print('overlapping_other_l[l_self]=l_other')
+        print(self.otherG[key][1][0:3])
+        print('G(lam=self.mu,lam0=self.mu)=')
+        print(self.otherG[key][0][self.mu,self.mu,0:3])
+        np.set_printoptions(**temp)
+    
+    def printOthers(self):
+        for key in self.otherG:
+            self.printOther(key)
+              
     # calculate and store eigenvalues and residues
     def calc_resData_G(self):
         mu=self.mu
@@ -39,15 +105,28 @@ class propagator:
         eigvals = wlc.wlc_eigvals(K,ORDEig,mu,d=d)
         eig=[]
         res=[]
+        a=[]
+        b=[]
         
         for l in range(0,ORDEig):
             if l<mu:
                 eig.append(np.NaN)
                 res.append(np.NaN)
+                a.append(np.NaN)
+                b.append(np.NaN)
             else:
+                resTemp, aTemp, bTemp,\
+                        invG, dinvG, ddinvG, dddinvG =\
+                        wlc.LurentifyG(K,eigvals[l],l,mu,nlam=10,d=3,\
+                                       lamMax=500,\
+                                       cutoff=10**-11,lowKcut=10**-7)
+                #res.append(wlc.residues(K,eigvals[l],l,mu,nlam=nlam,d=d))
                 eig.append(eigvals[l])
-                res.append(wlc.residues(K,eigvals[l],l,mu,nlam=nlam,d=d))
-        return eig, res
+                res.append(resTemp)
+                a.append(aTemp)
+                b.append(bTemp)
+        return eig, res, a, b
+    
     
     # Calculate G(0) and dG(0)/dp
     def calcZeroPterms(self):
@@ -92,26 +171,7 @@ class propagator:
                 G0[lam0,lam]=wlc.get_G_zero(lam,lam0,mu,K,jm,jp,W,d)
                 dG0[lam0,lam]=wlc.get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d)
         return G0, dG0
-    
-    # Evaluate this G at eigenvalue of different G
-    # eig is a list of eigenvalues from another G
-    def get_G_matrix(self,eig):
-        mu =self.mu
-        K = self.K
-        lamMax = self.lamMax
-        nlam = self.nlam
-        neig=len(eig)
-        out = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN
-        for ii in range(0,neig):
-            p=eig[ii]
-            jp=wlc.get_jp(p,mu,K,lamMax)
-            jm=wlc.get_jm(p,mu,K,lamMax)
-            W=wlc.get_W(p,mu,K,lamMax,jp,jm)
-            for lam0 in range(abs(mu),nlam):
-                for lam in range(abs(mu),nlam):
-                    out[lam0,lam,ii]=wlc.get_G(p,lam,lam0,mu,K,jm,jp,W)
-        return out
-    
+
     #Inverse laplace trasform G(p,K) -> G(N,K)
     # Peformed by summing residues
     # G(N) = \sum_l R(eps_l) exp(N*eps_l)
@@ -122,6 +182,50 @@ class propagator:
         for l in range(0,len(eig)):
             out=out+res[l][lam0,lam]*np.exp(N*eig[l])
         return out
+   
+    def get_G_laplace(self,p,lam0,lam,mu):
+        mu =self.mu
+        K = self.K
+        lamMax = self.lamMax
+        nlam = self.nlam
+        jp=wlc.get_jp(p,mu,K,lamMax)
+        jm=wlc.get_jm(p,mu,K,lamMax)
+        W=wlc.get_W(p,mu,K,lamMax,jp,jm)
+        return wlc.get_G(p,lam,lam0,mu,K,jm,jp,W)
+
+    # Evaluate this G at eigenvalues of another G
+    # If they share eigenvalues then retun NaN
+    # Output format: [self.lam0,self.lam,other.l]
+    def get_G_matrix(self,other,tol=10**-4):
+        mu =self.mu
+        K = self.K
+        lamMax = self.lamMax
+        nlam = self.nlam
+        neig=len(other.eig)
+        
+        overlapping_other_l = IntersectEig(self.eig,other.eig,tol)
+        
+        G_at_other = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN  
+        
+        for ii in range(other.mu,neig):
+            if overlapping_other_l[ii]==-1: # if no overlaps
+                p=other.eig[ii]
+                jp=wlc.get_jp(p,mu,K,lamMax)
+                jm=wlc.get_jm(p,mu,K,lamMax)
+                W=wlc.get_W(p,mu,K,lamMax,jp,jm)
+                for lam0 in range(abs(mu),nlam):
+                    for lam in range(abs(mu),nlam):
+                        G_at_other[lam0,lam,ii]=wlc.get_G(p,lam,lam0,\
+                                                          mu,K,jm,jp,W)
+            else: # a.k.a overlapping eigenvalue
+                G_at_other[:,:,ii]=np.NaN 
+        return G_at_other, overlapping_other_l
+    
+    def isAnEigenvalue(self,p,tol=10**-4):
+        for l in range(self.mu,self.ORDEig):
+            if abs(p-self.eig[l])<tol:
+                return l
+        return -1 # not in list
     
     # Add ability to lookup G at eigenvalues of another G
     def add_another_G(self,name,eig):
@@ -132,30 +236,32 @@ class propagator:
             
     # Look up G[lam0,lam] evaluate at other G's lth eigenvalue
     # If you don't already know it, add to dictionary
-    def G_other(self,lam0,lam,other,l):
-        name = other.name
-        eig = other.eig
-        
+    # lam0, lam are the angular indices of the self
+    # other_l is the eigenvalue index of the other propagator
+    def G_other(self,lam0,lam,other,other_l):
+        name = other.name        
         if name in self.otherG:
-            return self.otherG[name][lam0,lam,l]
+            G_at_other, overlapping_other_l =self.otherG[name]
+            return G_at_other[lam0,lam,l], overlapping_other_l
         else:
-            self.otherG.update({name: self.get_G_matrix(eig)})
-            return self.otherG[name][lam0,lam,l]
+            self.otherG.update({name: self.get_G_matrix(other)})
+            G_at_other, overlapping_other_l =self.otherG[name]
+            return G_at_other[lam0,lam,l], overlapping_other_l
     
-    # Same as G_other except return residues of all l 
+    # Same as G_other except return residues of all other_l 
     def G_others(self,lam0,lam,other):
         name = other.name
-        eig = other.eig
         
         if name in self.otherG:
-            return self.otherG[name][lam0,lam,:]
+            G_at_other, overlapping_other_l =self.otherG[name]
+            return G_at_other[lam0,lam,:], overlapping_other_l
         else:
-            self.otherG.update({name: self.get_G_matrix(eig)})
-            return self.otherG[name][lam0,lam,:]
+            #print('self.K',self.K,'other.K',other.K)
+            self.otherG.update({name: self.get_G_matrix(other)})
+            G_at_other, overlapping_other_l =self.otherG[name]
+            return G_at_other[lam0,lam,:], overlapping_other_l
             
 
-
-# In[3]:
 
 class vectorPropagator:
     
@@ -180,11 +286,16 @@ class vectorPropagator:
                 print('This appears to be only true if d=3.')
             # Calculate
             name=(abs(mu),self.kvec)
-            self.mu_dict[abs(mu)]=propagator(name,                                        np.linalg.norm(self.kvec),                                        abs(mu),                                        nlam=self.nlam,                                        lamMax=self.lamMax,                                        ORDEig=self.ORDEig,                                        d=self.d)
+            self.mu_dict[abs(mu)]=propagator(name,\
+                                             np.linalg.norm(self.kvec),\
+                                             abs(mu),\
+                                             nlam=self.nlam,\
+                                             lamMax=self.lamMax,\
+                                             ORDEig=self.ORDEig,\
+                                             d=self.d)
             return self.mu_dict[abs(mu)]        
 
 
-# In[5]:
 
 # Set of propagators being used in a particular problem.
 # This reuses propagators rather than recalculate them.
@@ -205,13 +316,11 @@ class prop_set:
         if key in self.prop_dict:
             return self.prop_dict[key]
         else:
-            self.prop_dict[key]=vectorPropagator(kapprox,                                                     self.nlam,                                                     self.lamMax,                                                     self.ORDEig,                                                     self.d)
+            self.prop_dict[key]=vectorPropagator(kapprox,\
+                                                 self.nlam,\
+                                                 self.lamMax,\
+                                                 self.ORDEig,\
+                                                 self.d)
             return self.prop_dict[key]
         
         
-
-
-# In[ ]:
-
-
-
