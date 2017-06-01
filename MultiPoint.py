@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 import numpy as np
 import WLCgreen as wlc
@@ -111,7 +111,7 @@ def IABresum(N,fa,lam0,lam,p1):
 #  & +Nf_{A}\mathcal{G}_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}'_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}_{2}\left(0\right)\mathcal{G}'_{1}\left(0\right)
 # \end{align*}
 
-# In[11]:
+# In[4]:
 
 def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
@@ -130,7 +130,71 @@ def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     return out
 
 
-# In[12]:
+# \begin{align*}
+# I_{1,2}^{\left(3\right)}\left(N\right)= & \sum_{l_{1}=0}^{\infty}R{}_{1}\left(\epsilon_{1}\right)\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{2}}\sum_{l_{2}=0}^{\infty}\left(\frac{-R{}_{2}\left(\epsilon_{2}\right)}{\epsilon_{2}-\epsilon_{1}}\right)\\
+#  & \sum_{l_{2}=0}^{\infty}R{}_{2}\left(\epsilon_{2}\right)\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{2}}\sum_{l_{1}=0}^{\infty}\left(\frac{-R{}_{1}\left(\epsilon_{1}\right)}{\epsilon_{1}-\epsilon_{2}}\right)\\
+#  & +N\mathcal{G}_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}'_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}_{2}\left(0\right)\mathcal{G}'_{1}\left(0\right)
+# \end{align*}
+# 
+# 
+# where
+# 
+# \[
+# \sum_{l_{2}=0}^{\infty}\left(\frac{-R{}_{2}\left(\epsilon_{l}\right)}{\epsilon_{l}-p}\right)=\begin{cases}
+# G_{2}\left(p\right) & p\notin\left\{ \epsilon_{2}\right\} \\
+# \frac{-R{}_{2}\left(\epsilon_{2,i}\right)}{\epsilon_{2,i}-p}+a_{2,i} & p=\epsilon_{2,i}
+# \end{cases}
+# \]
+# 
+# 
+# \[
+# a_{2,i}=-\frac{R_{2,i}^{2}}{2}\lim_{p\to\epsilon}\frac{\partial^{2}}{\partial^{2}p}\left(\frac{1}{G_{2}\left(p\right)}\right)
+# \]
+
+# In[1]:
+
+def IAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
+    out=0.0+0.0j
+        
+    G2, overlapping_other_l2=p2.G_others(lam0_2,lam_2,p1)
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        eps1=p1.eig[l1]
+        R1=p1.res[l1][lam0_1,lam_1]
+        if overlapping_other_l2[l1]==-1: # not overlapping
+            out=out+(eps1**-2)*np.exp(eps1*N*fa)*R1*G2[l1]
+        else: # overlapping
+            l2=overlapping_other_l2[l1]
+            eps2=p2.eig[l2]
+            R2=p2.res[l2][lam0_2,lam_2]
+            
+            out=out + R1*R2*sp.f2(2,eps1,eps2,N*fa)
+            out=out + (eps1**-2)*np.exp(eps1*N*fa)*R1*p2.a[l2][lam0_2,lam_2]
+            out=out + (eps2**-2)*np.exp(eps2*N*fa)*R2*p1.a[l1][lam0_1,lam_1]
+        
+        
+    G1, overlapping_other_l1=p1.G_others(lam0_1,lam_1,p2)
+    for l2 in range(abs(p2.mu),p2.ORDEig):
+        if overlapping_other_l1[l2]!=-1:
+            continue
+        eps2=p2.eig[l2]
+        R2=p2.res[l2][lam0_1,lam_1]
+        out=out+(eps2**-2)*np.exp(eps2*N*fa)*R2*G1[l2]
+        
+    n_overlap1=sum(-overlapping_other_l1[overlapping_other_l1==-1])
+    n_overlap2=sum(-overlapping_other_l2[overlapping_other_l2==-1])
+    if (n_overlap1!=n_overlap2):
+        print('n_overlap1',n_overlap1)
+        print('n_overlap2',n_overlap2)
+        print(np.array([overlapping_other_l1,overlapping_other_l2]))
+        raise Exception('Non-equal number of overlaps')
+        
+    out=out+N*fa*p2.G0[lam0_2,lam_2]*p1.G0[lam0_1,lam_1]
+    out=out+p2.dG0[lam0_2,lam_2]*p1.G0[lam0_1,lam_1]
+    out=out+p1.dG0[lam0_1,lam_1]*p2.G0[lam0_2,lam_2]
+    return out
+
+
+# In[5]:
 
 def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0
@@ -150,7 +214,7 @@ def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # #### Old
 
-# In[13]:
+# In[7]:
 
 def IAAAresumOld(N,lam0,lam,p1,p2):
     out=0.0+0.0j
