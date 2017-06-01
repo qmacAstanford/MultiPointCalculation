@@ -65,14 +65,19 @@ class propagator:
         np.set_printoptions(precision=3)
         print('---Propagator ',self.name,'---')
         print('nlam',self.nlam)
+        print('mu',self.mu)
+        print('K',self.K)
         print('eig:')
         print(self.eig[0:5])
         print('res of lam=lam0=mu:')
-        print(self.res[0:5][sel.mu,self.mu])
+        for l in range(0,5):
+            print(self.res[l][self.mu,self.mu])
         print('a of lam=lam0=mu:')
-        print(self.a[0:5][self.mu,self.mu])
+        for l in range(0,5):
+            print(self.a[l][self.mu,self.mu])
         print('b of lam=lam0=mu:')
-        print(self.b[0:5][self.mu,self.mu])
+        for l in range(0,5):
+            print(self.b[l][self.mu,self.mu])
         print('Other G:')
         for key, value in self.otherG.items():
             print(key,end='')
@@ -111,9 +116,9 @@ class propagator:
         for l in range(0,ORDEig):
             if l<mu:
                 eig.append(np.NaN)
-                res.append(np.NaN)
-                a.append(np.NaN)
-                b.append(np.NaN)
+                res.append(np.zeros((self.nlam,self.nlam))*np.NaN)
+                a.append(np.zeros((self.nlam,self.nlam))*np.NaN)
+                b.append(np.zeros((self.nlam,self.nlam))*np.NaN)
             else:
                 resTemp, aTemp, bTemp,\
                         invG, dinvG, ddinvG, dddinvG =\
