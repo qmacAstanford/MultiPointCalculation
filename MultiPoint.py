@@ -111,7 +111,7 @@ def IABresum(N,fa,lam0,lam,p1):
 #  & +Nf_{A}\mathcal{G}_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}'_{2}\left(0\right)\mathcal{G}_{1}\left(0\right)+\mathcal{G}_{2}\left(0\right)\mathcal{G}'_{1}\left(0\right)
 # \end{align*}
 
-# In[4]:
+# In[2]:
 
 def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
@@ -151,7 +151,7 @@ def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 # a_{2,i}=-\frac{R_{2,i}^{2}}{2}\lim_{p\to\epsilon}\frac{\partial^{2}}{\partial^{2}p}\left(\frac{1}{G_{2}\left(p\right)}\right)
 # \]
 
-# In[1]:
+# In[ ]:
 
 def IAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
     out=0.0+0.0j
@@ -287,6 +287,7 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # In[19]:
 
+@jit
 def IAAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
     if p2.K < K0cuttoff:
             return IAAAAresumK2is0(N,fa,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,p1,p3)

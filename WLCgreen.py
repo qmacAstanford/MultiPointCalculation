@@ -164,7 +164,7 @@ def wlc_eigvals(k,ORDEig,mu,d=3):
 
 # ### G
 
-# In[3]:
+# In[9]:
 
 # sequence of integers from first to last
 # for example seq(2,5)=2,3,4,5
@@ -180,7 +180,7 @@ def seq(first,last):
 # P_{\lambda}=p+\lambda\left(\lambda+d-2\right)
 # $$
 
-# In[4]:
+# In[10]:
 
 @jit(nopython=True)
 def get_P(lam,p,d=3):
@@ -193,7 +193,7 @@ def get_P(lam,p,d=3):
 # j_{\lambda}^{\mu\left(+\right)}=P_{\lambda}+\left(a_{\lambda+1}^{\mu}K\right)^{2}\frac{1}{j_{\lambda+1}^{\mu\left(+\right)}}
 # $$
 
-# In[15]:
+# In[11]:
 
 # Calculate j(+), output indexed by lambda size: lamMax+1
 @jit(nopython=True)
@@ -219,7 +219,7 @@ def get_jp(p,mu,K,lamMax,d=3):
 # \end{cases}
 # $$
 
-# In[6]:
+# In[12]:
 
 @jit(nopython=True)
 def get_jm(p,mu,K,lamMax,d=3):
@@ -241,7 +241,7 @@ def get_jm(p,mu,K,lamMax,d=3):
 # \frac{\partial}{\partial p}j_{\lambda}^{\mu\left(+\right)}=1-\left(a_{\lambda+1}^{\mu}K\right)^{2}\frac{1}{\left(j_{\lambda+1}^{\mu\left(+\right)}\right)^{2}}\frac{\partial}{\partial p}j_{\lambda+1}^{\mu\left(+\right)}
 # $$
 
-# In[7]:
+# In[13]:
 
 @jit(nopython=True)
 def get_djp(p,mu,K,lamMax,jp,d=3):
@@ -266,7 +266,7 @@ def get_djp(p,mu,K,lamMax,jp,d=3):
 # \end{cases}
 # $$
 
-# In[8]:
+# In[14]:
 
 @jit(nopython=True)
 def get_djm(p,mu,K,lamMax,jm,d=3):
@@ -288,7 +288,7 @@ def get_djm(p,mu,K,lamMax,jm,d=3):
 # d^{2}j_{\lambda}^{\mu\left(+\right)}=\left(a_{\lambda+1}^{\mu}K\right)^{2}\left(\frac{2\left(dj_{\lambda+1}^{\mu\left(+\right)}\right)^{2}-\left(d^{2}j_{\lambda+1}^{\mu\left(+\right)}\right)j_{\lambda+1}^{\mu\left(+\right)}}{\left(j_{\lambda+1}^{\mu\left(+\right)}\right)^{3}}\right)
 # $$
 
-# In[ ]:
+# In[15]:
 
 @jit(nopython=True)
 def get_ddjp(p,mu,K,lamMax,jp,djp,d=3):
@@ -309,7 +309,7 @@ def get_ddjp(p,mu,K,lamMax,jp,djp,d=3):
 # \end{cases}
 # $$
 
-# In[ ]:
+# In[16]:
 
 @jit(nopython=True)
 def get_ddjm(p,mu,K,lamMax,jm,djm,d=3):
@@ -327,7 +327,7 @@ def get_ddjm(p,mu,K,lamMax,jm,djm,d=3):
 # d^{3}j_{\lambda}^{\mu\left(+\right)}=\left(a_{\lambda+1}^{\mu}K\right)^{2}\left(\frac{6\left(d^{2}j_{\lambda+1}^{\mu\left(+\right)}\right)\left(dj_{\lambda+1}^{\mu\left(+\right)}\right)j_{\lambda+1}^{\mu\left(+\right)}-6\left(dj_{\lambda+1}^{\mu\left(+\right)}\right)^{3}-\left(d^{3}j_{\lambda+1}^{\mu\left(+\right)}\right)\left(j_{\lambda+1}^{\mu\left(+\right)}\right)^{2}}{\left(j_{\lambda+1}^{\mu\left(+\right)}\right)^{4}}\right)
 # $$
 
-# In[ ]:
+# In[17]:
 
 @jit(nopython=True)
 def get_dddjp(p,mu,K,lamMax,jp,djp,ddjp,d=3):
@@ -349,7 +349,7 @@ def get_dddjp(p,mu,K,lamMax,jp,djp,ddjp,d=3):
 # \end{cases}
 # $$
 
-# In[ ]:
+# In[18]:
 
 @jit(nopython=True)
 def get_dddjm(p,mu,K,lamMax,jm,djm,ddjm,d=3):
@@ -370,7 +370,7 @@ def get_dddjm(p,mu,K,lamMax,jm,djm,ddjm,d=3):
 # \partial_{p}w_{\lambda}^{\mu\left(\pm\right)}=\frac{-1}{\left(j_{\lambda}^{\mu\left(\pm\right)}\right)^{2}}\partial_{p}j_{\lambda}^{\mu\left(\pm\right)}
 # $$
 
-# In[ ]:
+# In[19]:
 
 @jit(nopython=True)
 def get_dw(j,dj,mu):
@@ -382,11 +382,11 @@ def get_dw(j,dj,mu):
     return dw
 
 
-# \[
+# $$
 # \frac{\partial^{2}}{\partial p^{2}}w_{\lambda}^{\mu\left(\pm\right)}=\left(\frac{2\left(dj_{\lambda}^{\mu\left(\pm\right)}\right)^{2}-\left(d^{2}j_{\lambda}^{\mu\left(\pm\right)}\right)j_{\lambda}^{\mu\left(\pm\right)}}{\left(j_{\lambda}^{\mu\left(\pm\right)}\right)^{3}}\right)
-# \]
+# $$
 
-# In[ ]:
+# In[20]:
 
 @jit(nopython=True)
 def get_ddw(j,dj,ddj,mu):
@@ -397,11 +397,11 @@ def get_ddw(j,dj,ddj,mu):
     return ddw
 
 
-# \[
+# $$
 # \frac{\partial^{3}}{\partial p^{3}}w_{\lambda}^{\mu\left(\pm\right)}=\left(\frac{6\left(d^{2}j_{\lambda}^{\mu\left(\pm\right)}\right)\left(dj_{\lambda}^{\mu\left(\pm\right)}\right)j_{\lambda}^{\mu\left(\pm\right)}-6\left(dj_{\lambda}^{\mu\left(\pm\right)}\right)^{3}-d^{3}j_{\lambda}^{\mu\left(\pm\right)}\left(j_{\lambda}^{\mu\left(\pm\right)}\right)^{2}}{\left(j_{\lambda}^{\mu\left(\pm\right)}\right)^{4}}\right)
-# \]
+# $$
 
-# In[ ]:
+# In[21]:
 
 @jit(nopython=True)
 def get_dddw(j,dj,ddj,dddj,mu):
@@ -416,7 +416,7 @@ def get_dddw(j,dj,ddj,dddj,mu):
 # W_{\lambda}^{\mu}=\frac{1}{\left(a_{\lambda}^{\mu}K\right)^{2}w_{\lambda-1}^{\mu\left(-\right)}+P+\left(a_{\lambda+1}^{\mu}K\right)^{2}w_{\lambda+1}^{\mu\left(+\right)}}
 # $$
 
-# In[82]:
+# In[22]:
 
 @jit(nopython=True)
 def get_W(p,mu,K,lamMax,jp,jm,d=3):
@@ -433,7 +433,7 @@ def get_W(p,mu,K,lamMax,jp,jm,d=3):
 # \partial_{p}W_{\lambda}^{\mu}=-\left(W_{\lambda}^{\mu}\right)^{2}\left(\left(a_{\lambda}^{\mu}K\right)^{2}\partial_{p}w_{\lambda-1}^{\mu\left(-\right)}+1+\left(a_{\lambda+1}^{\mu}K\right)^{2}\partial_{p}w_{\lambda+1}^{\mu\left(+\right)}\right)
 # $$
 
-# In[83]:
+# In[23]:
 
 @jit(nopython=True)
 def get_dW(p,mu,K,lamMax,dwp,dwm,W,d=3):
@@ -455,7 +455,7 @@ def get_dW(p,mu,K,lamMax,dwp,dwm,W,d=3):
 # \end{cases}
 # $$
 
-# In[84]:
+# In[24]:
 
 @jit(nopython=True)
 def get_G(p,lam,lam0,mu,K,jm,jp,W,d=3):
@@ -481,7 +481,7 @@ def get_G(p,lam,lam0,mu,K,jm,jp,W,d=3):
 # \end{cases}
 # $$
 
-# In[85]:
+# In[25]:
 
 @jit(nopython=True)
 def get_dG(p,lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
@@ -508,11 +508,11 @@ def get_dG(p,lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
 
 # #### X1
 
-# \[
+# $$
 # X_{1}=\left(a_{\lambda_{0}}^{\mu}K\right)^{2}w_{\lambda_{0}-1}^{\mu\left(-\right)}+P_{\lambda_{0}}+\left(a_{\lambda_{0}+1}^{\mu}K\right)^{2}w_{\lambda_{0}+1}^{\mu\left(+\right)}
-# \]
+# $$
 
-# In[20]:
+# In[26]:
 
 @jit(nopython=True)
 def get_X1(p,lam0,mu,K,jp,jm,d=3):
@@ -523,11 +523,11 @@ def get_X1(p,lam0,mu,K,jp,jm,d=3):
     return out
 
 
-# \[
+# $$
 # \frac{\partial}{\partial p}X_{1}=\left(a_{\lambda_{0}}^{\mu}K\right)^{2}\frac{\partial}{\partial p}w_{\lambda_{0}-1}^{\mu\left(-\right)}+1+\left(a_{\lambda_{0}+1}^{\mu}K\right)^{2}\frac{\partial}{\partial p}w_{\lambda_{0}+1}^{\mu\left(+\right)}
-# \]
+# $$
 
-# In[21]:
+# In[27]:
 
 @jit(nopython=True)
 def get_dX1(lam0,mu,K,dwp,dwm,d=3):
@@ -538,11 +538,11 @@ def get_dX1(lam0,mu,K,dwp,dwm,d=3):
     return dX1
 
 
-# \[
+# $$
 # \frac{\partial^{2}}{\partial p^{2}}X_{1}=\left(a_{\lambda_{0}}^{\mu}K\right)^{2}\frac{\partial^{2}}{\partial p^{2}}w_{\lambda_{0}}^{\mu\left(-\right)}+\left(a_{\lambda_{0}+1}^{\mu}K\right)^{2}\frac{\partial^{2}}{\partial p^{2}}w_{\lambda_{0}+1}^{\mu\left(+\right)}
-# \]
+# $$
 
-# In[ ]:
+# In[28]:
 
 @jit(nopython=True)
 def get_ddX1(lam0,mu,K,ddwp,ddwm,d=3):
@@ -553,11 +553,11 @@ def get_ddX1(lam0,mu,K,ddwp,ddwm,d=3):
     return ddX1
 
 
-# \[
+# $$
 # \frac{\partial^{3}}{\partial p^{3}}X_{1}=\left(a_{\lambda_{0}}^{\mu}K\right)^{2}\frac{\partial^{3}}{\partial p^{3}}w_{\lambda_{0}}^{\mu\left(-\right)}+\left(a_{\lambda_{0}+1}^{\mu}K\right)^{2}\frac{\partial^{3}}{\partial p^{3}}w_{\lambda_{0}+1}^{\mu\left(+\right)}
-# \]
+# $$
 
-# In[ ]:
+# In[29]:
 
 @jit(nopython=True)
 def get_dddX1(lam0,mu,K,dddwp,dddwm,d=3):
@@ -570,11 +570,11 @@ def get_dddX1(lam0,mu,K,dddwp,dddwm,d=3):
 
 # #### Xpm
 
-# \[
+# $$
 # S^{\left(\pm\right)}=\sum_{n=1}^{\left|\lambda-\lambda_{0}\right|}\frac{\partial_{p}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}{j_{\lambda_{0}\pm n}^{\mu\left(+\right)}}
-# \]
+# $$
 
-# In[ ]:
+# In[30]:
 
 @jit(nopython=True)
 def get_Sp(lam,lam0,jp,djp,pm):
@@ -586,11 +586,11 @@ def get_Sp(lam,lam0,jp,djp,pm):
     return S
 
 
-# \[
+# $$
 # \frac{\partial}{\partial p}S^{\left(\pm\right)}=\sum_{n=1}^{\left|\lambda-\lambda_{0}\right|}\left(\frac{\partial_{p}^{2}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}{j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}-\frac{\left(\partial_{p}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\right)^{2}}{\left(j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\right)^{2}}\right)
-# \]
+# $$
 
-# In[ ]:
+# In[31]:
 
 @jit(nopython=True)
 def get_dSp(lam,lam0,jp,djp,ddjp,pm):
@@ -603,11 +603,11 @@ def get_dSp(lam,lam0,jp,djp,ddjp,pm):
     return S
 
 
-# \[
+# $$
 # \frac{\partial^{2}}{\partial p^{2}}S^{\left(+\right)}=\sum_{n=1}^{\left|\lambda-\lambda_{0}\right|}\left(\frac{\partial_{p}^{3}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}{j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}+\frac{2\left(\partial_{p}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\right)^{3}}{\left(j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\right)^{3}}-\frac{3\partial_{p}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\partial_{p}^{2}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}}{\left(j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}\right)^{2}}\right)
-# \]
+# $$
 
-# In[ ]:
+# In[32]:
 
 @jit(nopython=True)
 def get_ddSp(lam,lam0,jp,djp,ddjp,dddjp,pm):
@@ -621,11 +621,11 @@ def get_ddSp(lam,lam0,jp,djp,ddjp,dddjp,pm):
     return S
 
 
-# \[
+# $$
 # X^{\left(\pm\right)}=\prod_{n=1}^{\left|\lambda-\lambda_{0}\right|}j_{\lambda_{0}\pm n}^{\mu\left(\pm\right)}
-# \]
+# $$
 
-# In[ ]:
+# In[33]:
 
 @jit(nopython=True)
 def get_Xp(lam,lam0,jp,pm):
@@ -635,21 +635,21 @@ def get_Xp(lam,lam0,jp,pm):
     return prod
 
 
-# \[
+# $$
 # \frac{\partial}{\partial p}X^{\left(\pm\right)}=S^{\left(\pm\right)}X^{\left(\pm\right)}
-# \]
+# $$
 # 
 # 
-# \[
+# $$
 # \frac{\partial^{2}}{\partial p^{2}}X^{\left(\pm\right)}=\left(\partial_{p}S^{\left(\pm\right)}\right)X^{\left(\pm\right)}+\left(S^{\left(\pm\right)}\right)^{2}X^{\left(\pm\right)}
-# \]
+# $$
 # 
 # 
-# \[
+# $$
 # \frac{\partial^{3}}{\partial p^{3}}X^{\left(\pm\right)}=\left(\partial_{p}^{2}S^{\left(\pm\right)}\right)X^{\left(\pm\right)}+3\left(\partial_{p}S^{\left(\pm\right)}\right)S^{\left(\pm\right)}X^{\left(+\right)}+\left(S^{\left(\pm\right)}\right)^{3}X^{\left(\pm\right)}
-# \]
+# $$
 
-# In[ ]:
+# In[34]:
 
 @jit(nopython=True)
 def get_dXp(S,X):
@@ -664,11 +664,11 @@ def get_dddXp(S,dS,ddS,X):
     return (ddS + 3*dS*S + S**3)*X
 
 
-# \[
+# $$
 # c^{\left(+\right)}=\prod_{n=1}^{\lambda-\lambda_{0}}iKa_{\lambda_{0}+n}^{\mu}
-# \]
+# $$
 
-# In[24]:
+# In[35]:
 
 @jit(nopython=True)
 def get_cp(lam,lam0,mu,K,d=3):
@@ -678,11 +678,11 @@ def get_cp(lam,lam0,mu,K,d=3):
     return prod
 
 
-# \[
+# $$
 # c^{\left(-\right)}=\prod_{n=1}^{\lambda_{0}-\lambda}iKa_{\lambda_{0}+1-n}^{\mu}
-# \]
+# $$
 
-# In[25]:
+# In[36]:
 
 @jit(nopython=True)
 def get_cm(lam,lam0,mu,K,d=3):
@@ -729,7 +729,7 @@ def get_cm(lam,lam0,mu,K,d=3):
 # \end{cases}
 # $$
 
-# In[ ]:
+# In[37]:
 
 @jit(nopython=True)
 def get_invG(cp,X1,Xp):
@@ -759,7 +759,7 @@ def get_dddinvG(cp,X1,dX1,ddX1,dddX1,                Xp,dXp,ddXp,dddXp):
 
 # #### old
 
-# In[ ]:
+# In[38]:
 
 @jit(nopython=True)
 def get_dw_old(j,dj,mu):
@@ -769,7 +769,7 @@ def get_dw_old(j,dj,mu):
     return dw
 
 
-# In[ ]:
+# In[39]:
 
 @jit(nopython=True)
 def X1prime(p,lam0,mu,K,jp,jm,djp,djm,d=3):
@@ -780,7 +780,7 @@ def X1prime(p,lam0,mu,K,jp,jm,djp,djm,d=3):
     return X1
 
 
-# In[ ]:
+# In[40]:
 
 @jit(nopython=True)
 def Xmprime(lam,lam0,jm,djm,Xm):
@@ -791,7 +791,7 @@ def Xmprime(lam,lam0,jm,djm,Xm):
     return out
 
 
-# In[ ]:
+# In[41]:
 
 @jit(nopython=True)
 def Xp_old(lam,lam0,jp):
@@ -801,7 +801,7 @@ def Xp_old(lam,lam0,jp):
     return prod
 
 
-# In[ ]:
+# In[42]:
 
 @jit(nopython=True)
 def Xm_old(lam,lam0,jm):
@@ -811,7 +811,7 @@ def Xm_old(lam,lam0,jm):
     return prod
 
 
-# In[30]:
+# In[43]:
 
 @jit(nopython=True)
 def InvGprime(p,lam,lam0,mu,K,jp,jm,djp,djm,d=3):
@@ -830,7 +830,7 @@ def InvGprime(p,lam,lam0,mu,K,jp,jm,djp,djm,d=3):
         return (X1prime(p,lam,lam0,mu,K,jp,jm,djp,djm)*Xm_old(lam,lam0,jm)                /get_cm(lam,lam0,mu,K,d))
 
 
-# In[ ]:
+# In[44]:
 
 @jit(nopython=True)
 def InvGprimeGeneral(p,lam,lam0,mu,K,jp,jm,djp,djm,d=3):
@@ -858,7 +858,7 @@ def InvGprimeGeneral(p,lam,lam0,mu,K,jp,jm,djp,djm,d=3):
 # \end{cases}
 # $$
 
-# In[86]:
+# In[45]:
 
 @jit(nopython=True)
 def get_jm_zero(mu,K,lamMax,d=3):
@@ -885,7 +885,7 @@ def get_jm_zero(mu,K,lamMax,d=3):
 # \end{cases}
 # $$
 
-# In[87]:
+# In[46]:
 
 @jit(nopython=True)
 def get_wm_zero(jm,lamMax):
@@ -904,7 +904,7 @@ def get_wm_zero(jm,lamMax):
 # \end{cases}
 # $$
 
-# In[88]:
+# In[47]:
 
 @jit(nopython=True)
 def get_djm_zero(mu,K,lamMax,jm,d=3):
@@ -931,7 +931,7 @@ def get_djm_zero(mu,K,lamMax,jm,d=3):
 # \end{cases}
 # $$
 
-# In[90]:
+# In[48]:
 
 @jit(nopython=True)
 def get_dwm_zero(jm,djm,K,lamMax,mu,d=3):
@@ -953,7 +953,7 @@ def get_dwm_zero(jm,djm,K,lamMax,mu,d=3):
 # \end{cases}
 # $$
 
-# In[91]:
+# In[49]:
 
 @jit(nopython=True)
 def get_W_zero(mu,K,lamMax,jp,jm,d=3):
@@ -983,7 +983,7 @@ def get_W_zero(mu,K,lamMax,jp,jm,d=3):
 # \end{cases}
 # $$
 
-# In[92]:
+# In[50]:
 
 @jit(nopython=True)
 def get_dW_zero(mu,K,lamMax,dwp,dwm,W,d=3):
@@ -1014,7 +1014,7 @@ def get_dW_zero(mu,K,lamMax,dwp,dwm,W,d=3):
 # \end{cases}
 # $$
 
-# In[37]:
+# In[51]:
 
 @jit(nopython=True)
 def get_G_zero(lam,lam0,mu,K,jm,jp,W,d=3):
@@ -1056,7 +1056,7 @@ def get_G_zero(lam,lam0,mu,K,jm,jp,W,d=3):
 # \end{cases}
 # $$
 
-# In[38]:
+# In[52]:
 
 @jit(nopython=True)
 def get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
@@ -1101,15 +1101,15 @@ def get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
 # ## Residue Evaluation
 
 # We would like to calculate first order residues defined as
-# \[
+# $$
 # Res\left(\epsilon_{l}\right)=\lim_{p\to\epsilon_{l}}\left[\left(p-\epsilon_{l}\right)\mathcal{G}_{l}\right]
-# \]
+# $$
 # by L'Hospital's Rule
-# \[
+# $$
 # Res\left(\epsilon_{l}\right)=\frac{1}{\left.\frac{\partial}{\partial p}\left(\frac{1}{\mathcal{G}\left(p\right)}\right)\right|_{p=\epsilon_{l}}}
-# \]
+# $$
 
-# In[1]:
+# In[53]:
 
 # Calculate Residues using continued fraction
 # Inputs:
@@ -1123,54 +1123,44 @@ def get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d=3):
 @jit(nopython=True)
 def largeKResidues(K,eig,mu,nlam=10,lamMax=500,d=3):
     p=eig
-    jp=get_jp(p,mu,K,lamMax)
-    jm=get_jm(p,mu,K,lamMax)
-    djp=get_djp(p,mu,K,lamMax,jp)
-    djm=get_djm(p,mu,K,lamMax,jm)
-    #W=get_W(p,mu,K,lamMax,jp,jm)
-    Res=np.zeros((nlam,nlam),dtype=type(1+1j))*np.NaN
-    for lam in range(abs(mu),nlam):
-        for lam0 in range(abs(mu),nlam):
-            Res[lam0,lam]=1.0/InvGprimeGeneral(p,lam,lam0,mu,K,jp,jm,djp,djm,d)
+    jp=get_jp(p,mu,K,lamMax,d)
+    jm=get_jm(p,mu,K,lamMax,d)
+    djp=get_djp(p,mu,K,lamMax,jp,d)
+    djm=get_djm(p,mu,K,lamMax,jm,d)    
+    dwp=get_dw(jp,djp,mu)
+    dwm=get_dw(jm,djm,mu)
+   
+    invG=np.zeros((nlam,nlam),dtype=type(1+1j))
+    dinvG=np.zeros((nlam,nlam),dtype=type(1+1j))
+    for lam0 in range(abs(mu),nlam):
+        X1=get_X1(p,lam0,mu,K,jp,jm,d)
+        dX1=get_dX1(lam0,mu,K,dwp,dwm,d)
+        for lam in range(abs(mu),nlam):
+            if lam0==lam:
+                dinvG[lam0,lam]=dX1
+            elif lam0<lam:
+                cp=get_cp(lam,lam0,mu,K,d)
+                pm=1
+                Sp=get_Sp(lam,lam0,jp,djp,pm)
+            
+                Xp=get_Xp(lam,lam0,jp,pm)
+                dXp=get_dXp(Sp,Xp)
+                
+                dinvG[lam0,lam]=get_dinvG(cp,X1,dX1,Xp,dXp)
+            elif lam0>lam:
+                cm=get_cm(lam,lam0,mu,K,d)
+                pm=-1
+                Sm=get_Sp(lam,lam0,jm,djm,pm)
+                
+                Xm=get_Xp(lam,lam0,jm,pm)
+                dXm=get_dXp(Sm,Xm)
+                
+                dinvG[lam0,lam]=get_dinvG(cm,X1,dX1,Xm,dXm)
+    Res=1.0/dinvG # residue of 1st order pole         
     return Res
-#    jp=get_jp(p,mu,K,lamMax,d)
-#    jm=get_jm(p,mu,K,lamMax,d)
-#    djp=get_djp(p,mu,K,lamMax,jp,d)
-#    djm=get_djm(p,mu,K,lamMax,jm,d)    
-#    dwp=get_dw(jp,djp,mu)
-#    dwm=get_dw(jm,djm,mu)
-#    
-#    invG=np.zeros((nlam,nlam),dtype=type(1+1j))
-#    dinvG=np.zeros((nlam,nlam),dtype=type(1+1j))
-#    for lam0 in range(abs(mu),nlam):
-#        X1=get_X1(p,lam0,mu,K,jp,jm,d)
-#        dX1=get_dX1(lam0,mu,K,dwp,dwm,d)
-#        for lam in range(abs(mu),nlam):
-#            if lam0==lam:
-#                dinvG[lam0,lam]=dX1
-#            elif lam0<lam:
-#                cp=get_cp(lam,lam0,mu,K,d)
-#                pm=1
-#                Sp=get_Sp(lam,lam0,jp,djp,pm)
-#            
-#                Xp=get_Xp(lam,lam0,jp,pm)
-#                dXp=get_dXp(Sp,Xp)
-#                
-#                dinvG[lam0,lam]=get_dinvG(cp,X1,dX1,Xp,dXp)
-#            elif lam0>lam:
-#                cm=get_cm(lam,lam0,mu,K,d)
-#                pm=-1
-#                Sm=get_Sp(lam,lam0,jm,djm,pm)
-#                
-#                Xm=get_Xp(lam,lam0,jm,pm)
-#                dXm=get_dXp(Sm,Xm)
-#                
-#                dinvG[lam0,lam]=get_dinvG(cm,X1,dX1,Xm,dXm)
-#    Res=1.0/dinvG # residue of 1st order pole         
-#    return Res
 
 
-# In[ ]:
+# In[54]:
 
 @jit(nopython=True)
 def CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500):
@@ -1197,8 +1187,8 @@ def CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500):
     dddinvG=np.zeros((nlam,nlam),dtype=type(1+1j))
     for lam0 in range(abs(mu),nlam):
         X1=get_X1(p,lam0,mu,K,jp,jm,d)
-        dX1=X1prime(p,lam0,mu,K,jp,jm,djp,djm,d)
-        #dX1=get_dX1(lam0,mu,K,dwp,dwm,d)
+        #dX1=X1prime(p,lam0,mu,K,jp,jm,djp,djm,d)
+        dX1=get_dX1(lam0,mu,K,dwp,dwm,d)
         ddX1=get_ddX1(lam0,mu,K,ddwp,ddwm,d)
         dddX1=get_dddX1(lam0,mu,K,dddwp,dddwm,d)
         for lam in range(abs(mu),nlam):
@@ -1248,21 +1238,39 @@ def CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500):
 # \end{align*}
 # 
 # 
-# \[
+# $$
 # a=-\frac{R^{2}}{2}\lim_{p\to\epsilon}\frac{\partial^{2}}{\partial^{2}p}\left(\frac{1}{G}\right)
-# \]
+# $$
 # 
 # 
-# \[
+# $$
 # b=\frac{a^{2}}{R}-\frac{R^{2}}{6}\lim_{p\to\epsilon}\frac{\partial^{3}}{\partial^{3}p}\left(\frac{1}{G}\right)
-# \]
+# $$
 
-# In[2]:
+# In[55]:
 
-def LurentifyG(K,eig,l,mu,nlam=10,d=3,lamMax=500,cutoff=10**-11,lowKcut=10**-7):
+def LurentifyG(K,eig,l,mu,nlam=10,d=3,lamMax=500,
+               # when res<cutoff use small Aysmp
+               cutoff=10**-11, 
+               # lowKcut: when to switch to low K expression for residue
+               lowKcut=10**-7, 
+               # zeroKcut: when to use only one residue at exactly K=0
+               zeroKcut=10**-10,
+              ): # sad face because cutoffs suck
+    
+    if K<zeroKcut:
+        return zeroKLurent(l,eig,nlam,d,mu) 
+    
     old_settings = np.seterr(all='ignore')
     
-    invG, dinvG, ddinvG, dddinvG =       CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500)
+    try:
+        invG, dinvG, ddinvG, dddinvG =           CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500)
+    except ZeroDivisionError:
+        print('Encountered division by zero on CalInvG')
+        print('K',K)
+        print('eig',eig)
+        print('mu',mu)
+        raise Exception('ZeroDivisionError')
     
     tol=1.0*10**-30
     dinvG[abs(dinvG)<tol]=np.NaN
@@ -1284,15 +1292,52 @@ def LurentifyG(K,eig,l,mu,nlam=10,d=3,lamMax=500,cutoff=10**-11,lowKcut=10**-7):
     return res, a, b, invG, dinvG, ddinvG, dddinvG
 
 
-# \[
+# $$
+# \lim_{K\to0}\mathcal{G}_{\lambda\lambda_{0}}^{\mu}=\begin{cases}
+# \frac{1}{p-\lambda\left(\lambda+d-2\right)} & \lambda=\lambda_{0}\\
+# 0 & \mathrm{otherwise}
+# \end{cases}
+# $$
+# 
+# 
+# $$
+# R=\delta_{\lambda\lambda_{0}}\delta_{\lambda l}
+# $$
+
+# In[ ]:
+
+def zeroKLurent(l,eig,nlam,d,mu):
+    invG=np.zeros((nlam,nlam),dtype='complex')*np.NaN
+    dinvG=np.zeros((nlam,nlam),dtype='complex')
+    dinvG[:,:]=np.Inf+0j
+    ddinvG=np.zeros((nlam,nlam),dtype='complex')
+    dddinvG=np.zeros((nlam,nlam),dtype='complex')
+    a=np.zeros((nlam,nlam),dtype='complex'); a[0:mu,0:mu]=np.NaN
+    b=np.zeros((nlam,nlam),dtype='complex'); b[0:mu,0:mu]=np.NaN
+    res=np.zeros((nlam,nlam),dtype='complex'); res[0:mu,0:mu]=np.NaN
+    
+    for lam in range(mu,nlam):
+        invG[lam,lam]=eig+lam*(lam+d-2)
+    if abs(eig+l*(l+d-2))>10**-6:
+        raise Exception('When K=0, eig sould go to l(l+d-2). l='+str(l)+' eig'+str(eig))
+    
+    if l<nlam:
+        invG[l,l]=0.0
+        dinvG[l,l]=1.0+0*1j
+        res[l,l]=1.0
+    
+    return res, a, b, invG, dinvG, ddinvG, dddinvG
+
+
+# $$
 # C_{\lambda,l}^{\mu}=\begin{cases}
 # 1 & \lambda=l\\
 # \left(-iK\right)^{l-\lambda}\prod_{j=\lambda}^{l-1}\frac{a_{j+1}^{\mu}}{l\left(l+1\right)-j\left(j+1\right)} & l>\lambda\\
 # \left(-iK\right)^{\lambda-l}\prod_{j=l+1}^{\lambda}\frac{a_{j}^{\mu}}{l\left(l+1\right)-j\left(j+1\right)} & l<\lambda
 # \end{cases}
-# \]
+# $$
 
-# In[135]:
+# In[56]:
 
 @jit(nopython=True)
 def get_C(K,l,lam,mu,d=3):
@@ -1311,11 +1356,11 @@ def get_C(K,l,lam,mu,d=3):
     return prod
 
 
-# \[
+# $$
 # \lim_{p\to\epsilon_{l}}\left[\left(p-\epsilon_{l}\right)\mathcal{G}_{\lambda_{0},\lambda}^{\mu}\left(K,p\right)\right]\approx C_{\lambda_{0},l}^{\mu}C_{\lambda,l}^{\mu}
-# \]
+# $$
 
-# In[136]:
+# In[57]:
 
 # l = Eigenvalue number
 # lam1, lam2: spherical harmonic l index
@@ -1327,7 +1372,7 @@ def SmallAysmpRes(K,l,lam1,lam2,mu,d=3):
     return Res1*Res2
 
 
-# In[137]:
+# In[58]:
 
 @jit(nopython=True)
 def residues(K,eig,l,mu,nlam=10,d=3,lamMax=500,cutoff=10**-11):
@@ -1351,7 +1396,7 @@ def residues(K,eig,l,mu,nlam=10,d=3,lamMax=500,cutoff=10**-11):
     return res
 
 
-# In[ ]:
+# In[59]:
 
 @jit(nopython=True)
 def bothResidues(K,eig,l,mu,nlam=10,d=3):
@@ -1364,9 +1409,4 @@ def bothResidues(K,eig,l,mu,nlam=10,d=3):
             #print('lam0=',lam0,'lam',lam,'mu',mu)
             resSmall[lam0,lam]=SmallAysmpRes(K,l,lam,lam0,mu,d=d)
     return res, resSmall
-
-
-# In[ ]:
-
-
 
