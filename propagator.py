@@ -1,7 +1,6 @@
 import numpy as np
 import WLCgreen as wlc
 
-
 # Find all shared Eignevalues
 # returns of list of overlaps of the format out[l_2]=l_1
 # assumes no repeated values within tol
@@ -19,26 +18,98 @@ def IntersectEig(set1,set2,tol=10**-4):
                         out[l1]=l2+1
 
                 break
-    
 
-   # Assumes two reverse ordered lists with no repeated values
-   # 
-   # l1=0
-   # l2=0
-   # while l1<len(set1) and l2<len(set2):
-   #     if abs(set1[l1]-set2[l2])<tol:
-   #         out[l1]=l2
-   #         l1=l1+1
-   #         l2=l2+1
-   #         continue  
-   #     if set1[l1].real >= set2[l2].real + tol:
-   #         l1=l1+1
-   #     elif set1[l1].real <= set2[l2].real - tol:
-   #         l2=l2+1
-   #     elif set1[l1].imag >= set2[l2].imag:
-   #         l1=l1+1
-   #     else
-   #         l2=l2+1
+# Finds values in set1 and set2 that are within tol of eachother.
+# set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
+# paris returns a list of tuples of indicies of overlap (l1,l2)
+def IntersectEig2(set1,set2,tol=10**-4):
+    set1only=np.ones(len(set1),dtype='int')
+    set2only=np.ones(len(set1),dtype='int')
+    pairs=[]
+    for l1 in range(0,len(set1)):
+        for l2 in range(0,len(set2)):
+            if set2only[l2] == 0:
+                continue
+            if abs(set1[l1]-set2[l2]) < tol:
+                set1only[l1]=0
+                set2only[l2]=0
+                pairs.append((l1,l2))
+                break 
+    return set1only, set2only, pairs
+                
+# Finds values in set1, set2, and set3 that are within tol of eachother.
+# set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
+# paris12 returns a list of tuples of indicies of overlap (l1,l2).
+# triplets is a of list of (l1,l2,l3).
+def IntersectEig3(set1,set2,set3,tol=10**-4):
+    set1only=np.ones(len(set1),dtype='int')
+    set2only=np.ones(len(set1),dtype='int')
+    set3only=np.ones(len(set1),dtype='int')
+    pairs12=[]
+    pairs23=[]
+    pairs31=[]
+    triplets=[] 
+    for l1 in range(0,len(set1)):
+        for l2 in range(0,len(set2)):
+            if set2only[l2] == 0:
+                continue
+            if abs(set1[l1]-set2[l2]) < tol:
+                set1only[l1]=0
+                set2only[l2]=0
+                thirdOverlap=0
+                for l3 in range(0,len(set3)):
+                    if set3only[l3] == 0:
+                        continue
+                    if abs(set1[l1]-set3[l3])< tol or abs(set2[l2]-set3[l3])< tol:
+                        thirdOverlap=1
+                        triplets.append((l1,l2,l3))
+                        thirdOverlap=1
+                if thirdOverlap==0:
+                    pairs12.append((l1,l2))
+                break
+                
+        for l3 in range(0,len(set3)):
+            if set3only[l3] == 0:
+                continue
+            if abs(set1[l1]-set3[l3]) < tol:
+                set1only[l1]=0
+                set3only[l3]=0
+                pairs31.append((l3,l1))
+                break
+             
+    for l2 in range(0,len(set1)):
+        if set2only[l2] == 0:
+            continue
+        for l3 in range(0,len(set3)):
+            if set3only[l3] == 0:
+                continue
+            if abs(set3[l3]-set2[l2]) < tol:
+                set3only[l3]=0
+                set2only[l2]=0
+                pairs23.append((l2,l3))
+                break
+    return set1only, set2only, set3only, pairs12, pairs23, pairs31, triplets
+                              
+        
+                
+    # Assumes two reverse ordered lists with no repeated values
+    # 
+    # l1=0
+    # l2=0
+    # while l1<len(set1) and l2<len(set2):
+    #     if abs(set1[l1]-set2[l2])<tol:
+    #         out[l1]=l2
+    #         l1=l1+1
+    #         l2=l2+1
+    #         continue  
+    #     if set1[l1].real >= set2[l2].real + tol:
+    #         l1=l1+1
+    #     elif set1[l1].real <= set2[l2].real - tol:
+    #         l2=l2+1
+    #     elif set1[l1].imag >= set2[l2].imag:
+    #         l1=l1+1
+    #     else
+    #         l2=l2+1
         
     return out
 
@@ -122,7 +193,7 @@ class propagator:
             else:
                 resTemp, aTemp, bTemp,\
                         invG, dinvG, ddinvG, dddinvG =\
-                        wlc.LurentifyG(K,eigvals[l],l,mu,nlam=10,d=3,\
+                        wlc.LurentifyG(K,eigvals[l],l,mu,nlam=nlam,d=d,\
                                        lamMax=500,\
                                        cutoff=10**-11,lowKcut=10**-7)
                 #res.append(wlc.residues(K,eigvals[l],l,mu,nlam=nlam,d=d))
@@ -177,7 +248,7 @@ class propagator:
                 dG0[lam0,lam]=wlc.get_dG_zero(lam,lam0,mu,K,jm,jp,W,dW,dwm,dwp,d)
         return G0, dG0
 
-    #Inverse laplace trasform G(p,K) -> G(N,K)
+    # Inverse laplace trasform G(p,K) -> G(N,K)
     # Peformed by summing residues
     # G(N) = \sum_l R(eps_l) exp(N*eps_l)
     def get_G(self,N,lam0,lam):
@@ -188,6 +259,7 @@ class propagator:
             out=out+res[l][lam0,lam]*np.exp(N*eig[l])
         return out
    
+    # Return G(K,p)
     def get_G_laplace(self,p,lam0,lam,mu):
         mu =self.mu
         K = self.K
@@ -225,19 +297,41 @@ class propagator:
             else: # a.k.a overlapping eigenvalue
                 G_at_other[:,:,ii]=np.NaN 
         return G_at_other, overlapping_other_l
+
+    # Evaluate this G at eigenvalues of another G
+    # If they share eigenvalues then retun NaN
+    # Inputs:
+    #     other: propagator object at other
+    #     otherOnly: array of 0=overlap, 1=no overlap indexed by lother
+    def get_G_at_other(self,other,tol=10**-8):
+        mu =self.mu
+        K = self.K
+        lamMax = self.lamMax
+        nlam = self.nlam
+        neig=len(other.eig)
+        
+        G_at_other = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN  
+        for lother in range(other.mu,neig):
+            # check for overlaps [to avoide divide by zero]
+            overlap=self.isAnEigenvalue(other.eig[lother],tol)
+            if overlap==-1: # if no overlaps 
+                p=other.eig[lother]
+                jp=wlc.get_jp(p,mu,K,lamMax)
+                jm=wlc.get_jm(p,mu,K,lamMax)
+                W=wlc.get_W(p,mu,K,lamMax,jp,jm)
+                for lam0 in range(abs(mu),nlam):
+                    for lam in range(abs(mu),nlam):
+                        G_at_other[lam0,lam,lother]=wlc.get_G(p,lam,lam0,\
+                                                          mu,K,jm,jp,W)
+            else: # a.k.a overlapping eigenvalue
+                G_at_other[:,:,lother]=np.NaN 
+        return G_at_other  
     
     def isAnEigenvalue(self,p,tol=10**-4):
         for l in range(self.mu,self.ORDEig):
             if abs(p-self.eig[l])<tol:
                 return l
         return -1 # not in list
-    
-    # Add ability to lookup G at eigenvalues of another G
-    def add_another_G(self,name,eig):
-        if name in self.otherG:
-            print(name,' is already in ',self.name)
-        else:
-            self.otherG.update({name,self.get_G_matrix(eig)})
             
     # Look up G[lam0,lam] evaluate at other G's lth eigenvalue
     # If you don't already know it, add to dictionary
@@ -245,28 +339,19 @@ class propagator:
     # other_l is the eigenvalue index of the other propagator
     def G_other(self,lam0,lam,other,other_l):
         name = other.name        
-        if name in self.otherG:
-            G_at_other, overlapping_other_l =self.otherG[name]
-            return G_at_other[lam0,lam,l], overlapping_other_l
-        else:
-            self.otherG.update({name: self.get_G_matrix(other)})
-            G_at_other, overlapping_other_l =self.otherG[name]
-            return G_at_other[lam0,lam,l], overlapping_other_l
+        if name not in self.otherG:
+            self.otherG.update({name: self.get_G_at_other(other)})
+        G_at_other = self.otherG[name]
+        return G_at_other[lam0,lam,l]   
     
     # Same as G_other except return residues of all other_l 
     def G_others(self,lam0,lam,other):
-        name = other.name
-        
-        if name in self.otherG:
-            G_at_other, overlapping_other_l =self.otherG[name]
-            return G_at_other[lam0,lam,:], overlapping_other_l
-        else:
-            #print('self.K',self.K,'other.K',other.K)
-            self.otherG.update({name: self.get_G_matrix(other)})
-            G_at_other, overlapping_other_l =self.otherG[name]
-            return G_at_other[lam0,lam,:], overlapping_other_l
+        name = other.name        
+        if name not in self.otherG:
+            self.otherG.update({name: self.get_G_at_other(other)})
+        G_at_other = self.otherG[name]
+        return G_at_other[lam0,lam,:]  
             
-
 
 class vectorPropagator:
     
@@ -277,10 +362,10 @@ class vectorPropagator:
         self.ORDEig = ORDEig
         self.d =d  
         
-        self.mu_dict = {} # dictionary of scalar propagators
+        self.mu_dict = {} # dictionary of scalar propagators. key: abs(mu)
         self.D= None # Wigner D matrix
         
-    def prop(self,mu):
+    def prop(self,mu,precisionPlacesSameProp=8):
         if abs(mu) in self.mu_dict:
             # Already exists, just return it
             return self.mu_dict[abs(mu)]
@@ -289,8 +374,14 @@ class vectorPropagator:
                 print('Error in vectorPropagator')
                 print('I assumed that G(mu)=G(-mu).')
                 print('This appears to be only true if d=3.')
+
+            # name propagator by mu and |k|
+            temp=np.get_printoptions()
+            np.set_printoptions(precision=precisionPlacesSameProp)
+            name=(abs(mu),str(np.linalg.norm(self.kvec)))
+            np.set_printoptions(**temp)
+
             # Calculate
-            name=(abs(mu),self.kvec)
             self.mu_dict[abs(mu)]=propagator(name,\
                                              np.linalg.norm(self.kvec),\
                                              abs(mu),\
