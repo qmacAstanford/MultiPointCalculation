@@ -366,6 +366,15 @@ def get_dddjm(p,mu,K,lamMax,jm,djm,ddjm,d=3):
 
 # #### w
 
+# In[ ]:
+
+@jit(nopython=True)
+def get_w(j,mu):
+    j[j==0.0+0.0j]=np.NaN
+    w=1.0/j
+    return w
+
+
 # $$
 # \partial_{p}w_{\lambda}^{\mu\left(\pm\right)}=\frac{-1}{\left(j_{\lambda}^{\mu\left(\pm\right)}\right)^{2}}\partial_{p}j_{\lambda}^{\mu\left(\pm\right)}
 # $$
@@ -1232,6 +1241,28 @@ def CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500):
     return invG, dinvG, ddinvG, dddinvG
 
 
+# In[ ]:
+
+@jit(nopython=True)
+def CalcG(K,p,mu,nlam=10,d=3,lamMax=500):
+    jp=get_jp(p,mu,K,lamMax,d)
+    jm=get_jm(p,mu,K,lamMax,d)
+    djp=get_djp(p,mu,K,lamMax,jp,d)
+    djm=get_djm(p,mu,K,lamMax,jm,d)
+    
+    wp=get_w(jp,mu)
+    wm=get_w(jm,mu)
+    dwp=get_dw(jp,djp,mu)
+    dwm=get_dw(jm,djm,mu)
+    
+    W=get_W(p,mu,K,lamMax,jp,jm,d=3)
+    G=np.zeros((nlam,nlam),dtype=type(1.0+1j))*np.NaN
+    for lam0 in range(abs(mu),nlam):
+        for lam in range(abs(mu),nlam):
+            G[lam0,lam]=get_G(p,lam,lam0,mu,K,jm,jp,W,d=3)
+    return G, W, wp, wm
+
+
 # \begin{align*}
 # R & =\lim_{p\to0}\left(p-\epsilon_{1}\right)G\left(p\right)\\
 #  & =\frac{1}{\lim_{p\to\epsilon}\frac{\partial}{\partial p}\left(\frac{1}{G\left(p\right)}\right)}
@@ -1264,7 +1295,7 @@ def LurentifyG(K,eig,l,mu,nlam=10,d=3,lamMax=500,
     old_settings = np.seterr(all='ignore')
     
     try:
-        invG, dinvG, ddinvG, dddinvG =           CalcInvG(K,eig,mu,nlam=10,d=3,lamMax=500)
+        invG, dinvG, ddinvG, dddinvG =           CalcInvG(K,eig,mu,nlam=nlam,d=d,lamMax=lamMax)
     except ZeroDivisionError:
         print('Encountered division by zero on CalInvG')
         print('K',K)
