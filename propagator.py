@@ -270,62 +270,51 @@ class propagator:
         W=wlc.get_W(p,mu,K,lamMax,jp,jm)
         return wlc.get_G(p,lam,lam0,mu,K,jm,jp,W)
 
-    # Evaluate this G at eigenvalues of another G
-    # If they share eigenvalues then retun NaN
-    # Output format: [self.lam0,self.lam,other.l]
-    def get_G_matrix(self,other,tol=10**-4):
-        mu =self.mu
-        K = self.K
-        lamMax = self.lamMax
-        nlam = self.nlam
-        neig=len(other.eig)
-        
-        overlapping_other_l = IntersectEig(self.eig,other.eig,tol)
-        
-        G_at_other = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN  
-        
-        for ii in range(other.mu,neig):
-            if overlapping_other_l[ii]==-1: # if no overlaps
-                p=other.eig[ii]
-                jp=wlc.get_jp(p,mu,K,lamMax)
-                jm=wlc.get_jm(p,mu,K,lamMax)
-                W=wlc.get_W(p,mu,K,lamMax,jp,jm)
-                for lam0 in range(abs(mu),nlam):
-                    for lam in range(abs(mu),nlam):
-                        G_at_other[lam0,lam,ii]=wlc.get_G(p,lam,lam0,\
-                                                          mu,K,jm,jp,W)
-            else: # a.k.a overlapping eigenvalue
-                G_at_other[:,:,ii]=np.NaN 
-        return G_at_other, overlapping_other_l
 
     # Evaluate this G at eigenvalues of another G
     # If they share eigenvalues then retun NaN
     # Inputs:
     #     other: propagator object at other
     #     otherOnly: array of 0=overlap, 1=no overlap indexed by lother
+    #     tol: returns NaN when within tol of an eigenvalue
+    # Outputs:
+    #     G_at_other[lam0,lam,lother]: 
+    #     dG_at_other[lam0,lam,lother]:
     def get_G_at_other(self,other,tol=10**-8):
         mu =self.mu
         K = self.K
         lamMax = self.lamMax
         nlam = self.nlam
+        d=self.d
         neig=len(other.eig)
         
         G_at_other = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN  
+        dG_at_other = np.zeros((nlam,nlam,neig),dtype=type(1+1j))*np.NaN  
         for lother in range(other.mu,neig):
             # check for overlaps [to avoide divide by zero]
             overlap=self.isAnEigenvalue(other.eig[lother],tol)
             if overlap==-1: # if no overlaps 
                 p=other.eig[lother]
-                jp=wlc.get_jp(p,mu,K,lamMax)
-                jm=wlc.get_jm(p,mu,K,lamMax)
-                W=wlc.get_W(p,mu,K,lamMax,jp,jm)
+                jp=wlc.get_jp(p,mu,K,lamMax,d)
+                jm=wlc.get_jm(p,mu,K,lamMax,d)
+                djp=wlc.get_djp(p, mu, K, lamMax, jp, d)
+                djm=wlc.get_djm(p, mu, K, lamMax, jm, d)
+                dwp=wlc.get_dw(jp,djp,mu)
+                dwm=wlc.get_dw(jm, djm, mu)
+                W=wlc.get_W(p,mu,K,lamMax,jp,jm,d)
+                dW=wlc.get_dW(p, mu, K, lamMax, dwp, dwm, W, d)
                 for lam0 in range(abs(mu),nlam):
                     for lam in range(abs(mu),nlam):
-                        G_at_other[lam0,lam,lother]=wlc.get_G(p,lam,lam0,\
-                                                          mu,K,jm,jp,W)
+                        G_at_other[lam0,lam,lother]=wlc.get_G(p,lam,lam0,
+                                                          mu,K,jm,jp,W,d)
+                        dG_at_other[lam0,lam,lother]=wlc.get_dG(p, lam, lam0,
+                                                                mu, K, jm, jp,
+                                                                W, dW, dwm,
+                                                                dwp,d)
             else: # a.k.a overlapping eigenvalue
                 G_at_other[:,:,lother]=np.NaN 
-        return G_at_other  
+                dG_at_other[:,:,lother]=np.NaN 
+        return G_at_other, dG_at_other
     
     def isAnEigenvalue(self,p,tol=10**-4):
         for l in range(self.mu,self.ORDEig):
@@ -333,24 +322,32 @@ class propagator:
                 return l
         return -1 # not in list
             
-    # Look up G[lam0,lam] evaluate at other G's lth eigenvalue
+    # Look up G[lam0,lam] evaluate at other G's other_l eigenvalue
     # If you don't already know it, add to dictionary
     # lam0, lam are the angular indices of the self
     # other_l is the eigenvalue index of the other propagator
-    def G_other(self,lam0,lam,other,other_l):
+    # If other_l=None return residues of all other_l
+    def G_others(self,lam0,lam,other,other_l=None):
         name = other.name        
         if name not in self.otherG:
             self.otherG.update({name: self.get_G_at_other(other)})
-        G_at_other = self.otherG[name]
-        return G_at_other[lam0,lam,l]   
-    
-    # Same as G_other except return residues of all other_l 
-    def G_others(self,lam0,lam,other):
+        G_at_other = self.otherG[name][0] # zero for G_at_other
+
+        if other_l==None:
+            return G_at_other[lam0,lam,:]  # Return at all other_l
+        else:
+            return G_at_other[lam0,lam,otherl]
+
+    def dG_others(self,lam0,lam,other,other_l=None):
         name = other.name        
         if name not in self.otherG:
             self.otherG.update({name: self.get_G_at_other(other)})
-        G_at_other = self.otherG[name]
-        return G_at_other[lam0,lam,:]  
+        dG_at_other = self.otherG[name][1] # 1 for dG_at_other
+
+        if other_l==None:
+            return dG_at_other[lam0,lam,:]  # Return at all other_l
+        else:
+            return dG_at_other[lam0,lam,otherl]
             
 
 class vectorPropagator:
