@@ -296,86 +296,41 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # In[ ]:
 
-import pdb as pdb
 def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N,
            include_b=1):
     set1only, set2only, set3only,       pairs12, pairs23, pairs31, triplets      =propagator.IntersectEig3(p1.eig,p2.eig,p3.eig,tol=10**-4)
     
     out=0.0+0.0j
     
-    G2at1 = p2.G_others(lam0_2,lam_2,p1)
-    G3at1 = p3.G_others(lam0_3,lam_3,p1)
-    for l1 in range(abs(p1.mu),p1.ORDEig):
-        if set1only[l1]==0:
-            continue
-        eps1=p1.eig[l1]
-        R1=p1.res[l1][lam0_1,lam_1]
-        out=out-(eps1**(-1*j))*np.exp(eps1*N)*R1*G2at1[l1]*G3at1[l1]
+    out=out+singlePoles(set1only,p1,p2,p3,j,N,
+               lam0_1,lam_1,
+               lam0_2,lam_2,
+               lam0_3,lam_3)
         
-    G1at2 = p1.G_others(lam0_1,lam_1,p2)
-    G3at2 = p3.G_others(lam0_3,lam_3,p2)
-    for l2 in range(abs(p2.mu),p2.ORDEig):
-        if set2only[l2]==0:
-            continue
-        eps2=p2.eig[l2]
-        R2=p2.res[l2][lam0_2,lam_2]
-        out=out-(eps2**(-1*j))*np.exp(eps2*N)*R2*G1at2[l2]*G3at2[l2]    
-    
-    G1at3 = p1.G_others(lam0_1,lam_1,p3)
-    G2at3 = p2.G_others(lam0_2,lam_2,p3)
-    for l3 in range(abs(p3.mu),p3.ORDEig):
-        if set3only[l3]==0:
-            continue
-        eps3=p3.eig[l3]
-        R3=p3.res[l3][lam0_3,lam_3]
-        out=out-(eps3**(-1*j))*np.exp(eps3*N)*R3*G1at3[l3]*G2at3[l3]
+    out=out+singlePoles(set2only,p2,p3,p1,j,N,
+               lam0_2,lam_2,
+               lam0_3,lam_3,
+               lam0_1,lam_1)
         
-    dub=0.0+0.0j
-    for pair in pairs12:
-        (l1,l2)=pair
-        eps1=p1.eig[l1]    
-        eps2=p2.eig[l2] 
-        R1=p1.res[l1][lam0_1,lam_1]
-        R2=p2.res[l2][lam0_2,lam_2]
-        a1=p1.a[l1][lam0_1,lam_1]
-        a2=p2.a[l2][lam0_2,lam_2]
-        avj=0.5*(G3at1[l1]+G3at2[l2]) # should be about the same
-        if abs(G3at1[l1]- G3at2[l2])/abs(avj) > 0.001:
-            raise Exception('R1*G3at1[l1]-R2*G3at2[l2] too large')
-        dub = dub - avj*R1*R2*sp.f2(j,eps1,eps2,N)
-        dub = dub - a2*R1*np.exp(N*eps1)/(eps1**j)
-        dub = dub - a1*R2*np.exp(N*eps2)/(eps2**j)
+    out=out+singlePoles(set3only,p3,p1,p2,j,N,
+               lam0_3,lam_3,
+               lam0_1,lam_1,
+               lam0_2,lam_2)
+      
+    out=out+doublePoles(pairs12,p1,p2,p3,j,N,
+               lam0_1,lam_1,
+               lam0_2,lam_2,
+               lam0_3,lam_3)
         
+    out=out+doublePoles(pairs23,p2,p3,p1,j,N,
+               lam0_2,lam_2,
+               lam0_3,lam_3,
+               lam0_1,lam_1)
         
-    for pair in pairs23:
-        (l2,l3)=pair
-        eps2=p2.eig[l2]    
-        eps3=p3.eig[l3] 
-        R2=p1.res[l2][lam0_2,lam_2]
-        R3=p3.res[l3][lam0_3,lam_3]
-        a2=p2.a[l2][lam0_2,lam_2]
-        a3=p3.a[l3][lam0_3,lam_3]
-        avj=0.5*(G1at2[l2]+G1at3[l3]) # should be about the same
-        if abs(G1at2[l2]-G1at3[l3])/abs(avj) > 0.001:
-            raise Exception('R2*G1at2[l2]-R3*G1at3[l3] too large')
-        dub = dub - avj*R2*R3*sp.f2(j,eps2,eps3,N)
-        dub = dub - a3*R2*np.exp(N*eps2)/(eps2**j)
-        dub = dub - a2*R3*np.exp(N*eps3)/(eps3**j)
-        
-    for pair in pairs31:
-        (l3,l1)=pair
-        eps3=p3.eig[l3]    
-        eps1=p1.eig[l1] 
-        R3=p3.res[l3][lam0_3,lam_3]
-        R1=p1.res[l1][lam0_1,lam_1]
-        a3=p3.a[l3][lam0_3,lam_3]
-        a1=p1.a[l1][lam0_1,lam_1]
-        avj=0.5*(G2at3[l3]+G2at1[l1]) # should be about the same
-        if abs(G2at3[l3]-G2at1[l1])/abs(avj) > 0.001:
-            raise Exception('R3*G2at3[l3]-R1*G2at1[l1] too large')
-        dub = dub - avj*R3*R1*sp.f2(j,eps3,eps1,N)
-        dub = dub - a1*R3*np.exp(N*eps3)/(eps3**j)
-        dub = dub - a3*R1*np.exp(N*eps1)/(eps1**j)
+    out=out+doublePoles(pairs31,p3,p1,p2,j,N,
+               lam0_3,lam_3,
+               lam0_1,lam_1,
+               lam0_2,lam_2)
 
     trip=0.0+0.0j
     for triplet in triplets:
@@ -393,25 +348,90 @@ def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N,
         b2=p2.b[l2][lam0_2,lam_2]
         b3=p3.b[l3][lam0_3,lam_3] 
         
-        trip=trip - a2*a3*R1*np.exp(N*eps1)/(eps1**j)
-        trip=trip - a3*a1*R2*np.exp(N*eps2)/(eps2**j)
-        trip=trip - a1*a2*R3*np.exp(N*eps3)/(eps3**j)
+        trip=trip + a2*a3*R1*np.exp(N*eps1)/(eps1**j)
+        trip=trip + a3*a1*R2*np.exp(N*eps2)/(eps2**j)
+        trip=trip + a1*a2*R3*np.exp(N*eps3)/(eps3**j)
         
-        trip=trip - R1*R2*sp.f2(j,eps1,eps2,N)*a3
-        trip=trip - R2*R3*sp.f2(j,eps2,eps3,N)*a1
-        trip=trip - R3*R1*sp.f2(j,eps3,eps1,N)*a2
+        trip=trip + R1*R2*sp.f2(j,eps1,eps2,N)*a3
+        trip=trip + R2*R3*sp.f2(j,eps2,eps3,N)*a1
+        trip=trip + R3*R1*sp.f2(j,eps3,eps1,N)*a2
         
-        trip=trip - a2*a3*b1*np.exp(N*eps1)/(eps1**j)*include_b
-        trip=trip - a3*a1*b2*np.exp(N*eps2)/(eps2**j)*include_b
-        trip=trip - a1*a2*b3*np.exp(N*eps3)/(eps3**j)*include_b
+        trip=trip + a2*a3*b1*np.exp(N*eps1)/(eps1**j)*include_b
+        trip=trip + a3*a1*b2*np.exp(N*eps2)/(eps2**j)*include_b
+        trip=trip + a1*a2*b3*np.exp(N*eps3)/(eps3**j)*include_b
         
-        trip=trip - R1*R2*R3*sp.f3(j,eps1,eps2,eps3,N)
+        trip=trip + R1*R2*R3*sp.f3(j,eps1,eps2,eps3,N)
         
-    if p1.K>0.03:
-        pdb.set_trace()
-        
-    out = out + dub
     out = out + trip
+    out = - out # f3 is defined as -(club+club+club)
+    return out
+
+
+# $$
+# \sum_{simple\ l_{1}}R_{1}\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}\breve{\mathcal{G}}_{2}\left(\epsilon_{1}\right)\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)
+# $$
+
+# In[ ]:
+
+def singlePoles(set1only,p1,p2,p3,j,N,
+               lam0_1,lam_1,
+               lam0_2,lam_2,
+               lam0_3,lam_3):
+    G2at1 = p2.G_others(lam0_2,lam_2,p1)
+    G3at1 = p3.G_others(lam0_3,lam_3,p1)
+    out=0.0+0.0j
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        if set1only[l1]==0:
+            continue
+        eps1=p1.eig[l1]
+        R1=p1.res[l1][lam0_1,lam_1]
+        out=out+(eps1**(-1*j))*np.exp(eps1*N)*R1*G2at1[l1]*G3at1[l1]   
+    return out
+
+
+# $$
+# \sum_{double\ 12}\left[R_{1}R_{2}\lim_{\epsilon_{1}\to\epsilon_{2}}\left(\frac{\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}-\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}}{\epsilon_{1}-\epsilon_{2}}\right)\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)+\frac{e^{\epsilon_{1}N}}{\epsilon_{1}^{2}}R_{1}R_{2}\partial_{p}\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)+\left(R_{2}\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}a_{1}+R_{1}\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}a_{2}\right)\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)\right]
+# $$
+
+# In[ ]:
+
+def doublePoles(pairs12,p1,p2,p3,j,N,
+               lam0_1,lam_1,
+               lam0_2,lam_2,
+               lam0_3,lam_3):
+    G3at1 = p3.G_others(lam0_3,lam_3,p1)
+    G3at2 = p3.G_others(lam0_3,lam_3,p2)
+    dG3at1 = p3.dG_others(lam0_3,lam_3,p1)
+    dG3at2 = p3.dG_others(lam0_3,lam_3,p2)
+    out=0.0+0.0j
+    for pair in pairs12:
+        (l1,l2)=pair
+        eps1=p1.eig[l1]    
+        eps2=p2.eig[l2] 
+        R1=p1.res[l1][lam0_1,lam_1]
+        R2=p2.res[l2][lam0_2,lam_2]
+        a1=p1.a[l1][lam0_1,lam_1]
+        a2=p2.a[l2][lam0_2,lam_2]
+        
+        G3=0.5*(G3at1[l1]+G3at2[l2]) # should be about the same
+        if abs(G3at1[l1]- G3at2[l2])/abs(G3) > 0.0001:
+            raise Exception('G3at1[l1]- G3at2[l2] too large')
+           
+        eps=0.5*(eps1+eps2)
+        if abs(eps1-eps2) > 0.0001:
+            raise Exception('Are you sure that is a double pole?')
+            
+        dG3 =0.5*(dG3at1[l1]+dG3at2[l2])
+        if abs(dG3at1[l1]- dG3at2[l2])/abs(dG3) > 0.0001:
+            raise Exception('dG3at1[l1]+dG3at2[l2] too large') 
+            
+        out = out + G3*R1*R2*sp.f2(j,eps1,eps2,N)
+        out = out + G3*a2*R1*np.exp(N*eps1)/(eps1**j)
+        out = out + G3*a1*R2*np.exp(N*eps2)/(eps2**j)
+        out = out + dG3*R1*R2*np.exp(N*eps)/(eps**j)
+        
+        # If we were sure eps1==eps2
+        # out = out - np.exp(N*eps)*(eps**-j)*(G3*a2*R1+G3*a1*R2+dG3*R1*R2)
     return out
 
 
@@ -419,7 +439,7 @@ def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N,
 
 # In[1]:
 
-def IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3,K0cuttoff=10**-9,include_b=1):
+def IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9,include_b=1):
     if p2.K < K0cuttoff:
             return IAAAAresumK2is0(N,fa,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,p1,p3)
     
@@ -438,12 +458,8 @@ def IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3,K0cuttoff=10**-9,
     #print('zeroPole',zeroPole)
     #print('ratio',out/zeroPole)
     #print('---')
-    
-    
-    if p1.K>0.03:
-        pdb.set_trace()
+    out = out + zeroPole
         
-    out = out + zeroPole   
     return out
 
 
