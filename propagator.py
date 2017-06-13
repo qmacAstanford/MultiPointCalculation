@@ -61,7 +61,7 @@ def IntersectEig3(set1,set2,set3,tol=10**-4):
                     if set3only[l3] == 0:
                         continue
                     if abs(set1[l1]-set3[l3])< tol or abs(set2[l2]-set3[l3])< tol:
-                        thirdOverlap=1
+                        set3only[l3]=0
                         triplets.append((l1,l2,l3))
                         thirdOverlap=1
                 if thirdOverlap==0:
