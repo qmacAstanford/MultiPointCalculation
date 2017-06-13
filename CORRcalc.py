@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[15]:
 
 from itertools import permutations as perms
 from itertools import product
@@ -11,7 +11,7 @@ import propagator
 import wignerD as wd
 
 
-# In[2]:
+# In[16]:
 
 import imp  # imp.reload(module)
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ get_ipython().magic('matplotlib inline')
 # mpld3.enable_notebook()
 
 
-# In[3]:
+# In[17]:
 
 class phi_tilde:    
     def __init__(self,k,alpha=0,l=0,m=0):
@@ -30,7 +30,7 @@ class phi_tilde:
         self.m=m
 
 
-# In[4]:
+# In[18]:
 
 def plotlog(x, y, alpha, xrange=1, numx=2):
     xv = np.logspace(np.log10(x), np.log10(x) + xrange, numx)
@@ -41,18 +41,18 @@ def plotlog(x, y, alpha, xrange=1, numx=2):
 
 # ### Some simple functions
 
-# In[5]:
+# In[21]:
 
 def norm(K):
     return np.linalg.norm(K)
 
 
-# In[6]:
+# In[56]:
 
 def legendrep(Q1, Q2, nlam):
     EQ1 = Q1/norm(Q1)
     EQ2 = Q2/norm(Q2)
-    RHO = -sum(EQ1*EQ2)
+    RHO = sum(EQ1*EQ2)
     
     val = [1, RHO]
     for L  in range(1, nlam-1):
@@ -60,6 +60,28 @@ def legendrep(Q1, Q2, nlam):
         val.append(newval)
         
     return val
+
+
+# In[57]:
+
+# Q1 = [1,0,0]
+# Q2 = [2,3,4]
+
+# EQ1 = Q1/norm(Q1)
+# EQ2 = Q2/norm(Q2)
+# RHO = sum(EQ1*EQ2)
+# print(RHO)
+    
+# legendrep(Q1, Q2, 10)
+
+
+# In[58]:
+
+# beta2 = np.arccos(np.dot(Q1/norm(Q1),Q2/norm(Q2)))
+
+# wigset = wd.wigner_d_vals()
+# for lam in range(10):
+#     print(wigset.axial(lam,0,0,0,beta2))
 
 
 # ## 1. Two point correlations
@@ -92,7 +114,7 @@ def s2wlc(pset, N, FA, K, sequence='all'):
 
     if sequence == 'all':
         if norm(k1) < 1e-5:
-            s2 = s2wlc_zeroq(pset, N, FA)
+            s2 = s2wlc_zeroq(N, FA)
             return s2
             
         for a1 in [0,1]:
@@ -103,7 +125,7 @@ def s2wlc(pset, N, FA, K, sequence='all'):
     else:
         a1, a2 = sequence
         if norm(k1) < 1e-5:
-            s2 = s2wlc_zeroq(pset, N, FA)
+            s2 = s2wlc_zeroq(N, FA)
             return s2[a1][a2]
         
         phi1 = phi_tilde(k1,alpha=a1)
@@ -115,7 +137,7 @@ def s2wlc(pset, N, FA, K, sequence='all'):
 
 # In[ ]:
 
-def s2wlc_zeroq(pset, N, FA):
+def s2wlc_zeroq(N, FA):
     s2 = np.zeros((2,2),dtype='complex')
 
     FB = 1.0-FA
@@ -124,7 +146,7 @@ def s2wlc_zeroq(pset, N, FA):
     s2[0][1] = FA*FB
     s2[1][0] = FB*FA
     
-    return s2
+    return s2*N**2
 
 
 # In[ ]:
@@ -278,7 +300,6 @@ def I3N(N,FA,lam0_1,lam_1,mu1,            lam0_2,lam_2,mu2,            p1,p2,   
     
     value = 0
     if sequence == (0,0,0): # AAA
-        value = mp.IAAA(N,FA,lam0_1,lam_1,                             lam0_2,lam_2,                             p1.prop(mu1),                             p2.prop(mu2))
         value = mp.IAAA(N,FA,lam0_1,lam_1,                             lam0_2,lam_2,                             p1.prop(mu1),                             p2.prop(mu2))
     elif sequence == (0,0,1): # AAB
         value = mp.IABBresum(N,1-FA,lam0_1,lam_1,                                  lam0_2,lam_2,                                  p1.prop(mu1),                                  p2.prop(mu2))
@@ -458,7 +479,7 @@ def fourPointCorr(pset,wigset,N,FA,phi1,phi2,phi3,phi4):
                     
                     # Wigner D to rotate first and third frames into second
                     D1 = wigset.axial(lam_1,mu2,0,alpha1,beta1)    
-                    D2 = wigset.axial(lam_2,mu2,0,0,beta2) 
+                    D2 = wigset.axial(lam_2,mu2,0,0,beta2)
                     
                     total = total + value*D1*D2
     return total
@@ -504,7 +525,7 @@ def get_angles(q1,q2,q3):
         return alpha1, beta1, beta2
 
 
-# ## Rigid rod limit structure Factor
+# ## 4. Rigid rod limit structure Factor
 # 
 # Consider the special case that the four wavevectors form a straight line.
 # 
@@ -519,39 +540,144 @@ def get_angles(q1,q2,q3):
 # {kL|s_1 + s_2 - s_3 - s_4|}
 # \end{eqnarray}
 
-# In[ ]:
+# ### 4.1 Two-point rigid rod
+
+# In[7]:
 
 def r2wlc(N, FA, K, sequence='all'):
-    s2 = np.zeros((2,2))
-    
-    for I1 in range(N+1):
-        for I2 in range(N+1):
-            sep = abs(I1-I2)
-            if sep == 0:
-                s2[0, 0] += pa1a2(0, 0, FA, N, I1, I2)
-                s2[0, 1] += pa1a2(0, 1, FA, N, I1, I2)
-                s2[1, 0] += pa1a2(1, 0, FA, N, I1, I2)
-                s2[1, 1] += pa1a2(1, 1, FA, N, I1, I2)
-            else:
-                intg = np.sin(K*sep) / float(K*sep)
-                s2[0, 0] += pa1a2(0, 0, FA, N, I1, I2)*intg
-                s2[0, 1] += pa1a2(0, 1, FA, N, I1, I2)*intg
-                s2[1, 0] += pa1a2(1, 0, FA, N, I1, I2)*intg
-                s2[1, 1] += pa1a2(1, 1, FA, N, I1, I2)*intg
+    if sequence == 'all':
+        if norm(K) < 1e-5:
+            s2 = s2wlc_zeroq(N, FA)
+            return s2
 
-    return s2
+        s2 = np.zeros((2,2))        
+        for I1 in range(N):
+            for I2 in range(N):
+                sep = abs(I1-I2)
+                if sep == 0:
+                    s2[0, 0] += pa1a2(0, 0, FA, N, I1, I2)
+                    s2[0, 1] += pa1a2(0, 1, FA, N, I1, I2)
+                    s2[1, 0] += pa1a2(1, 0, FA, N, I1, I2)
+                    s2[1, 1] += pa1a2(1, 1, FA, N, I1, I2)
+                else:
+                    intg = np.sin(K*sep) / float(K*sep)
+                    s2[0, 0] += pa1a2(0, 0, FA, N, I1, I2)*intg
+                    s2[0, 1] += pa1a2(0, 1, FA, N, I1, I2)*intg
+                    s2[1, 0] += pa1a2(1, 0, FA, N, I1, I2)*intg
+                    s2[1, 1] += pa1a2(1, 1, FA, N, I1, I2)*intg
+        return s2
+    else:
+        a1, a2 = sequence
+        if norm(K) < 1e-5:
+            s2 = s2wlc_zeroq(N, FA)
+            return s2[a1][a2]
+        
+        s2a1a2 = 0
+        for I1 in range(N):
+            for I2 in range(N):
+                sep = abs(I1-I2)
+                if sep == 0:
+                    s2a1a2 += pa1a2(a1, a2, FA, N, I1, I2)
+                else:
+                    intg = np.sin(K*sep) / float(K*sep)
+                    s2a1a2 += pa1a2(0, 0, FA, N, I1, I2)*intg
+        return s2a1a2
 
 
-# In[ ]:
+# In[8]:
 
 def pa1a2(A1, A2, FA, N, I1, I2):
-    IND1 = float((I1-1)/N)
-    IND2 = float((I2-1)/N)
+    IND1 = float(I1/N)
+    IND2 = float(I2/N)
     pa1a2 = 0
     
-    if ( (IND1<FA) and (A1==1) or (IND1>= FA and (A1==2)) and
-         (IND2<FA) and (A2==1) or (IND2>= FA and (A2==2)) ):
+    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
+         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) ):
         pa1a2 = 1
     
     return pa1a2
+
+
+# ### 4.2 Three-point rigid rod
+
+# In[9]:
+
+def r3wlc(N, FA, Ks, sequence='all'):
+    k1, k2, k3 = Ks
+    if sequence == 'all':
+        s3 = np.zeros((2,2,2))
+        for I1, I2, I3 in product(range(N), repeat=3):
+            Qtot = norm(I1*k1+I2*k2+I3*k3)
+            intg = 1 if Qtot < 1e-5 else np.sin(Qtot) / float(Qtot)
+            for a1, a2, a3 in product([0,1], repeat=3):
+                s4[a1, a2, a3] += pa1a2a3(a1, a2, a3, FA, N, I1, I2, I3)*intg
+        return s4
+    else:
+        a1, a2, a3 = sequence
+        s4a1a2a3 = 0
+        for I1, I2, I3 in product(range(N), repeat=3):
+            Qtot = norm(I1*k1+I2*k2+I3*k3)
+            intg = 1 if Qtot < 1e-5 else np.sin(Qtot) / float(Qtot)
+            s4a1a2a3 += pa1a2a3(a1, a2, a3, FA, N, I1, I2, I3)*intg
+
+        return s4a1a2a3
+
+
+# In[10]:
+
+def pa1a2a3(A1, A2, A3, FA, N, I1, I2, I3):
+    IND1 = float(I1/N)
+    IND2 = float(I2/N)
+    IND3 = float(I3/N)
+    pa1a2a3 = 0
+    
+    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
+         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) and 
+         (IND3<FA) and (A3==0) or (IND3>= FA and (A3==1))):
+        pa1a2a3 = 1
+    
+    return pa1a2a3
+
+
+# ### 4.3 Four-point rigid rod
+
+# In[11]:
+
+def r4wlc(N, FA, Ks, sequence='all'):
+    k1, k2, k3, k4 = Ks
+    if sequence == 'all':
+        s4 = np.zeros((2,2,2,2))
+        for I1, I2, I3, I4 in product(range(N), repeat=4):
+            Qtot = norm(I1*k1+I2*k2+I3*k3+I4*k4)
+            intg = 1 if Qtot < 1e-5 else np.sin(Qtot) / float(Qtot)
+            for a1, a2, a3, a4 in product([0,1], repeat=4):
+                s4[a1, a2, a3, a4] += pa1a2a3a4(a1, a2, a3, a4, FA, N, I1, I2, I3, I4)
+        return s4
+    else:
+        a1, a2, a3, a4 = sequence
+        s4a1a2a3a4 = 0
+        for I1, I2, I3, I4 in product(range(N), repeat=4):
+            Qtot = norm(I1*k1+I2*k2+I3*k3+I4*k4)
+            intg = 1 if Qtot < 1e-5 else np.sin(Qtot) / float(Qtot)
+            s4a1a2a3a4 += pa1a2a3a4(a1, a2, a3, a4, FA, N, I1, I2, I3, I4)*intg
+
+        return s4a1a2a3a4
+
+
+# In[12]:
+
+def pa1a2a3a4(A1, A2, A3, A4, FA, N, I1, I2, I3, I4):
+    IND1 = float(I1/N)
+    IND2 = float(I2/N)
+    IND3 = float(I3/N)
+    IND4 = float(I4/N)
+    pa1a2a3a4 = 0
+    
+    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
+         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) and 
+         (IND3<FA) and (A3==0) or (IND3>= FA and (A3==1)) and
+         (IND4<FA) and (A4==0) or (IND4>= FA and (A4==1))):
+        pa1a2a3a4 = 1
+    
+    return pa1a2a3a4
 
