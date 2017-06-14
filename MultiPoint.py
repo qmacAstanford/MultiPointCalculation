@@ -273,31 +273,47 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 # ## 4 point
 
 # $$
-# f3=\sum_{l_{1},l_{2},l_{3}}R_{1}R_{2}R_{3}\frac{\left(\epsilon_{3}^{-n}e^{N\epsilon_{3}}-\epsilon_{2}^{n}e^{N\epsilon_{2}}\right)\epsilon_{1}+\left(\epsilon_{1}^{-n}e^{N\epsilon_{1}}-\epsilon_{3}^{-n}e^{N\epsilon_{3}}\right)\epsilon_{2}+\left(\epsilon_{2}^{n}e^{N\epsilon_{2}}-e_{1}^{n}\epsilon^{N\epsilon_{1}}\right)\epsilon_{3}}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{2}-\epsilon_{3}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}
+# \mathrm{f3resum}=\sum_{l_{1},l_{2},l_{3}}R_{1}R_{2}R_{3}\left(\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}+\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{2}-\epsilon_{3}\right)}+\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{n}}\frac{1}{\left(\epsilon_{2}-\epsilon_{3}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}\right)
 # $$
 # 
 # 
-# also
-# 
 # $$
-# f3=-\sum_{l_{1}}R_{1}\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}\mathcal{G}_{2}\left(\epsilon_{1}\right)\mathcal{G}_{3}\left(\epsilon_{1}\right)-\sum_{l_{2}}R_{2}\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}\mathcal{G}_{1}\left(\epsilon_{2}\right)\mathcal{G}_{3}\left(\epsilon_{2}\right)-\sum_{l_{3}}R_{3}\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{n}}\mathcal{G}_{2}\left(\epsilon_{3}\right)\mathcal{G}_{1}\left(\epsilon_{3}\right)
+# \mathrm{f3resum=\mathrm{single\ poles}+\mathrm{double\ poles}+\mathrm{triple\ poles}}
 # $$
 # 
 # 
-# when $\epsilon_{1}\approx\epsilon_{2}\cancel{\approx}\epsilon_{3}$
-# 
 # $$
-# -R_{1}\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}\mathcal{G}_{2}\left(\epsilon_{1}\right)\mathcal{G}_{3}\left(\epsilon_{1}\right)-R_{2}\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}\mathcal{G}_{1}\left(\epsilon_{2}\right)\mathcal{G}_{3}\left(\epsilon_{2}\right)\approx-\frac{R_{1}\mathcal{G}_{3}\left(\epsilon_{1}\right)+R_{2}\mathcal{G}_{3}\left(\epsilon_{2}\right)}{2}\left(\frac{\epsilon_{3}^{-n}e^{N\epsilon_{3}}-\epsilon_{2}^{n}e^{N\epsilon_{2}}}{\epsilon_{1}-\epsilon_{2}}\right)
+# \mathrm{single\ pole}=\frac{e^{\epsilon_{1}N}}{\epsilon_{1}^{2}}\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)\breve{\mathcal{G}}_{2}\left(\epsilon_{1}\right)R_{1}
 # $$
 # 
 # 
-# and the quantity in parentisis can be evaluated in the limit $\epsilon_{1}\approx\epsilon_{2}$
-# or an expansion about that point.
+# $$
+# \mathrm{double\ pole}=\frac{e^{N\epsilon_{1}}\left(N\epsilon_{1}-2\right)}{\epsilon_{1}^{3}}R_{1}R_{2}\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)+\frac{e^{\epsilon_{1}N}}{\epsilon_{1}^{2}}\left(R_{1}R_{2}\partial\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)+a_{1}R_{2}\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)+R_{1}a_{2}\breve{\mathcal{G}}_{3}\left(\epsilon_{1}\right)\right)
+# $$
+# 
+# 
+# $$
+# \mathrm{triple\ pole}=\spadesuit+\diamondsuit_{23}a_{1}+\diamondsuit_{31}a_{2}+\diamondsuit_{12}a_{3}+\frac{e^{\epsilon N}}{\epsilon^{2}}\left(R_{1}a_{2}a_{3}+a_{1}R_{2}a_{3}+a_{1}a_{2}R_{3}\right)+\heartsuit
+# $$
+# 
+# 
+# $$
+# \spadesuit_{123}=-R_{1}R_{2}R_{3}\frac{e^{N\epsilon}\left(N^{2}\epsilon^{2}-2nN\epsilon-n\left(n+1\right)\right)}{2\epsilon^{n+2}}
+# $$
+# 
+# 
+# $$
+# \heartsuit=\frac{e^{\epsilon N}}{\epsilon^{2}}\left(2b_{1}R_{2}R_{3}+R_{1}2b_{2}R_{3}+R_{1}R_{2}2b_{3}\right)
+# $$
+# 
+# 
+# $$
+# \diamondsuit_{12}=R_{1}R_{2}\frac{e^{N\epsilon}\left(N\epsilon-n\right)}{\epsilon^{n+1}}
+# $$
 
 # In[ ]:
 
-def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N,
-           include_b=1):
+def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N):
     set1only, set2only, set3only,       pairs12, pairs23, pairs31, triplets      =propagator.IntersectEig3(p1.eig,p2.eig,p3.eig,tol=10**-4)
     
     out=0.0+0.0j
@@ -332,37 +348,12 @@ def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N,
                lam0_1,lam_1,
                lam0_2,lam_2)
 
-    trip=0.0+0.0j
-    for triplet in triplets:
-        (l1,l2,l3)=triplet
-        eps1=p1.eig[l1]    
-        eps2=p2.eig[l2] 
-        eps3=p3.eig[l3]
-        R1=p1.res[l1][lam0_1,lam_1]
-        R2=p2.res[l2][lam0_2,lam_2]
-        R3=p3.res[l3][lam0_3,lam_3]
-        a1=p1.a[l1][lam0_1,lam_1]
-        a2=p2.a[l2][lam0_2,lam_2]
-        a3=p3.a[l3][lam0_3,lam_3]
-        b1=p1.b[l1][lam0_1,lam_1]
-        b2=p2.b[l2][lam0_2,lam_2]
-        b3=p3.b[l3][lam0_3,lam_3] 
+    
+    out=out+triplePoles(triplets,p3,p1,p2,j,N,
+               lam0_3,lam_3,
+               lam0_1,lam_1,
+               lam0_2,lam_2)
         
-        trip=trip + a2*a3*R1*np.exp(N*eps1)/(eps1**j)
-        trip=trip + a3*a1*R2*np.exp(N*eps2)/(eps2**j)
-        trip=trip + a1*a2*R3*np.exp(N*eps3)/(eps3**j)
-        
-        trip=trip + R1*R2*sp.f2(j,eps1,eps2,N)*a3
-        trip=trip + R2*R3*sp.f2(j,eps2,eps3,N)*a1
-        trip=trip + R3*R1*sp.f2(j,eps3,eps1,N)*a2
-        
-        trip=trip + a2*a3*b1*np.exp(N*eps1)/(eps1**j)*include_b
-        trip=trip + a3*a1*b2*np.exp(N*eps2)/(eps2**j)*include_b
-        trip=trip + a1*a2*b3*np.exp(N*eps3)/(eps3**j)*include_b
-        
-        trip=trip + R1*R2*R3*sp.f3(j,eps1,eps2,eps3,N)
-        
-    out = out + trip
     out = - out # f3 is defined as -(club+club+club)
     return out
 
@@ -435,15 +426,68 @@ def doublePoles(pairs12,p1,p2,p3,j,N,
     return out
 
 
+# In[1]:
+
+def triplePoles(triplets,p1,p2,p3,j,N,
+               lam0_1,lam_1,
+               lam0_2,lam_2,
+               lam0_3,lam_3):
+    heart=0.0+0.0j
+    Raa=0.0+0.0j
+    diamond=0.0+0.0j
+    spade=0.0+0.0j
+    for triplet in triplets:
+        (l1,l2,l3)=triplet
+        eps1=p1.eig[l1]    
+        eps2=p2.eig[l2] 
+        eps3=p3.eig[l3]
+        R1=p1.res[l1][lam0_1,lam_1]
+        R2=p2.res[l2][lam0_2,lam_2]
+        R3=p3.res[l3][lam0_3,lam_3]
+        a1=p1.a[l1][lam0_1,lam_1]
+        a2=p2.a[l2][lam0_2,lam_2]
+        a3=p3.a[l3][lam0_3,lam_3]
+        b1=p1.b[l1][lam0_1,lam_1]
+        b2=p2.b[l2][lam0_2,lam_2]
+        b3=p3.b[l3][lam0_3,lam_3] 
+        
+        eps = (eps1+eps2+eps3)/3.0
+        
+        # Raa terms
+        Raa = Raa + np.exp(N*eps)/(eps**j)*(a2*a3*R1 + a3*a1*R2 + a1*a2*R3)
+        #Raa=Raa + a2*a3*R1*np.exp(N*eps1)/(eps1**j)
+        #Raa=Raa + a3*a1*R2*np.exp(N*eps2)/(eps2**j)
+        #Raa=Raa + a1*a2*R3*np.exp(N*eps3)/(eps3**j)
+        
+        # Heart term
+        #heart = heart + np.exp(N*eps)/(eps**j)*(R2*R3*b1 + R3*R1*b2 + R1*R2*b3)*2
+        heart=heart + R2*R3*b1*np.exp(N*eps1)/(eps1**j)
+        heart=heart + R3*R1*b2*np.exp(N*eps2)/(eps2**j)
+        heart=heart + R1*R2*b3*np.exp(N*eps3)/(eps3**j)
+        
+        # Diamond term
+        diamond = diamond + np.exp(N*eps)*(N*eps-j)*(eps**(-j-1))*(R1*R2*a3 + R2*R3*a1 + R3*R1*a2)
+        #diamond=diamond + R1*R2*sp.f2(j,eps1,eps2,N)*a3
+        #diamond=diamond + R2*R3*sp.f2(j,eps2,eps3,N)*a1
+        #diamond=diamond + R3*R1*sp.f2(j,eps3,eps1,N)*a2
+        
+        # Spade term
+        spade = spade + R1*R2*R3*np.exp(N*eps)*(N**2*eps**2 - 2*j*N*eps+j*(j+1))/(2*eps**(j+2))
+        #spade=spade - R1*R2*R3*sp.f3(j,eps1,eps2,eps3,N)
+
+    return Raa+heart+diamond+spade        
+()
+
+
 # ### AAAA
 
 # In[1]:
 
-def IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9,include_b=1):
+def IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3,K0cuttoff=10**-9):
     if p2.K < K0cuttoff:
             return IAAAAresumK2is0(N,fa,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,p1,p3)
     
-    out = - f3resum(2,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N*fa,include_b)
+    out = - f3resum(2,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N*fa)
     
     #print('f3part',out)
     
@@ -573,6 +617,26 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
     
 
 
+# For IAAAA if $\epsilon_{1}\not\approx\epsilon_{2}\not\approx\epsilon_{3}$
+# 
+# \[
+# =\frac{\left(\frac{\epsilon_{2}-\epsilon_{3}}{\epsilon_{1}^{2}}\right)\mathrm{expl}\left(2,N\epsilon_{1}\right)+\left(\frac{\epsilon_{3}-\epsilon_{1}}{\epsilon_{2}^{2}}\right)\mathrm{expl}\left(2,N\epsilon_{2}\right)+\left(\frac{\epsilon_{1}-\epsilon_{2}}{\epsilon_{3}^{2}}\right)\mathrm{expl}\left(2,N\epsilon_{3}\right)}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{1}-\epsilon_{3}\right)\left(\epsilon_{2}-\epsilon_{3}\right)}
+# \]
+# 
+# 
+# if $\epsilon_{1}\not\approx\epsilon_{2}\approx\epsilon_{3}$ 
+# 
+# \[
+# =\frac{-N\epsilon_{2}\epsilon_{1}^{3}\mathrm{expl\left(3,N\epsilon_{2}\right)+2\epsilon_{1}^{3}\mathrm{expl}\left(4,N\epsilon_{2}\right)+\epsilon_{2}^{3}\mathrm{expl}}\left(4,N\epsilon_{1}\right)-3\epsilon_{1}^{2}\epsilon_{2}\mathrm{expl}\left(4,N\epsilon_{2}\right)+N\epsilon_{2}^{2}\epsilon_{1}^{2}\mathrm{expl}\left(3,N\epsilon_{2}\right)}{\epsilon_{1}^{4}\epsilon_{2}^{3}-2\epsilon_{1}^{3}\epsilon_{2}^{4}+\epsilon_{1}^{2}\epsilon_{2}^{5}}
+# \]
+# 
+# 
+# if $\epsilon_{1}\approx\epsilon_{2}\approx\epsilon_{3}$
+# 
+# \[
+# =\frac{-6\mathrm{expl}\left(4,N\epsilon_{1}\right)-N^{2}\epsilon_{1}^{2}\mathrm{expl}\left(2,N\epsilon_{1}\right)+4N\epsilon_{1}\mathrm{expl}\left(3,N\epsilon_{1}\right)}{2\epsilon_{1}^{4}}
+# \]
+
 # In[11]:
 
 #@jit
@@ -607,6 +671,17 @@ def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3):
                 if abs(temp/(out+tol))<tol and l3>max(lam0_3,lam_3):
                     break
     return out
+
+
+# In[ ]:
+
+# Use explicit calculation for low K and IAAAA for high K
+def IAAAAswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
+    K=(p1.K+p3.K)/2.0
+    if K*(N**0.5)<0.3:
+        out =IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,p1,p2,p3)
+    else:
+        out =IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3)
 
 
 # ### AAAB
