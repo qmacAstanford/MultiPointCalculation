@@ -22,7 +22,7 @@ def IntersectEig(set1,set2,tol=10**-4):
 # Finds values in set1 and set2 that are within tol of eachother.
 # set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
 # paris returns a list of tuples of indicies of overlap (l1,l2)
-def IntersectEig2(set1,set2,tol=10**-4):
+def IntersectEig2(set1,set2,tol=10**-8):
     set1only=np.ones(len(set1),dtype='int')
     set2only=np.ones(len(set1),dtype='int')
     pairs=[]
@@ -41,7 +41,7 @@ def IntersectEig2(set1,set2,tol=10**-4):
 # set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
 # paris12 returns a list of tuples of indicies of overlap (l1,l2).
 # triplets is a of list of (l1,l2,l3).
-def IntersectEig3(set1,set2,set3,tol=10**-4):
+def IntersectEig3(set1,set2,set3,tol=10**-10):
     set1only=np.ones(len(set1),dtype='int')
     set2only=np.ones(len(set1),dtype='int')
     set3only=np.ones(len(set1),dtype='int')
@@ -280,7 +280,7 @@ class propagator:
     # Outputs:
     #     G_at_other[lam0,lam,lother]: 
     #     dG_at_other[lam0,lam,lother]:
-    def get_G_at_other(self,other,tol=10**-8):
+    def get_G_at_other(self,other,tol=10**-13):
         mu =self.mu
         K = self.K
         lamMax = self.lamMax

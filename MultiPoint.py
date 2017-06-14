@@ -314,7 +314,7 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 # In[ ]:
 
 def f3resum(j,p1,p2,p3,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3,N):
-    set1only, set2only, set3only,       pairs12, pairs23, pairs31, triplets      =propagator.IntersectEig3(p1.eig,p2.eig,p3.eig,tol=10**-4)
+    set1only, set2only, set3only,       pairs12, pairs23, pairs31, triplets      =propagator.IntersectEig3(p1.eig,p2.eig,p3.eig,tol=10**-10)
     
     out=0.0+0.0j
     
