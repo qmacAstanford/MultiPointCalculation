@@ -179,11 +179,11 @@ def I2N(N, FA, p1, sequence):
     lam=0
     
     if sequence == (0,0): # AA
-        value = mp.IAAresum(N,FA,lam0,lam,p1)
+        value = mp.IAAswitch(N,FA,lam0,lam,p1)
     elif sequence ==(0,1): # AB
-        value = mp.IABresum(N,FA,lam0,lam,p1)
+        value = mp.IABswitch(N,FA,lam0,lam,p1)
     elif sequence == (1,1): # BB
-        value = mp.IAAresum(N,1-FA,lam0,lam,p1)
+        value = mp.IAAswitch(N,1-FA,lam0,lam,p1)
     else:
         value=0.0
     return value
@@ -303,16 +303,16 @@ def I3N(N,FA,lam0_1,lam_1,mu1,            lam0_2,lam_2,mu2,            p1,p2,   
     props = [p1.prop(mu1),p2.prop(mu2)]
     
     if sequence == (0,0,0): # AAA
-        return mp.IAAAexplicit(N, FA, *lams, *props)
+        return mp.IAAAswitch(N, FA, *lams, *props)
 
     elif sequence == (0,0,1): # AAB
-        return mp.IABBresum(N, 1-FA, *lams, p2.prop(mu2), p1.prop(mu1))
+        return mp.IABBswitch(N, 1-FA, *lams, p2.prop(mu2), p1.prop(mu1))
     
     elif sequence == (0,1,1): # ABB
-        return mp.IABBresum(N, FA, *lams, *props)
+        return mp.IABBswitch(N, FA, *lams, *props)
         
     elif sequence == (1,1,1): # BBB
-        return mp.IAAAexplicit(N,1-FA,*lams, *props)
+        return mp.IAAAswitch(N,1-FA,*lams, *props)
         
     else:
         return 0.0
@@ -416,19 +416,19 @@ def I4N(N,FA,lam0_1,lam_1,mu1,           lam0_2,lam_2,mu2,           lam0_3,lam_
     props = [p1.prop(mu1),p2.prop(mu2),p3.prop(mu3)]
     
     if sequence == (0,0,0,0): # AAAA
-        return mp.IAAAA(N, FA, *lams, *props)
+        return mp.IAAAAswitch(N, FA, *lams, *props)
     
     elif sequence == (0,0,0,1): # AAAB
-        return mp.IAAABresum(N, FA, *lams, *props)
+        return mp.IAAABswitch(N, FA, *lams, *props)
         
     elif sequence == (0,0,1,1): # AABB
-        return mp.IAABBresum(N, FA, *lams, *props)
+        return mp.IAABBswitch(N, FA, *lams, *props)
     
     elif sequence == (0,1,1,1): # ABBB
-        return mp.IAAABresum(N, 1-FA, *lams, *props)
+        return mp.IAAABswitch(N, 1-FA, *lams, *props)
     
     elif sequence == (1,1,1,1): # BBBB
-        return mp.IAAAA(N, 1-FA, *lams, *props)
+        return mp.IAAAAswitch(N, 1-FA, *lams, *props)
     
     else:
         return 0.0
