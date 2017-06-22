@@ -1,7 +1,8 @@
 
 # coding: utf-8
 
-# In[15]:
+# In[5]:
+
 
 from itertools import permutations as perms
 from itertools import product
@@ -11,7 +12,8 @@ import propagator
 import wignerD as wd
 
 
-# In[16]:
+# In[6]:
+
 
 import imp  # imp.reload(module)
 import matplotlib.pyplot as plt
@@ -20,7 +22,8 @@ get_ipython().magic('matplotlib inline')
 # mpld3.enable_notebook()
 
 
-# In[17]:
+# In[7]:
+
 
 class phi_tilde:    
     def __init__(self,k,alpha=0,l=0,m=0):
@@ -30,7 +33,8 @@ class phi_tilde:
         self.m=m
 
 
-# In[18]:
+# In[8]:
+
 
 def plotlog(x, y, alpha, xrange=1, numx=2):
     xv = np.logspace(np.log10(x), np.log10(x) + xrange, numx)
@@ -41,15 +45,20 @@ def plotlog(x, y, alpha, xrange=1, numx=2):
 
 # ### Some simple functions
 
-# In[21]:
+# In[9]:
+
 
 def norm(K):
     return np.linalg.norm(K)
 
 
-# In[56]:
+# In[10]:
+
 
 def legendrep(Q1, Q2, nlam):
+    # should be identical to
+    # wigset = wigset.axial(lam,0,0,0,beta)
+    # where beta = np.arccos(np.dot(Q1/norm(Q1),Q3/norm(Q3)))
     EQ1 = Q1/norm(Q1)
     EQ2 = Q2/norm(Q2)
     RHO = sum(EQ1*EQ2)
@@ -59,29 +68,7 @@ def legendrep(Q1, Q2, nlam):
         newval = ( (2*L+1)*RHO*val[L]-L*val[L-1] ) / (L+1)
         val.append(newval)
         
-    return val
-
-
-# In[57]:
-
-# Q1 = [1,0,0]
-# Q2 = [2,3,4]
-
-# EQ1 = Q1/norm(Q1)
-# EQ2 = Q2/norm(Q2)
-# RHO = sum(EQ1*EQ2)
-# print(RHO)
-    
-# legendrep(Q1, Q2, 10)
-
-
-# In[58]:
-
-# beta2 = np.arccos(np.dot(Q1/norm(Q1),Q2/norm(Q2)))
-
-# wigset = wd.wigner_d_vals()
-# for lam in range(10):
-#     print(wigset.axial(lam,0,0,0,beta2))
+    return np.array(val)
 
 
 # ## 1. Two point correlations
@@ -105,7 +92,8 @@ def legendrep(Q1, Q2, nlam):
 # \delta(\alpha_{2}, \sigma(s_{2}))
 # \end{eqnarray}
 
-# In[ ]:
+# In[11]:
+
 
 def s2wlc(pset, N, FA, K, sequence='all'):
     s2 = np.zeros((2,2),dtype=type(1+1j))
@@ -135,7 +123,8 @@ def s2wlc(pset, N, FA, K, sequence='all'):
     return s2
 
 
-# In[ ]:
+# In[12]:
+
 
 def s2wlc_zeroq(N, FA):
     s2 = np.zeros((2,2),dtype='complex')
@@ -149,7 +138,8 @@ def s2wlc_zeroq(N, FA):
     return s2*N**2
 
 
-# In[ ]:
+# In[13]:
+
 
 def s2inverse(pset, N, FA, K):
     if norm(K) < 1e-5:
@@ -170,7 +160,8 @@ def s2inverse(pset, N, FA, K):
     return s2inv
 
 
-# In[ ]:
+# In[14]:
+
 
 def s2inverse_zeroq(pset, N, FA):
     s2 = np.ones((2,2),dtype='complex')
@@ -180,7 +171,8 @@ def s2inverse_zeroq(pset, N, FA):
 
 # Helper functions that carry out integrals (I2N), and space ordering of contour indices (twoPointCorr).
 
-# In[ ]:
+# In[15]:
+
 
 def I2N(N, FA, p1, sequence):
     lam0=0
@@ -197,7 +189,8 @@ def I2N(N, FA, p1, sequence):
     return value
 
 
-# In[ ]:
+# In[16]:
+
 
 def twoPointCorr(pset,N,FA,phi1,phi2):
     val = 0.0+0.0j
@@ -238,7 +231,8 @@ def twoPointCorr(pset,N,FA,phi1,phi2):
 # \delta(\alpha_{3}, \sigma(s_{3}))
 # \end{eqnarray}
 
-# In[ ]:
+# In[92]:
+
 
 def s3wlc(pset, N, FA, Ks, sequence='all'):
     k1, k2, k3 = Ks
@@ -251,11 +245,16 @@ def s3wlc(pset, N, FA, Ks, sequence='all'):
             return s3wlc_zeroq3(pset, N, FA, Ks)
         
         for a1, a2, a3 in product([0,1], repeat=3):
+            if [a1, a2, a3] in [[1,0,0], [0,1,1]]:
+                continue
             phi1 = phi_tilde(k1,alpha=a1)
             phi2 = phi_tilde(k2,alpha=a2)
             phi3 = phi_tilde(k3,alpha=a3)
 
             s3[a1][a2][a3] = threePointCorr(pset, N, FA,                                             phi1, phi2, phi3)
+        # use Leibler's identities
+        s3[1][0][0] = s3[0][1][0]
+        s3[0][1][1] = s3[1][0][1]
     else:
         a1, a2, a3 = sequence
         if norm(k3) < 1e-5:
@@ -272,7 +271,8 @@ def s3wlc(pset, N, FA, Ks, sequence='all'):
 
 # Special case when $\vec{k}_{3} = \vec{0}$ in $I_{123}^{(3)}$.
 
-# In[ ]:
+# In[93]:
+
 
 def s3wlc_zeroq3(pset, N, FA, Ks):
     k1, k2, k3 = Ks
@@ -294,30 +294,34 @@ def s3wlc_zeroq3(pset, N, FA, Ks):
 
 # Helper functions that carry out integrals (I3N), and space ordering of contour indices (threePointCorr).
 
-# In[ ]:
+# In[94]:
+
 
 def I3N(N,FA,lam0_1,lam_1,mu1,            lam0_2,lam_2,mu2,            p1,p2,            sequence):
     
-    value = 0
-    if sequence == (0,0,0): # AAA
-        value = mp.IAAA(N,FA,lam0_1,lam_1,                             lam0_2,lam_2,                             p1.prop(mu1),                             p2.prop(mu2))
-    elif sequence == (0,0,1): # AAB
-        value = mp.IABBresum(N,1-FA,lam0_1,lam_1,                                  lam0_2,lam_2,                                  p1.prop(mu1),                                  p2.prop(mu2))
-    elif sequence == (0,1,1): # ABB
-        value = mp.IABBresum(N,FA,lam0_1,lam_1,                                  lam0_2,lam_2,                                  p1.prop(mu1),                                  p2.prop(mu2))
-    elif sequence == (1,1,1): # BBB
-        fb=1.0-FA
-        # Same as AAAA except fb instead of FA
-        value = mp.IAAA(N,fb,lam0_1,lam_1,                             lam0_2,lam_2,                             p1.prop(mu1),                             p2.prop(mu2))
-    else:
-        pass
+    lams = [lam0_1,lam_1,lam0_2,lam_2]
+    props = [p1.prop(mu1),p2.prop(mu2)]
     
-    return value
+    if sequence == (0,0,0): # AAA
+        return mp.IAAAexplicit(N, FA, *lams, *props)
+
+    elif sequence == (0,0,1): # AAB
+        return mp.IABBresum(N, 1-FA, *lams, p2.prop(mu2), p1.prop(mu1))
+    
+    elif sequence == (0,1,1): # ABB
+        return mp.IABBresum(N, FA, *lams, *props)
+        
+    elif sequence == (1,1,1): # BBB
+        return mp.IAAAexplicit(N,1-FA,*lams, *props)
+        
+    else:
+        return 0.0
 
 
 # ### Space ordering of wavevectors
 
-# In[ ]:
+# In[95]:
+
 
 # Inputs
 #     pset (propagator.prop_set), the set of propagators used so FAr
@@ -325,7 +329,6 @@ def I3N(N,FA,lam0_1,lam_1,mu1,            lam0_2,lam_2,mu2,            p1,p2,   
 #     FA (float), fraction of type A
 #     prop1 (phi_tilde), contains k and alpha
 def threePointCorr(pset,N,FA,phi1,phi2,phi3):
-#     print('Warning: Winger D hasnt been implemented!')
     nlam=pset.nlam
     # The first and last lam must be zero 
     mu1=0
@@ -355,11 +358,7 @@ def threePointCorr(pset,N,FA,phi1,phi2,phi3):
         for lam in range(0,nlam):
             lam_1, lam0_2 = lam, lam
             value = I3N(N,FA,lam0_1,lam_1,mu1,                        lam0_2,lam_2,mu2,                        p1,p2,                        sequence)
-
-            # Wigner D goes here!
-            value *= PL[lam]
-
-            total = total + value
+            total = total + value*PL[lam]
     return total
 
 
@@ -372,6 +371,7 @@ def threePointCorr(pset,N,FA,phi1,phi2,phi3):
 
 # In[ ]:
 
+
 def s4wlc(pset,wigset, N, FA, Ks, sequence='all'):
     s4 = np.zeros((2,2,2,2),dtype=type(1+1j))
     k1, k2, k3, k4 = Ks
@@ -382,11 +382,20 @@ def s4wlc(pset,wigset, N, FA, Ks, sequence='all'):
     
     if sequence == 'all':
         for a1, a2, a3, a4 in product([0,1], repeat=4):
+            if [a1,a2,a3,a4] in [[0,0,1,0], [0,1,0,0], [1,0,0,0],
+                                 [0,0,1,1], [0,1,1,0], [0,1,0,1]]:
+                continue
             phi1 = phi_tilde(k1,alpha=a1)
             phi2 = phi_tilde(k2,alpha=a2)
             phi3 = phi_tilde(k3,alpha=a3)
             phi4 = phi_tilde(k4,alpha=a4)
             s4[a1][a2][a3][a4] = fourPointCorr(pset,wigset, N, FA,                                                phi1, phi2, phi3, phi4)
+
+        # use Leibler's identities
+        s4[0][0][1][0], s4[0][1][0][0], s4[1][0][0][0] = [s4[0][0][0][1]]*3
+        s4[0][0][1][1] = s4[1][1][0][0]
+        s4[0][1][1][0] = s4[1][0][0][1]
+        s4[0][1][0][1] = s4[1][0][1][0]
     else:
         a1, a2, a3, a4 = sequence
         phi1 = phi_tilde(k1,alpha=a1)
@@ -400,27 +409,29 @@ def s4wlc(pset,wigset, N, FA, Ks, sequence='all'):
 
 # In[ ]:
 
+
 def I4N(N,FA,lam0_1,lam_1,mu1,           lam0_2,lam_2,mu2,           lam0_3,lam_3,mu3,           p1,p2,p3,           sequence):
     
-    value = 0
-    if sequence == (0,0,0,0): # AAAA
-        value = mp.IAAAA(N,FA,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,                                   p1.prop(mu1),                                   p2.prop(mu2),                                   p3.prop(mu3))
-    elif sequence == (0,0,0,1): # AAAB
-        value = mp.IAAABresum(N,FA,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,                                   p1.prop(mu1),                                   p2.prop(mu2),                                   p3.prop(mu3))   
-    elif sequence == (0,0,1,1): # AABB
-        value = mp.IAABBresum(N,FA,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,                                   p1.prop(mu1),                                   p2.prop(mu2),                                   p3.prop(mu3))
-    elif sequence == (0,1,1,1): # ABBB
-        fb=1.0-FA
-        # Same as AAAB except fb instead of FA
-        value = mp.IAAABresum(N,fb,lam0_1,lam_1,                                   lam0_2,lam_2,                                   lam0_3,lam_3,                                   p1.prop(mu1),                                   p2.prop(mu2),                                   p3.prop(mu3))
-    elif sequence == (1,1,1,1): # BBBB
-        fb=1.0-FA
-        # Same as AAAA except fb instead of FA
-        value = mp.IAAAA(N,fb,lam0_1,lam_1,                              lam0_2,lam_2,                              lam0_3,lam_3,                              p1.prop(mu1),                              p2.prop(mu2),                              p3.prop(mu3))
-    else:
-        pass
+    lams = [lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3]
+    props = [p1.prop(mu1),p2.prop(mu2),p3.prop(mu3)]
     
-    return value
+    if sequence == (0,0,0,0): # AAAA
+        return mp.IAAAA(N, FA, *lams, *props)
+    
+    elif sequence == (0,0,0,1): # AAAB
+        return mp.IAAABresum(N, FA, *lams, *props)
+        
+    elif sequence == (0,0,1,1): # AABB
+        return mp.IAABBresum(N, FA, *lams, *props)
+    
+    elif sequence == (0,1,1,1): # ABBB
+        return mp.IAAABresum(N, 1-FA, *lams, *props)
+    
+    elif sequence == (1,1,1,1): # BBBB
+        return mp.IAAAA(N, 1-FA, *lams, *props)
+    
+    else:
+        return 0.0
 
 
 # ### Space ordering of wavevectors
@@ -436,6 +447,7 @@ def I4N(N,FA,lam0_1,lam_1,mu1,           lam0_2,lam_2,mu2,           lam0_3,lam_
 # Each $\tilde{\psi}$ has an associated chemical identity, $\alpha$, and Fourier location, $\vec{k}$.
 
 # In[ ]:
+
 
 # Inputs
 #     pset (propagator.prop_set), the set of propagators used so FAr
@@ -487,6 +499,7 @@ def fourPointCorr(pset,wigset,N,FA,phi1,phi2,phi3,phi4):
 
 # In[ ]:
 
+
 # Returns Euler angles needed to rotate q1 and q3 away from q2
 # Returns alpha1, beta1, beta2
 def get_angles(q1,q2,q3):
@@ -527,8 +540,17 @@ def get_angles(q1,q2,q3):
 
 # ## 4. Rigid rod limit structure Factor
 # 
-# Consider the special case that the four wavevectors form a straight line.
+# \begin{eqnarray}
+# I_{n} = 
+# \int_{0}^{L} ds_1
+# ...
+# \int_{0}^{L} ds_n
+# \frac{\sin (\sum_{i=1}^{n} s_{i}\vec{k}_{i})}
+# {\sum_{i=1}^{n} s_{i}\vec{k}_{i}}
+# \end{eqnarray}
 # 
+# For instance, 
+# consider the special case that the four wavevectors form a straight line.
 # The structure Factor of a rigid rod after rotation average is
 # \begin{eqnarray}
 # I_4 = 
@@ -536,13 +558,14 @@ def get_angles(q1,q2,q3):
 # \int_{0}^{L} ds_2
 # \int_{0}^{L} ds_3
 # \int_{0}^{L} ds_4
-# \frac{\sin{kL|s_1 + s_2 - s_3 - s_4|}}
-# {kL|s_1 + s_2 - s_3 - s_4|}
+# \frac{\sin{k|s_1 + s_2 - s_3 - s_4|}}
+# {k|s_1 + s_2 - s_3 - s_4|}
 # \end{eqnarray}
 
 # ### 4.1 Two-point rigid rod
 
-# In[7]:
+# In[ ]:
+
 
 def r2wlc(N, FA, K, sequence='all'):
     if sequence == 'all':
@@ -580,27 +603,29 @@ def r2wlc(N, FA, K, sequence='all'):
                     s2a1a2 += pa1a2(a1, a2, FA, N, I1, I2)
                 else:
                     intg = np.sin(K*sep) / float(K*sep)
-                    s2a1a2 += pa1a2(0, 0, FA, N, I1, I2)*intg
+                    s2a1a2 += pa1a2(a1, a2, FA, N, I1, I2)*intg
         return s2a1a2
 
 
-# In[8]:
+# In[ ]:
+
 
 def pa1a2(A1, A2, FA, N, I1, I2):
     IND1 = float(I1/N)
     IND2 = float(I2/N)
     pa1a2 = 0
     
-    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
-         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) ):
+    if ( ((IND1<FA) and (A1==0) or (IND1>= FA and (A1==1))) and
+         ((IND2<FA) and (A2==0) or (IND2>= FA and (A2==1))) ):
         pa1a2 = 1
     
     return pa1a2
 
 
-# ### 4.2 Three-point rigid rod
+# ### 4.1 Three-point rigid rod
 
-# In[9]:
+# In[ ]:
+
 
 def r3wlc(N, FA, Ks, sequence='all'):
     k1, k2, k3 = Ks
@@ -623,7 +648,8 @@ def r3wlc(N, FA, Ks, sequence='all'):
         return s4a1a2a3
 
 
-# In[10]:
+# In[ ]:
+
 
 def pa1a2a3(A1, A2, A3, FA, N, I1, I2, I3):
     IND1 = float(I1/N)
@@ -631,9 +657,9 @@ def pa1a2a3(A1, A2, A3, FA, N, I1, I2, I3):
     IND3 = float(I3/N)
     pa1a2a3 = 0
     
-    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
-         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) and 
-         (IND3<FA) and (A3==0) or (IND3>= FA and (A3==1))):
+    if ( ((IND1<FA) and (A1==0) or (IND1>= FA and (A1==1))) and
+         ((IND2<FA) and (A2==0) or (IND2>= FA and (A2==1))) and 
+         ((IND3<FA) and (A3==0) or (IND3>= FA and (A3==1))) ):
         pa1a2a3 = 1
     
     return pa1a2a3
@@ -641,7 +667,8 @@ def pa1a2a3(A1, A2, A3, FA, N, I1, I2, I3):
 
 # ### 4.3 Four-point rigid rod
 
-# In[11]:
+# In[ ]:
+
 
 def r4wlc(N, FA, Ks, sequence='all'):
     k1, k2, k3, k4 = Ks
@@ -664,7 +691,8 @@ def r4wlc(N, FA, Ks, sequence='all'):
         return s4a1a2a3a4
 
 
-# In[12]:
+# In[ ]:
+
 
 def pa1a2a3a4(A1, A2, A3, A4, FA, N, I1, I2, I3, I4):
     IND1 = float(I1/N)
@@ -673,10 +701,10 @@ def pa1a2a3a4(A1, A2, A3, A4, FA, N, I1, I2, I3, I4):
     IND4 = float(I4/N)
     pa1a2a3a4 = 0
     
-    if ( (IND1<FA) and (A1==0) or (IND1>= FA and (A1==1)) and
-         (IND2<FA) and (A2==0) or (IND2>= FA and (A2==1)) and 
-         (IND3<FA) and (A3==0) or (IND3>= FA and (A3==1)) and
-         (IND4<FA) and (A4==0) or (IND4>= FA and (A4==1))):
+    if ( ((IND1<FA) and (A1==0) or (IND1>= FA and (A1==1))) and
+         ((IND2<FA) and (A2==0) or (IND2>= FA and (A2==1))) and 
+         ((IND3<FA) and (A3==0) or (IND3>= FA and (A3==1))) and
+         ((IND4<FA) and (A4==0) or (IND4>= FA and (A4==1))) ):
         pa1a2a3a4 = 1
     
     return pa1a2a3a4
