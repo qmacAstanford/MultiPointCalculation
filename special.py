@@ -20,15 +20,29 @@ from numba import jit
 
 # In[ ]:
 
+#@jit(nopython=True)
+def factorial():
+    out=int(1)
+    fact = np.ones(100)
+    for ii in range(1,100):
+        out=out*ii
+        fact[ii] = out
+    return fact
+fact=factorial()
+
+
+# In[ ]:
+
+@jit(nopython=True)
 def expl(x,n,maxn=15):
     if abs(x)<0.001:
         out=0
         for ii in range(n,maxn):
-            out=out+x**ii/float(np.math.factorial(ii))
+            out=out+x**ii/float(fact[ii])#float(np.math.factorial(ii))
     else:
         out=np.exp(x)
         for ii in range(0,n):
-            out=out-x**ii/float(np.math.factorial(ii))
+            out=out-x**ii/float(fact[ii])#float(np.math.factorial(ii))
     return out
 
 
@@ -42,19 +56,6 @@ def seq(first,last):
         return np.arange(first,last+1)
     else:
         return np.arange(first,last-1,-1)
-
-
-# In[ ]:
-
-#@jit(nopython=True)
-def factorial():
-    out=int(1)
-    fact = np.ones(100)
-    for ii in range(1,100):
-        out=out*ii
-        fact[ii] = out
-    return fact
-fact=factorial()
 
 
 # \[
