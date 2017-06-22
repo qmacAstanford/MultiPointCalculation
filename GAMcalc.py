@@ -64,7 +64,8 @@ def gamma3(pset, N, FA, Ks):
     if norm(K1+K2+K3) >= 1e-10:
         raise('Qs must add up to zero')
         
-    if not (abs(norm(K1)-norm(K2)) < 1e-5         and abs(norm(K2)-norm(K3)) < 1e-5):
+    if not (abs(norm(K1)-norm(K2)) < 1e-5
+            and abs(norm(K2)-norm(K3)) < 1e-5):
         raise('Qs must have same length')
     
     s3 = s3wlc(pset, N, FA, Ks)
@@ -83,8 +84,10 @@ def gamma3(pset, N, FA, Ks):
 
 def gamma4(pset, wigset, N, FA, Ks):
     K1, K2, K3, K4 = Ks
-    if not (norm(K1) == norm(K2) == norm(K3) == norm(K4)):
-        raise('Qs must have same length')
+    if not (abs(norm(K1)-norm(K2)) < 1e-5
+            and abs(norm(K2)-norm(K3)) < 1e-5
+            and abs(norm(K3)-norm(K4)) < 1e-5):
+        raise('Qs must have same length')        
     
     K = norm(K1)
     K12 = norm(K1+K2)
