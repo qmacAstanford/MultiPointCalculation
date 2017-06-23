@@ -34,15 +34,32 @@ fact=factorial()
 # In[ ]:
 
 @jit(nopython=True)
-def expl(x,n,maxn=15):
-    if abs(x)<0.001:
-        out=0
+def expl(x,n,maxn=25):
+    x=x*1.0
+    if abs(x)<1.0:
+        out=0.0
         for ii in range(n,maxn):
             out=out+x**ii/float(fact[ii])#float(np.math.factorial(ii))
     else:
         out=np.exp(x)
         for ii in range(0,n):
             out=out-x**ii/float(fact[ii])#float(np.math.factorial(ii))
+    return out
+
+
+# In[ ]:
+
+@jit(nopython=True)
+def xpl(x,n,maxn=25):
+    x=x*1.0
+    if abs(x)<1.0:
+        out=0.0
+        for ii in range(n,maxn):
+            out=out+x**(ii-n)/float(fact[ii])#float(np.math.factorial(ii))
+    else:
+        out=np.exp(x)/(x**n)
+        for ii in range(0,n):
+            out=out-x**(ii-n)/float(fact[ii])#float(np.math.factorial(ii))
     return out
 
 
@@ -135,12 +152,12 @@ def f2(j,e1,e2,N):
 
 # In[ ]:
 
-# Orders a, b, and c such that a is furtest from the other two
+# Orders a, b, and c such that c is furtest from the other two
 @jit(nopython=True)
 def arrange(a,b,c):
-    ab = abs(a-b)/min(abs(a),abs(b))
-    bc = abs(b-c)/min(abs(b),abs(c))
-    ac = abs(a-c)/min(abs(a),abs(c))
+    ab = relDif(a,b)
+    bc = relDif(b,c)
+    ac = relDif(a,c)
     if ab <= min(bc,ac):
         return (a,b,c)
     elif ac <= min(ab,bc):
@@ -153,7 +170,15 @@ def arrange(a,b,c):
 
 @jit(nopython=True)
 def relDif(a,b):
-    return abs(a-b)/min(abs(a),abs(b))
+    smaller=min(abs(a),abs(b))
+    if smaller <= 10**-200:
+        if abs(a-b)<= 10**-200:
+            return 0.0
+        else:
+            print(a,b)
+            raise ValueError('Dont know how to compare')
+            return np.inf
+    return abs(a-b)/smaller
 
 
 # \[
@@ -189,7 +214,7 @@ def relDif(a,b):
 
 @jit(nopython=True)
 def f3(j,eps1,eps2,eps3,N):
-    tol=0.0001
+    tol=0.001
     e1,e2,e3 = arrange(eps1,eps2,eps3)
     if relDif(e1,e2) >= tol: # none close to eachother
         return ((np.exp(N*e3)/(e3**j) - np.exp(N*e2)/(e2**j))*e1+                 (np.exp(N*e1)/(e1**j) - np.exp(N*e3)/(e3**j))*e2+                 (np.exp(N*e2)/(e2**j) - np.exp(N*e1)/(e1**j))*e3)/                 ((e1-e2)*(e2-e3)*(e3-e1))
@@ -237,7 +262,8 @@ def f3(j,eps1,eps2,eps3,N):
                 out=out + temp
                 if k>4 and abs(temp) < abs(out)*tol:
                     return out
-        
+        if abs(temp) < 10**-100:
+            return out
         # appairantly the series didn't converge
         e1,e2,e3 = arrange(e1,e2,e3)
         return ((np.exp(N*e3)/(e3**j)) +                  e2*e1*f2(j+1,e1,e2,N)-e3*f2(j,e1,e2,N))/                 ((e2-e3)*(e3-e1)) 
