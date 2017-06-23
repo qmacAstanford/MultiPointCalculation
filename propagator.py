@@ -116,7 +116,7 @@ def IntersectEig3(set1,set2,set3,tol=10**-10):
 class propagator:
     # Calculate eigenvalues and residues on creation
     def __init__(self,name,K,mu,nlam=10,lamMax=500,ORDEig=25,d=3,
-             resCutoff=10**-11,lowKcut=10**-7):
+             resCutoff=10**-11,lowKcut=10**-7,eigCutoff=800):
         self.name = name
         self.K = K
         if d != 3 and mu <0:
@@ -130,6 +130,7 @@ class propagator:
         self.nlam = nlam
         self.ORDEig = ORDEig
         self.d =d
+        self.eigCutoff=eigCutoff
         self.eig, self.res, self.a, self.b = self.calc_resData_G()
         self.G0, self.dG0 = self.calcZeroPterms()
         self.otherG = {}
@@ -181,7 +182,7 @@ class propagator:
         d=self.d
         K=self.K
 
-        eigvals = wlc.wlc_eigvals(K,ORDEig,mu,d=d)
+        eigvals = wlc.wlc_eigvals(K,ORDEig,mu,d=d,cutoff=self.eigCutoff)
         eig=[]
         res=[]
         a=[]
