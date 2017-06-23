@@ -30,8 +30,8 @@ def IAAexplicit(N,fa,lam0,lam,p1):
     for l in range(abs(p1.mu),p1.ORDEig):
         eps=eig[l]
         R=res[l][lam0,lam]
-        out=out+R*sp.expl(N*fa*eps,2)/(eps**2)
-    return out  
+        out=out+R*sp.xpl(N*fa*eps,2)
+    return out*((N*fa)**2) 
 
 
 # \[
@@ -82,10 +82,10 @@ def IABexplicit(N,fa,lam0,lam,p1):
     fb=1-fa
     out=0.0
     for l in range(abs(p1.mu),p1.ORDEig):
-        eps=eig[l]
+        eps=eig[l]*N
         R=res[l][lam0,lam]
-        out=out+R*(sp.expl(N*fa*eps,1)*sp.expl(N*fb*eps,1))/(eps**2)
-    return out   
+        out=out+R*sp.xpl(fa*eps,1)*sp.xpl(fb*eps,1)
+    return out*(N**2)*fa*fb   
 
 
 # 
@@ -189,6 +189,28 @@ def f2resum(j,p1,p2,lam0_1,lam_1,lam0_2,lam_2,N):
     return -out
 
 
+# In[ ]:
+
+def I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,fun):
+    tol = np.NaN #10**-16
+    sum1=0.0
+    for l1 in range(abs(p1.mu),p1.ORDEig):
+        e1=p1.eig[l1]
+        R1=p1.res[l1][lam0_1,lam_1]
+        sum2=0.0
+        for l2 in range(abs(p2.mu),p2.ORDEig):
+            e2=p2.eig[l2]
+            R2=p2.res[l2][lam0_2,lam_2]
+            out = R1*R2*fun(e1,e2,N,fa)
+            sum2=sum2+out
+            if abs(out/(sum2+tol))<tol and l2>max(lam0_2,lam_2):
+                break
+        sum1=sum1+sum2
+        if abs(sum2/(sum1+tol))<tol and l1>max(lam0_1,lam_1):
+            break
+    return sum1
+
+
 # ### AAA
 
 # \begin{align*}
@@ -238,36 +260,29 @@ def IAAAresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,debug=False):
 
 # In[ ]:
 
+def caseAAA(eps1,eps2,N,fa):
+    tol=10**-6
+    e1=eps1*N*fa
+    e2=eps2*N*fa
+    if sp.relDif(e1,e2) > tol:
+        out= (sp.xpl(e2,2)-sp.xpl(e1,2))/(e2-e1)
+    else:
+        out= -2*sp.xpl(e1,3)+sp.xpl(e1,2)
+    return out*((N*fa)**3)
+
+
+# In[ ]:
+
 def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
-    tol = 10**-16
-    sum1=0.0
-    for l1 in range(abs(p1.mu),p1.ORDEig):
-        e1=p1.eig[l1]
-        R1=p1.res[l1][lam0_1,lam_1]
-        sum2=0.0
-        for l2 in range(abs(p2.mu),p2.ORDEig):
-            e2=p2.eig[l2]
-            R2=p2.res[l2][lam0_2,lam_2]
-            out=0.0
-            if abs((e1-e2)/(e1+e2)) > tol:
-                out=out+R1*R2*((e2**-2)*sp.expl(N*fa*e2,2)-                               (e1**-2)*sp.expl(N*fa*e1,2))/                               (e2-e1)
-            else:
-                out=out+R1*R2*(-2*sp.expl(N*fa*e1,3)+                               N*fa*e1*sp.expl(N*fa*e1,2))/(e1**3)
-            sum2=sum2+out
-            if abs(out/(sum2+tol))<tol and l2>max(lam0_2,lam_2):
-                break
-        sum1=sum1+sum2
-        if abs(sum2/(sum1+tol))<tol and l1>max(lam0_1,lam_1):
-            break
-    return sum1
+    return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseAAA)
 
 
 # In[ ]:
 
 # Choose best methode
 def IAAAswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
-    if np.sqrt(p1.K*p2.K) < 10.0:
-        return IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
+    if np.sqrt(p1.K*p2.K) < 10.0/np.sqrt(N):
+        return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseAAA)
     else:
         return IAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
 
@@ -314,42 +329,37 @@ def IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # In[ ]:
 
-def IABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):  
-    tol = 10**-16
-    sum1=0.0
+def caseABB(eps1,eps2,N,fa):
+    tol=10**-6
+    e1=eps1*N
+    e2=eps2*N
     fb=1.0-fa
-    for l1 in range(abs(p1.mu),p1.ORDEig):
-        e1=p1.eig[l1]
-        R1=p1.res[l1][lam0_1,lam_1]
-        sum2=0.0
-        for l2 in range(abs(p2.mu),p2.ORDEig):
-            e2=p2.eig[l2]
-            R2=p2.res[l2][lam0_2,lam_2]
-            out=0.0
-            if abs((e1-e2)/(e1+e2)) > tol:
-                out=out+R1*R2*                (-e2*sp.expl(N*e1,3)+e2*sp.expl(N*fa*e1,3)                 +e2*sp.expl(N*fb*e1,3)+N*fb*e2*e1*sp.expl(N*fa*e1,2)                 +N*fa*e1*e1*sp.expl(N*fb*e2,2)                 +e1*sp.expl(N*fb*e2,2)*sp.expl(N*fa*e1,2))                /(e1*e1*e2*(e2-e1))
-            else:
-                out=out+R1*R2*(sp.expl(N*e1*fa,3)-                               N*fb*e1*sp.expl(N*fb*e1,2)                        +sp.expl(N*fb*e1,3)-sp.expl(N*e1,3)                         +N*e1*sp.expl(N*e1,2)-N*e1*fa*sp.expl(N*e1,2))                        /(e1**3)
-            sum2=sum2+out
-            if abs(out/(sum2+tol))<tol and l2>max(lam0_2,lam_2):
-                break
-        sum1=sum1+sum2
-        if abs(sum2/(sum1+tol))<tol and l1>max(lam0_1,lam_1):
-            break
-    return sum1
+    if sp.relDif(e1,e2) > tol:
+        out= (-e1*sp.xpl(e1,3)              +fa**3*e1*sp.xpl(fa*e1,3)+fb**3*e1*sp.xpl(fb*e1,3)              +fb*fa**2*e1*sp.xpl(fa*e1,2)+fa*fb**2*e2*sp.xpl(fb*e2,2)             +(fb*fa)**2*e2*sp.xpl(fb*e2,2)*e1*sp.xpl(fa*e1,2))/(e2-e1)
+    else:
+        out= fa**3*sp.xpl(fa*e1,3)-fb**3*sp.xpl(fb*e1,2)             +fb**3*sp.xpl(fb*e1,3)-sp.xpl(e1,3)+fb*sp.xpl(e1,2)
+    return out*(N**3)
+
+
+# In[ ]:
+
+def IABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
+    return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseABB)
 
 
 # In[ ]:
 
 # Choose best methode
 def IABBswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
-    if np.sqrt(p1.K*p2.K) < 10.0:
-        return IABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
+    if np.sqrt(p1.K*p2.K) < 10.0/np.sqrt(N):
+        return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseABB)
     else:
         return IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
 
 
 # ## 4 point
+
+# ### General Functions
 
 # $$
 # \mathrm{f3resum}=\sum_{l_{1},l_{2},l_{3}}R_{1}R_{2}R_{3}\left(\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{n}}\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}+\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{n}}\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{2}-\epsilon_{3}\right)}+\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{n}}\frac{1}{\left(\epsilon_{2}-\epsilon_{3}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}\right)
@@ -579,7 +589,11 @@ def Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,
             for l3 in range(abs(p3.mu),p3.ORDEig):
                 e3=p3.eig[l3]
                 R3=p3.res[l3][lam0_3,lam_3]
-                temp = R1*R2*R3*fun(e1,e2,e3,N,fa)
+                try:
+                    temp = R1*R2*R3*fun(e1,e2,e3,N,fa)
+                except:
+                    import pdb
+                    pdb.set_trace()
                 sum3=sum3+temp
                 if abs(temp/(sum3+tol))<tol and l3>max(lam0_3,lam_3):
                     break
@@ -753,17 +767,16 @@ def IAAAAresumK2is0(N,fa,lam0_1,lam_1,                         lam0_2,lam_2,    
 # In[ ]:
 
 @jit(nopython=True)
-def caseAAAA(e1,e2,e3,Ntotal,fa):
-    N=Ntotal*fa
-    e3,e2,e1 = sp.arrange(e1,e2,e3)
+def caseAAAA(eps1,eps2,eps3,N,fa):
+    e3,e2,e1 = sp.arrange(eps1*N*fa,eps2*N*fa,eps3*N*fa)
     tol=10**-6
-    if abs(e2-e3)>tol:
-        out=-( (e2-e3)*sp.expl(N*e1,4)/(e1**2) +                (e3-e1)*sp.expl(N*e2,4)/(e2**2) +                (e1-e2)*sp.expl(N*e3,4)/(e3**2) )/              ((e1-e2)*(e2-e3)*(e3-e1))
-    elif min(abs(e1-e2),abs(e3-e1)) > tol:
-        out = (-N*e2*sp.expl(N*e2,3)*e1**3 +                2*sp.expl(N*e2,4)*e1**3 + sp.expl(N*e1,4)*e2**3                - 3*sp.expl(N*e2,4)*e1**2*e2 +  N*e2*sp.expl(N*e2,3)*e1**2*e2)/              (e1**4*e2**3  - 2*e1**3*e2**4 + e1**2*e2**5)
+    if sp.relDif(e2,e3)>tol:
+        out=-( (e2-e3)*e1**2*sp.xpl(e1,4) +                (e3-e1)*e2**2*sp.xpl(e2,4) +                (e1-e2)*e3**2*sp.xpl(e3,4) )/              ((e1-e2)*(e2-e3)*(e3-e1))
+    elif min(sp.relDif(e1,e2),sp.relDif(e3,e1)) > tol:
+        out=(-e2*e1*sp.xpl(e2,3)+2*e2*e1*sp.xpl(e2,4)+             e1**2*sp.xpl(e1,4)-3*e2**2*sp.xpl(e2,4)+e2**2*sp.xpl(e2,3))             /((e1-e2)**2)
     else:
-        out = (-6*sp.expl(N*e1,4)-(N*e1)**2*sp.expl(N*e1,2)+               4*N*e1*sp.expl(N*e1,3))/(2*e1**4)
-    return out
+        out = 3*sp.xpl(e1,4)+0.5*sp.xpl(e1,2)-2*sp.xpl(e1,3)
+    return out*((N*fa)**4)
 
 
 # In[ ]:
@@ -967,17 +980,17 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
 # In[ ]:
 
 @jit(nopython=True)
-def caseAAAB(e1,e2,e3,N,fa):
-    e3,e2,e1 = sp.arrange(e1,e2,e3)
+def caseAAAB(eps1,eps2,eps3,N,fa):
+    e3,e2,e1 = sp.arrange(eps1*N,eps2*N,eps3*N)
     tol=10**-6
     fb=1-fa
-    if abs(e2-e3)>tol:
-        out=(sp.expl(N*fb*e3,1)/e3)*        (((e2-e3)*sp.expl(N*fa*e1,4)/e1         +(e3-e1)*sp.expl(N*fa*e2,4)/e2         +(e1-e2)*sp.expl(N*fa*e3,4)/e3 )/         ((e1-e2)*(e1-e3)*(e2-e3))+((N*fa)**3)/6)
-    elif min(abs(e1-e2),abs(e3-e1)) > tol:
-        out = (sp.expl(N*fb*e2,1)/e2)*        ( (sp.expl(N*fa*e1,4)/e1 - sp.expl(N*fa*e2,4)/e2)/((e1-e2)**2)         +(sp.expl(N*fa*e2,4)-N*fa*e2*sp.expl(N*fa*e2,3))           /(e2**2 *(e1-e2))         +((N*fa)**3)/6)
+    if sp.relDif(e2,e3)>tol:
+        out=fb*fa**3*sp.xpl(fb*e3,1)*        (fa*((e2-e3)*sp.xpl(fa*e1,4)*e1**3            +(e3-e1)*sp.xpl(fa*e2,4)*e2**3            +(e1-e2)*sp.xpl(fa*e3,4)*e3**3 )/         ((e1-e2)*(e1-e3)*(e2-e3))+1.0/6.0)
+    elif min(sp.relDif(e1,e2),sp.relDif(e3,e1)) > tol:
+        out = fb*fa**3*sp.xpl(fb*e2,1)*        (fa*(sp.xpl(fa*e1,4)*e1**3 - sp.xpl(fa*e2,4)*e2**3)/         ((e1-e2)**2)         +fa*(e2**2*sp.xpl(fa*e2,4)-e2**2*sp.xpl(fa*e2,3))/(e1-e2)         +1.0/6.0)
     else:
-        out = (2*sp.expl(N*e1,4)               -2*sp.expl(N*fb*e1,4)-2*sp.expl(N*fa*e1,4)               +(N*fa*e1)**2*(sp.expl(N*e1,2)-sp.expl(N*fa*e1,2))               +2*N*fa*e1*(sp.expl(N*fa*e1,3)-sp.expl(N*e1,3)))              /(2*e1**4)
-    return out
+        out = sp.xpl(e1,4)-fb**4*sp.xpl(fb*e1,4)-fa**4*sp.xpl(fa*e1,4)              + 0.5*fa**2*sp.xpl(e1,2)-0.5*fa**4*sp.xpl(fa*e1,2)              +fa**4*sp.xpl(fa*e1,3)-fa*sp.xpl(e1,3)
+    return out*(N**4)
 
 
 # In[ ]:
@@ -991,9 +1004,9 @@ def IAAABexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 def IAAABswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
     K=(p1.K*p2.K*p3.K)**(1.0/3.0)
     if N>1.0:
-        cut=0.1/(N**0.25)
+        cut=0.3/(N**0.25)
     else:
-        cut=0.1/(N**0.5)
+        cut=0.3/(N**0.5)
     if K<cut:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAAAB)
     else:
@@ -1142,17 +1155,17 @@ def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                 
 # In[ ]:
 
 @jit(nopython=True)
-def caseAABB(e1,e2,e3,N,fa):
-    e3,e2,e1 = sp.arrange(e1,e2,e3)
+def caseAABB(eps1,eps2,eps3,N,fa):
+    e3,e2,e1 = sp.arrange(eps1,eps2,eps3)
     tol=10**-6
     fb=1.0-fa
-    if abs(e2-e3)>tol:
-        out= (sp.expl(N*fb*e2,2)/e2 - sp.expl(N*fb*e3,2)/e3)            *(sp.expl(N*fa*e1,2)/e1 - sp.expl(N*fa*e2,2)/e2)/            ((e2-e3)*(e1-e2))
-    elif min(abs(e1-e2),abs(e3-e1)) > tol:
-        out = (N*fb*e2*sp.expl(N*fb*e2,1) - sp.expl(N*fb*e2,2))             *(sp.expl(N*fa*e1,2)/e1 - sp.expl(N*fa*e2,2)/e2)/             (e2*e2*(e1-e2))
+    if sp.relDif(e2,e3)>tol:
+        out= (sp.xpl(fb*e2,2)*e2 - sp.xpl(fb*e3,2)*e3)            *(sp.xpl(fa*e1,2)*e1 - sp.xpl(fa*e2,2)*e2)/            ((e2-e3)*(e1-e2))
+    elif min(sp.relDif(e1,e2),sp.relDif(e3,e1)) > tol:
+        out = (e2*sp.xpl(fb*e2,1) - sp.xpl(fb*e2,2))             *(sp.xpl(fa*e1,2)*e1 - sp.xpl(fa*e2,2)*e2)/             (e1-e2)
     else:
-        out = (N*fb*e1*sp.expl(N*fb*e1,1) - sp.expl(N*fb*e1,2))             *(N*fa*e1*sp.expl(N*fa*e1,1) - sp.expl(N*fa*e1,2))/             (e1**4)
-    return out
+        out = (sp.xpl(fb*e1,1) - sp.xpl(fb*e1,2))             *(sp.xpl(fa*e1,1) - sp.xpl(fa*e1,2))
+    return out*(N**4)*fa*fa*fb*fb
 
 
 # In[ ]:
