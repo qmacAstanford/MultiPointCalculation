@@ -980,14 +980,29 @@ def IAAABresumK2is0(N,fa,lam0_1,lam_1                        ,lam0_2,lam_2      
 # In[ ]:
 
 @jit(nopython=True)
+def AAABwhen3equal2not1(e1,e2,fa):
+    fb=1.0-fa
+    return (fa*(sp.xpl(fa*e1,4)*e1**3 - sp.xpl(fa*e2,4)*e2**3)/         ((e1-e2)**2)         +fa*(e2**2*sp.xpl(fa*e2,4)-e2**2*sp.xpl(fa*e2,3))/(e1-e2)         +1.0/6.0)
+
+
+# In[ ]:
+
+@jit(nopython=True)
 def caseAAAB(eps1,eps2,eps3,N,fa):
-    e3,e2,e1 = sp.arrange(eps1*N,eps2*N,eps3*N)
+    e1,e2,e3=eps1*N,eps2*N,eps3*N
     tol=10**-6
     fb=1-fa
-    if sp.relDif(e2,e3)>tol:
+    ab=sp.relDif(e1,e2)<tol
+    bc=sp.relDif(e2,e3)<tol
+    ca=sp.relDif(e3,e1)<tol
+    if (not ab) and (not bc) and (not ca):
         out=fb*fa**3*sp.xpl(fb*e3,1)*        (fa*((e2-e3)*sp.xpl(fa*e1,4)*e1**3            +(e3-e1)*sp.xpl(fa*e2,4)*e2**3            +(e1-e2)*sp.xpl(fa*e3,4)*e3**3 )/         ((e1-e2)*(e1-e3)*(e2-e3))+1.0/6.0)
-    elif min(sp.relDif(e1,e2),sp.relDif(e3,e1)) > tol:
-        out = fb*fa**3*sp.xpl(fb*e2,1)*        (fa*(sp.xpl(fa*e1,4)*e1**3 - sp.xpl(fa*e2,4)*e2**3)/         ((e1-e2)**2)         +fa*(e2**2*sp.xpl(fa*e2,4)-e2**2*sp.xpl(fa*e2,3))/(e1-e2)         +1.0/6.0)
+    elif (not ab) and (not ca): # e2=e3
+        out = fb*fa**3*sp.xpl(fb*e3,1)*AAABwhen3equal2not1(e1,e2,fa)
+    elif (not ab) and (not bc): # e1=e3
+        out = fb*fa**3*sp.xpl(fb*e3,1)*AAABwhen3equal2not1(e2,e3,fa)
+    elif (not bc) and (not ca): # e1=e2
+        out = fb*fa**3*sp.xpl(fb*e3,1)*AAABwhen3equal2not1(e3,e1,fa)
     else:
         out = sp.xpl(e1,4)-fb**4*sp.xpl(fb*e1,4)-fa**4*sp.xpl(fa*e1,4)              + 0.5*fa**2*sp.xpl(e1,2)-0.5*fa**4*sp.xpl(fa*e1,2)              +fa**4*sp.xpl(fa*e1,3)-fa*sp.xpl(e1,3)
     return out*(N**4)
@@ -1003,11 +1018,7 @@ def IAAABexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 
 def IAAABswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
     K=(p1.K*p2.K*p3.K)**(1.0/3.0)
-    if N>1.0:
-        cut=0.3/(N**0.25)
-    else:
-        cut=0.3/(N**0.5)
-    if K<cut:
+    if K<10:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAAAB)
     else:
         out =IAAABresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3)
@@ -1155,16 +1166,33 @@ def IAABBresumK2is0(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                 
 # In[ ]:
 
 @jit(nopython=True)
+def cow(e1,e2,fa):
+    return (sp.xpl(fa*e1,2)*e1 - sp.xpl(fa*e2,2)*e2)/(e1-e2)
+@jit(nopython=True)
+def bull(e1,fa):
+    return sp.xpl(fa*e1,1) - sp.xpl(fa*e1,2)
+
+
+# In[ ]:
+
+@jit(nopython=True)
 def caseAABB(eps1,eps2,eps3,N,fa):
-    e3,e2,e1 = sp.arrange(eps1,eps2,eps3)
     tol=10**-6
-    fb=1.0-fa
-    if sp.relDif(e2,e3)>tol:
-        out= (sp.xpl(fb*e2,2)*e2 - sp.xpl(fb*e3,2)*e3)            *(sp.xpl(fa*e1,2)*e1 - sp.xpl(fa*e2,2)*e2)/            ((e2-e3)*(e1-e2))
-    elif min(sp.relDif(e1,e2),sp.relDif(e3,e1)) > tol:
-        out = (e2*sp.xpl(fb*e2,1) - sp.xpl(fb*e2,2))             *(sp.xpl(fa*e1,2)*e1 - sp.xpl(fa*e2,2)*e2)/             (e1-e2)
+    fb=1-fa
+    e1,e2,e3=eps1*N,eps2*N,eps3*N
+    ab=sp.relDif(e1,e2)<tol
+    bc=sp.relDif(e2,e3)<tol
+    ca=sp.relDif(e3,e1)<tol
+    if (not ab) and (not bc) and (not ca):
+        out = cow(e1,e2,fa)*cow(e2,e3,fb)
+    elif (not ab) and (not ca): # e2=e3
+        out = cow(e1,e2,fa)*bull(e2,fb)
+    elif (not ab) and (not bc): # e1=e3
+        out = cow(e1,e2,fa)*cow(e2,e3,fb)
+    elif (not bc) and (not ca): # e1=e2
+        out = bull(e1,fa)*cow(e2,e3,fb)
     else:
-        out = (sp.xpl(fb*e1,1) - sp.xpl(fb*e1,2))             *(sp.xpl(fa*e1,1) - sp.xpl(fa*e1,2))
+        out = bull(e1,fa)*bull(e1,fb)
     return out*(N**4)*fa*fa*fb*fb
 
 
@@ -1178,7 +1206,7 @@ def IAABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 
 def IAABBswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
     K=(p1.K*p2.K*p3.K)**(1/3.0)
-    if K<0.1/(N**0.5):
+    if K<10:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAABB)
     else:
         out =IAABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3)
