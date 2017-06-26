@@ -281,7 +281,7 @@ def IAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # Choose best methode
 def IAAAswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
-    if np.sqrt(p1.K*p2.K) < 10.0/np.sqrt(N):
+    if np.sqrt(p1.K+p2.K) < 10.0:
         return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseAAA)
     else:
         return IAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
@@ -351,7 +351,7 @@ def IABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
 
 # Choose best methode
 def IABBswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2):
-    if np.sqrt(p1.K*p2.K) < 10.0/np.sqrt(N):
+    if np.sqrt(p1.K+p2.K) < 10.0:
         return I3explicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2,caseABB)
     else:
         return IABBresum(N,fa,lam0_1,lam_1,lam0_2,lam_2,p1,p2)
@@ -789,8 +789,8 @@ def IAAAAexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 
 # Use explicit calculation for low K and IAAAA for high K
 def IAAAAswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
-    K=(p1.K*p2.K*p3.K)**(1/3.0)
-    if K<50.0:
+    K=(p1.K+p2.K+p3.K)/3.0
+    if K<10.0:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAAAA)
     else:
         out =IAAAA(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3)
@@ -1017,7 +1017,7 @@ def IAAABexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 # In[ ]:
 
 def IAAABswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
-    K=(p1.K*p2.K*p3.K)**(1.0/3.0)
+    K=(p1.K+p2.K+p3.K)/3.0
     if K<10:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAAAB)
     else:
@@ -1205,7 +1205,7 @@ def IAABBexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                   
 # In[ ]:
 
 def IAABBswitch(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3               ,p1,p2,p3):
-    K=(p1.K*p2.K*p3.K)**(1/3.0)
+    K=(p1.K+p2.K+p3.K)/3.0
     if K<10:
         out = Iexplicit(N,fa,lam0_1,lam_1,lam0_2,lam_2,lam0_3,lam_3                      ,p1,p2,p3,caseAABB)
     else:
