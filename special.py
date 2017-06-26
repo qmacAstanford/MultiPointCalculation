@@ -175,8 +175,6 @@ def relDif(a,b):
         if abs(a-b)<= 10**-200:
             return 0.0
         else:
-            print(a,b)
-            raise ValueError('Dont know how to compare')
             return np.inf
     return abs(a-b)/smaller
 
