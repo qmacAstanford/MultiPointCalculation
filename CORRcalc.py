@@ -17,7 +17,7 @@ import wignerD as wd
 
 import imp  # imp.reload(module)
 import matplotlib.pyplot as plt
-get_ipython().magic('matplotlib inline')
+# get_ipython().magic('matplotlib inline')
 # import mpld3
 # mpld3.enable_notebook()
 
@@ -40,7 +40,7 @@ def plotlog(x, y, alpha, xrange=1, numx=2):
     xv = np.logspace(np.log10(x), np.log10(x) + xrange, numx)
     C = y / (x**alpha)
     yv = C * xv**(alpha)
-    plt.loglog(xv, yv)
+    plt.loglog(xv, yv, 'k--')
 
 
 # ### Some simple functions
@@ -143,7 +143,7 @@ def s2wlc_zeroq(N, FA):
 
 def s2inverse(pset, N, FA, K):
     if norm(K) < 1e-5:
-        s2inv = s2inverse_zeroq(pset, N, FA)
+        s2inv = s2inverse_zeroq(N, FA)
         return s2inv
 
     s2 = s2wlc(pset, N, FA, K)
@@ -163,7 +163,7 @@ def s2inverse(pset, N, FA, K):
 # In[14]:
 
 
-def s2inverse_zeroq(pset, N, FA):
+def s2inverse_zeroq(N, FA):
     s2 = np.ones((2,2),dtype='complex')
     
     return s2/(N**2)
@@ -567,7 +567,29 @@ def get_angles(q1,q2,q3):
 # In[ ]:
 
 
-def r2wlc(N, FA, K, sequence='all'):
+def s2rrinverse(N, FA, K):
+    if norm(K) < 1e-5:
+        s2inv = s2inverse_zeroq(N, FA)
+        return s2inv
+
+    s2 = s2rr(N, FA, K)
+    s2inv = np.zeros((2,2),dtype=type(1+1j))
+    
+    [s2aa, s2ab], [s2ba, s2bb] = s2
+    det = s2aa*s2bb - s2ab*s2ba
+    
+    s2inv[0,0] = s2bb/det
+    s2inv[0,1] = -s2ab/det
+    s2inv[1,0] = -s2ba/det
+    s2inv[1,1] = s2aa/det
+    
+    return s2inv
+
+
+# In[ ]:
+
+
+def s2rr(N, FA, K, sequence='all'):
     if sequence == 'all':
         if norm(K) < 1e-5:
             s2 = s2wlc_zeroq(N, FA)
@@ -627,7 +649,7 @@ def pa1a2(A1, A2, FA, N, I1, I2):
 # In[ ]:
 
 
-def r3wlc(N, FA, Ks, sequence='all'):
+def s3rr(N, FA, Ks, sequence='all'):
     k1, k2, k3 = Ks
     if sequence == 'all':
         s3 = np.zeros((2,2,2))
@@ -635,8 +657,8 @@ def r3wlc(N, FA, Ks, sequence='all'):
             Qtot = norm(I1*k1+I2*k2+I3*k3)
             intg = 1 if Qtot < 1e-5 else np.sin(Qtot) / float(Qtot)
             for a1, a2, a3 in product([0,1], repeat=3):
-                s4[a1, a2, a3] += pa1a2a3(a1, a2, a3, FA, N, I1, I2, I3)*intg
-        return s4
+                s3[a1, a2, a3] += pa1a2a3(a1, a2, a3, FA, N, I1, I2, I3)*intg
+        return s3
     else:
         a1, a2, a3 = sequence
         s4a1a2a3 = 0
@@ -670,7 +692,7 @@ def pa1a2a3(A1, A2, A3, FA, N, I1, I2, I3):
 # In[ ]:
 
 
-def r4wlc(N, FA, Ks, sequence='all'):
+def s4rr(N, FA, Ks, sequence='all'):
     k1, k2, k3, k4 = Ks
     if sequence == 'all':
         s4 = np.zeros((2,2,2,2))

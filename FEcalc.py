@@ -53,7 +53,8 @@ def set4Ks4(K):
 # In[3]:
 
 
-def chis(pset, N, FA):
+def chis(N, FA):
+    pset=propagator.prop_set(nlam=1)
     Ks = spinodal(pset, N, FA)
     chis = gamma2(pset, N, FA, Ks, 0).real/2
     
@@ -180,7 +181,7 @@ def FE1sol(A1, A2, gam2sol, gam41sol):
     pi = 3.14159
     FE = 0
     A = [A1, A2]
-    for I1, I2 in product([0], repeat=2):
+    for I1, I2 in product([0,1], repeat=2):
         FE += (2*pi)**(-3)*gam2sol[I1][I2]*A[I1]*A[I2]
 
     for I1, I2, I3, I4 in product([0,1], repeat=4):
