@@ -1,10 +1,16 @@
 import numpy as np
-import WLCgreen as wlc
+import MultiPoint.WLCgreen as wlc
 
-# Find all shared Eignevalues
-# returns of list of overlaps of the format out[l_2]=l_1
-# assumes no repeated values within tol
 def IntersectEig(set1,set2,tol=10**-4):
+    """
+    Find all shared Eignevalues
+    assumes no repeated values within tol
+    Args:
+        set1 (interable): list of values
+        set2 (interable): list of values
+    Returns:
+        out: List of overlaps of the format out[l_2]=l_1
+    """
     out=np.zeros(len(set1),dtype='int')-1
     # The following is a O(n^2) precess
     # This can be accelerated useing the fact that they are sorted
@@ -18,11 +24,26 @@ def IntersectEig(set1,set2,tol=10**-4):
                         out[l1]=l2+1
 
                 break
+    return out
 
-# Finds values in set1 and set2 that are within tol of eachother.
-# set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
-# paris returns a list of tuples of indicies of overlap (l1,l2)
 def IntersectEig2(set1,set2,tol=10**-8):
+    """
+    Find all shared Eignevalues
+    Finds values in set1 and set2 that are within tol of eachother.
+    Assumes no repeated values within tol
+    Args:
+        set1 (interable): list of values
+        set2 (interable): list of values
+    Returns:
+        set1only (numpy array): length of set1. 1 if no overlaps for that
+        eigenvalue, 0 if there is.
+
+        set2only (numpy array): length of set2. 1 if no overlaps for that
+        eigenvalue, 0 if there is.
+
+        paris list((int,int)): returns a list of tuples of indicies of overlap
+        (l1,l2)
+    """
     set1only=np.ones(len(set1),dtype='int')
     set2only=np.ones(len(set1),dtype='int')
     pairs=[]
@@ -37,11 +58,36 @@ def IntersectEig2(set1,set2,tol=10**-8):
                 break 
     return set1only, set2only, pairs
                 
-# Finds values in set1, set2, and set3 that are within tol of eachother.
-# set1only is 1 if no overlaps for that eigenvalue, 0 if there is.
-# paris12 returns a list of tuples of indicies of overlap (l1,l2).
-# triplets is a of list of (l1,l2,l3).
 def IntersectEig3(set1,set2,set3,tol=10**-10):
+    """
+    Find all shared Eignevalues
+    Finds values in set1, set2, and set3 that are within tol of eachother.
+    Assumes no repeated values within tol
+    Args:
+        set1 (interable): list of values
+        set2 (interable): list of values
+        set3 (interable): list of values
+    Returns:
+        set1only (numpy array): length of set1. 1 if no overlaps for that
+        eigenvalue, 0 if there is.
+
+        set2only (numpy array): length of set2. 1 if no overlaps for that
+        eigenvalue, 0 if there is.
+
+        set3only (numpy array): length of set3. 1 if no overlaps for that
+        eigenvalue, 0 if there is.
+
+        paris12 list((int,int)): returns a list of tuples of indicies of
+        overlap (l1,l2)
+
+        paris23 list((int,int)): returns a list of tuples of indicies of
+        overlap (l2,l3)
+
+        paris31 list((int,int)): returns a list of tuples of indicies of
+        overlap (l3,l1)
+
+        triplets list((int,int,int)): list of (l1,l2,l3) that overlap
+    """
     set1only=np.ones(len(set1),dtype='int')
     set2only=np.ones(len(set1),dtype='int')
     set3only=np.ones(len(set1),dtype='int')
@@ -260,7 +306,7 @@ class propagator:
         eig=self.eig
         res = self.res
         out=0.0
-        for l in range(0,len(eig)):
+        for l in range(self.mu,len(eig)):
             out=out+res[l][lam0,lam]*np.exp(N*eig[l])
         return out
    

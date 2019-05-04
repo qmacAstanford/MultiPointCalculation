@@ -9,12 +9,12 @@
 # In[7]:
 
 
-from CORRcalc import s2rr, s2rrinverse, s3rr, s4rr, norm
+from .CORRcalc import s2rr, s2rrinverse, s3rr, s4rr, norm
 from itertools import product
-import propagator 
+from . import propagator 
 import numpy as np
 from scipy import optimize
-import wignerD as wd
+from . import wignerD as wd
 
 
 # In[8]:

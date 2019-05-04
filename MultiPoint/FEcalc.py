@@ -6,10 +6,10 @@
 
 import numpy as np
 from scipy import optimize
-from GAMcalc import *
+from .GAMcalc import *
 
-import propagator
-import wignerD as wd
+from MultiPoint import propagator
+from MultiPoint import wignerD as wd
 from numpy.linalg import eig
 
 

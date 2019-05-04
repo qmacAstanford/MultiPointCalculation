@@ -6,17 +6,9 @@
 # In[ ]:
 
 import numpy as np
-from numba import jit
+from MultiPoint.utils import sphinx_compat_jit as jit
+#from numba import jit
 
-
-# \[
-# \mathrm{expl\left(x,n\right)=e^{x}-\sum_{j=0}^{n-1}\frac{x^{j}}{j!}}
-# \]
-# 
-# 
-# \[
-# \mathrm{expl\left(x,n\right)=\sum_{j=n}^{\infty}\frac{x^{j}}{j!}}
-# \]
 
 # In[ ]:
 
@@ -35,6 +27,21 @@ fact=factorial()
 
 @jit(nopython=True)
 def expl(x,n,maxn=25):
+    """
+    .. math::
+        \mathrm{expl\left(x,n\\right)=e^{x}-\sum_{j=0}^{n-1}\\frac{x^{j}}{j!}}
+    
+    which, for small x, is evaluated using
+
+    .. math::
+        \mathrm{expl\left(x,n\\right)=\sum_{j=n}^{\infty}\\frac{x^{j}}{j!}}
+
+
+    Args:
+        x (flaot): :math:`x` in expression
+        n (int): :math:`n` in expression
+        maxn (int): numer of terms to include in expansion
+    """
     x=x*1.0
     if abs(x)<1.0:
         out=0.0
@@ -51,6 +58,22 @@ def expl(x,n,maxn=25):
 
 @jit(nopython=True)
 def xpl(x,n,maxn=25):
+    """
+    .. math::
+        \mathrm{xpl\left(x,n\\right)=e^{x}-\sum_{j=0}^{n-1}\\frac{x^{j-n}}{j!}}
+    
+    which, for small x, is evaluated using
+
+    .. math::
+        \mathrm{xpl\left(x,n\\right)=\sum_{j=n}^{\infty}\\frac{x^{j-n}}{j!}}
+
+    see  also :func:`expl`
+
+    Args:
+        x (flaot): :math:`x` in expression
+        n (int): :math:`n` in expression
+        maxn (int): numer of terms to include in expansion
+    """
     x=x*1.0
     if abs(x)<1.0:
         out=0.0
@@ -75,43 +98,45 @@ def seq(first,last):
         return np.arange(first,last-1,-1)
 
 
-# \[
-# f2\left(j,\epsilon_{1},\epsilon_{2},N\right)\equiv\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\right)}\left(\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}-\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}\right)
-# \]
-# 
-# 
-# This is not numerically well behaved if $\epsilon_{1}\approx\epsilon_{2}$
-# in which case we use:
-# 
-# \[
-# x\equiv\frac{\epsilon_{2}-\epsilon_{1}}{2},\ \ y\equiv\frac{\epsilon_{2}+\epsilon_{1}}{2}
-# \]
-# 
-# 
-# \[
-# f2=\begin{cases}
-# \sum_{n=\mathrm{even}}^{\infty}x^{n}\frac{e^{Ny}}{y^{n+2}}\sum_{m=0}^{n+1}-\frac{\left(-Ny\right)^{m}}{m!} & \mathrm{if}\ j=1\\
-# \sum_{n=\mathrm{even}}^{\infty}x^{n}\frac{e^{Ny}}{y^{n+3}}\sum_{m=0}^{n+1}-\frac{\left(-Ny\right)^{m}\left(n+2-m\right)}{m!} & \mathrm{if}\ j=2\\
-# \sum_{n=\mathrm{even}}^{\infty}x^{n}\frac{e^{Ny}}{y^{n+4}}\sum_{m=0}^{n+1}-\frac{\left(-Ny\right)^{m}\left(n+3-m\right)\left(n+2-m\right)}{m!} & \mathrm{if}\ j=3
-# \end{cases}
-# \]
-# 
-# 
-# if we perform the sum to $\infty$ this is in principle exact for
-# all imput.
-# 
-# In order to determine whether $\epsilon_{1}\approx\epsilon_{2}$ a
-# good method cutoff to use is
-# 
-# \[
-# \frac{\left|\epsilon_{1}-\epsilon_{2}\right|}{\mathrm{min}\left(\left|\epsilon_{1}\right|,\left|\epsilon_{2}\right|\right)}=0.001
-# \]
-# 
-
-# In[ ]:
-
 @jit(nopython=True)
 def f2(j,e1,e2,N):
+    """
+
+    .. math::
+        f2\left(j,\epsilon_{1},\epsilon_{2},N\\right)\equiv\\frac{1}{\left(\epsilon_{1}-\epsilon_{2}\\right)}\left(\\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}-\\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}\\right)
+    
+    
+    This is not numerically well behaved if :math:`\\epsilon_{1}\\approx\epsilon_{2}`
+    in which case we use:
+    
+    .. math::
+        x\equiv\\frac{\epsilon_{2}-\epsilon_{1}}{2},\ \ y\equiv\\frac{\epsilon_{2}+\epsilon_{1}}{2}
+      
+    
+    .. math::
+        f2=\\begin{cases}
+        \sum_{n=\mathrm{even}}^{\infty}x^{n}\\frac{e^{Ny}}{y^{n+2}}\sum_{m=0}^{n+1}-\\frac{\left(-Ny\\right)^{m}}{m!}
+        & \mathrm{if}\ j=1\\\\
+        \sum_{n=\mathrm{even}}^{\infty}x^{n}\\frac{e^{Ny}}{y^{n+3}}\sum_{m=0}^{n+1}-\\frac{\left(-Ny\\right)^{m}\left(n+2-m\\right)}{m!}
+        & \mathrm{if}\ j=2\\\\
+        \sum_{n=\mathrm{even}}^{\infty}x^{n}\\frac{e^{Ny}}{y^{n+4}}\sum_{m=0}^{n+1}-\\frac{\left(-Ny\\right)^{m}\left(n+3-m\\right)\left(n+2-m\\right)}{m!} & \mathrm{if}\ j=3
+        \end{cases}
+    
+    
+    if we perform the sum to :math:`\\infty` this is in principle exact for
+    all imput.
+    
+    In order to determine whether :math:`\\epsilon_{1}\\approx\epsilon_{2}`, a  good method cutoff to use is
+    
+    .. math::
+        \\frac{\left|\epsilon_{1}-\epsilon_{2}\\right|}{\mathrm{min}\left(\left|\epsilon_{1}\\right|,\left|\epsilon_{2}\\right|\\right)}=0.001
+    
+    Args:
+        j (int): :math:`j` in expression
+        e1 (float): :math:`\\epsilon_{1}` in expression
+        e2 (float): :math:`\\epsilon_{2}` in expression
+        N (scaler): :math:`N` in expression
+    """
     tol=0.001
     nmax=15
     tol=10**-15 # How may digits of accuracy 
@@ -179,39 +204,45 @@ def relDif(a,b):
     return abs(a-b)/smaller
 
 
-# \[
-# f3\left(j,\epsilon_{1},\epsilon_{2},\epsilon_{3}\right)\equiv\frac{\left(\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{j}}-\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}\right)\epsilon_{1}+\left(\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}-\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{j}}\right)\epsilon_{2}+\left(\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}-\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}\right)\epsilon_{3}}{\left(\epsilon_{1}-\epsilon_{2}\right)\left(\epsilon_{2}-\epsilon_{3}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}
-# \]
-# 
-# 
-# in the even that $\epsilon_{1}\approx\epsilon_{2}\neq\epsilon_{3}$
-# we use the alternative calculation method:
-# 
-# \[
-# f3=\frac{\epsilon_{3}^{-j}e^{N\epsilon_{3}}+\epsilon_{2}\epsilon_{1}f2\left(j+1,\epsilon_{1},\epsilon_{2},N\right)-\epsilon_{3}f2\left(j,\epsilon_{1},\epsilon_{2},N\right)}{\left(\epsilon_{2}-\epsilon_{3}\right)\left(\epsilon_{3}-\epsilon_{1}\right)}
-# \]
-# 
-# 
-# and when $\epsilon_{1}\approx\epsilon_{2}\approx\epsilon_{3}$ we
-# use the following calculation method:
-# 
-# \[
-# f3=\begin{cases}
-# \sum_{k=0}^{\infty}\frac{e^{N\epsilon_{1}}}{\left(-\epsilon_{1}\right)^{k+3}}\left(\sum_{m=0}^{k+2}\frac{\left(-N\epsilon_{1}\right)^{m}}{m!}\right)\left(\sum_{m=0}^{k}\left(\epsilon_{2}-\epsilon_{1}\right)^{k-m}\left(\epsilon_{3}-\epsilon_{1}\right)^{m}\right) & \mathrm{if\ }j=1\\
-# \sum_{k=0}^{\infty}\frac{\left(-1\right)^{k+1}e^{N\epsilon_{1}}}{\epsilon_{1}^{k+4}}\left(\sum_{m=0}^{k+2}\left(-N\epsilon_{1}\right)^{m}\frac{\left(k-m+3\right)}{m!}\right)\left(\sum_{m=0}^{k}\left(\epsilon_{2}-\epsilon_{1}\right)^{k-m}\left(\epsilon_{3}-\epsilon_{1}\right)^{m}\right) & \mathrm{if\ }j=2
-# \end{cases}
-# \]
-# 
-# 
-# This expression works best when $\epsilon_{1}$ is chosen to be the
-# $\epsilon$ value furthest from zero. If the sum fails to converge
-# revert to the previous method of calculation.
-# \end{document}
 
 # In[ ]:
 
 @jit(nopython=True)
 def f3(j,eps1,eps2,eps3,N):
+    """
+    .. math::
+        f3\left(j,\epsilon_{1},\epsilon_{2},\epsilon_{3}\\right)\equiv\\frac{\left(\\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{j}}-\\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}\\right)\epsilon_{1}+\left(\\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}-\\frac{e^{N\epsilon_{3}}}{\epsilon_{3}^{j}}\\right)\epsilon_{2}+\left(\\frac{e^{N\epsilon_{2}}}{\epsilon_{2}^{j}}-\\frac{e^{N\epsilon_{1}}}{\epsilon_{1}^{j}}\\right)\epsilon_{3}}{\left(\epsilon_{1}-\epsilon_{2}\\right)\left(\epsilon_{2}-\epsilon_{3}\\right)\left(\epsilon_{3}-\epsilon_{1}\\right)}
+    
+    
+    in the even that :math:`\epsilon_{1}\\approx\epsilon_{2}\\neq\epsilon_{3}`
+    we use the alternative calculation method:
+    
+    .. math::
+        f3=\\frac{\epsilon_{3}^{-j}e^{N\epsilon_{3}}+\epsilon_{2}\epsilon_{1}f2\left(j+1,\epsilon_{1},\epsilon_{2},N\\right)-\epsilon_{3}f2\left(j,\epsilon_{1},\epsilon_{2},N\\right)}{\left(\epsilon_{2}-\epsilon_{3}\\right)\left(\epsilon_{3}-\epsilon_{1}\\right)}
+    
+    
+    and when :math:`\epsilon_{1}\\approx\epsilon_{2}\\approx\epsilon_{3}` we
+    use the following calculation method:
+    
+    .. math::
+        f3=\\begin{cases}
+        \sum_{k=0}^{\infty}\\frac{e^{N\epsilon_{1}}}{\left(-\epsilon_{1}\\right)^{k+3}}\left(\sum_{m=0}^{k+2}\\frac{\left(-N\epsilon_{1}\\right)^{m}}{m!}\\right)\left(\sum_{m=0}^{k}\left(\epsilon_{2}-\epsilon_{1}\\right)^{k-m}\left(\epsilon_{3}-\epsilon_{1}\\right)^{m}\\right)
+        & \mathrm{if\ }j=1\\\\
+        \sum_{k=0}^{\infty}\\frac{\left(-1\\right)^{k+1}e^{N\epsilon_{1}}}{\epsilon_{1}^{k+4}}\left(\sum_{m=0}^{k+2}\left(-N\epsilon_{1}\\right)^{m}\\frac{\left(k-m+3\\right)}{m!}\\right)\left(\sum_{m=0}^{k}\left(\epsilon_{2}-\epsilon_{1}\\right)^{k-m}\left(\epsilon_{3}-\epsilon_{1}\\right)^{m}\\right) & \mathrm{if\ }j=2
+        \end{cases}
+    
+    
+    This expression works best when :math:`\epsilon_{1}` is chosen to be the
+    :math:`\epsilon` value furthest from zero. If the sum fails to converge
+    revert to the previous method of calculation.
+
+    Args:
+        j (int): :math:`j` in expression
+        eps1 (float): :math:`\epsilon_{1}` in expression
+        eps2 (float): :math:`\epsilon_{2}` in expression
+        eps3 (float): :math:`\epsilon_{3}` in expression
+        N (int): :math:`N` in expression
+    """
     tol=0.001
     e1,e2,e3 = arrange(eps1,eps2,eps3)
     if relDif(e1,e2) >= tol: # none close to eachother

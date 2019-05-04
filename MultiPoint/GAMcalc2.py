@@ -7,12 +7,12 @@
 # In[ ]:
 
 
-from CORRcalc import s2wlc, s2inverse, s3wlc, s4wlc, norm
+from .CORRcalc import s2wlc, s2inverse, s3wlc, s4wlc, norm
 from itertools import product
-import propagator 
+from MultiPoint import propagator 
 import numpy as np
 from scipy import optimize
-import wignerD as wd
+from MultiPoint import wignerD as wd
 
 
 # In[ ]:

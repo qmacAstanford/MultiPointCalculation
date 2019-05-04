@@ -1,7 +1,7 @@
-from GAMcalc import *
-from FEcalc import *
-import propagator 
-import wignerD as wd
+from .GAMcalc import *
+from .FEcalc import *
+from . import propagator 
+from . import wignerD as wd
 
 import numpy as np
 from scipy import optimize

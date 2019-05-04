@@ -10,13 +10,13 @@ import numpy as np
 from scipy import optimize
 from numpy.linalg import eig
 
-import MultiPoint as mp
-from CORRcalc import *
-from GAMcalc import *
-from FEcalc import *
+from MultiPoint import MultiPoint as mp
+from MultiPoint.CORRcalc import *
+from MultiPoint.GAMcalc import *
+from MultiPoint.FEcalc import *
 
-import propagator 
-import wignerD as wd
+from MultiPoint import propagator 
+from MultiPoint import wignerD as wd
 
 
 # # define scattering functions
