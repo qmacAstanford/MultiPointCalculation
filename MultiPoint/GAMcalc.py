@@ -6,19 +6,19 @@
 
 # In[ ]:
 
-
-from CORRcalc import s2wlc, s2inverse, s3wlc, s4wlc, norm
 from itertools import product
-from MultiPoint import propagator
 import numpy as np
 from scipy import optimize
-import wignerD as wd
+import matplotlib.pyplot as plt
+
+from MultiPoint.CORRcalc import s2wlc, s2inverse, s3wlc, s4wlc, norm
+from MultiPoint import propagator
+import MultiPoint.wignerD as wd
 
 
 # In[ ]:
 
 
-import matplotlib.pyplot as plt
 
 
 # ## Finding spinodal (minimum of $\Gamma_{2}$)
