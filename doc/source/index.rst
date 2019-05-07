@@ -17,6 +17,8 @@ Contents:
 
     CORRcalc
 
+    VertexFunctions
+
     WignerD
 
     Special

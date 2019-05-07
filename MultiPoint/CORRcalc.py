@@ -64,7 +64,7 @@ def legendrep(Q1, Q2, nlam):
 # ## 1. Two point correlations
 # -------------------------------
 
-def s2wlc(pset, N, FA, K, sequence='all', chainType='none'):
+def s2wlc(pset, N, FA, K, sequence='all', chainType='none', sequence_file=None):
     """
     S(2)/N^2 for diblock WLC
 
@@ -120,7 +120,8 @@ def s2wlc(pset, N, FA, K, sequence='all', chainType='none'):
                 phi1 = phi_tilde(k1,alpha=a1)
                 phi2 = phi_tilde(k2,alpha=a2)
                 s2[a1][a2] = twoPointCorr(pset, N, FA, phi1, phi2,
-                                          chainType=chainType)
+                                          chainType=chainType,
+                                          sequence_file=sequence_file)
     else:
         a1, a2 = sequence
         if norm(k1) < 1e-5:
@@ -163,7 +164,7 @@ def s2wlc_zeroq(N, FA, chainType):
 # In[13]:
 
 
-def s2inverse(pset, N, FA, K, chainType):
+def s2inverse(pset, N, FA, K, chainType, sequence_file=None):
     """:math:`S^{(2)-1}`
 
     Args:
@@ -178,7 +179,8 @@ def s2inverse(pset, N, FA, K, chainType):
         s2inv = s2inverse_zeroq(N, FA)
         return s2inv
 
-    s2 = s2wlc(pset, N, FA, K, chainType = chainType)
+    s2 = s2wlc(pset, N, FA, K, chainType = chainType,
+               sequence_file=sequence_file)
     s2inv = np.zeros((2,2),dtype=type(1+1j))
 
     [s2aa, s2ab], [s2ba, s2bb] = s2
@@ -198,7 +200,7 @@ def s2inverse(pset, N, FA, K, chainType):
 def s2inverse_zeroq(N, FA, chainType):
     """:math:`\lim_{K\\to 0}S^{(2)-1}`
 
-    Args:
+
         N (float): Length of chain in Kuhn lengths
         FA (float): Fraction A
         chainType (has __str__ methode): Type of chain
@@ -217,7 +219,7 @@ def s2inverse_zeroq(N, FA, chainType):
 # In[15]:
 
 
-def I2N(N, FA, p1, sequence, chainType, K):
+def I2N(N, FA, p1, sequence, chainType, K, sequence_file=None):
     """
     Get appropriate ingetral from MultiPoint
 
@@ -242,7 +244,7 @@ def I2N(N, FA, p1, sequence, chainType, K):
             value=0.0  #BA is zero for diblock
         return value
     elif str(chainType) == 'arbitrary':
-        sequence_file = '../meth'
+        sequence_file = sequence_file
         if sequence == (0,0): # AA
             value = arb_int(sequence_file, N, K, select='AA')
         elif sequence ==(0,1): # AB
@@ -259,7 +261,7 @@ def I2N(N, FA, p1, sequence, chainType, K):
 # In[16]:
 
 
-def twoPointCorr(pset, N, FA, phi1, phi2, chainType):
+def twoPointCorr(pset, N, FA, phi1, phi2, chainType, sequence_file=None):
     """
     Space ordered integral.
 
@@ -285,7 +287,8 @@ def twoPointCorr(pset, N, FA, phi1, phi2, chainType):
 
         # Calculate or look up eigenstuff
         p = pset.get_vec_prop(q1)
-        val += I2N(N, FA, p.prop(0), sequence, chainType, K)
+        val += I2N(N, FA, p.prop(0), sequence, chainType, K,
+                   sequence_file=sequence_file)
     return val
 
 # ----------------------------------
@@ -620,11 +623,10 @@ def I4N(N, FA, lam0_1, lam_1, mu1, lam0_2, lam_2, mu2, lam0_3, lam_3, mu3,
 
 def fourPointCorr(pset, wigset, N, FA, phi1, phi2, phi3, phi4, chainType):
     """
-    fourPointCorr
-    calculates :math:`\int_0^N d^4 s\left\langle
+    fourPointCorr calculates :math:`\int_0^N d^4 s\left\langle
     \\tilde{\psi}_{1}\\tilde{\psi}_{2}\\tilde{\psi}_{3}\\tilde{\psi}_{3}\\right\\rangle`
     .
-    The :math:`\psi`s are not orientation dependent. This will change when
+    The :math:`\psi` 's are not orientation dependent. This will change when
     I introduce Maier-Saupe interaction.
     The average is over the unperturbed distribution of a single WLC that
     is N segments long with :math:`f_{A}` being of A type.

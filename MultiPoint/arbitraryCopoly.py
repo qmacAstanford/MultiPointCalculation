@@ -1,20 +1,21 @@
 import numpy as np
 from MultiPoint.WLCgreen import wlc_eigvals, residues
 
-def arbitrary_int(L_poly, k_vals, diag, ORDEig = 20):
-    """
+def arbitrary_int(L_poly, k_vals, diag, ORDEig = 20, verbose = False):
+    """ 
     """
     if hasattr(k_vals,'__len__'):
         return [arbitrary_int(L_poly, kk, diag, ORDEig=ORDEig) for kk in k_vals]
-   
-    print(k_vals)
+    if verbose:
+        print(k_vals)
     mu = 0
     eps = wlc_eigvals(k_vals, ORDEig, mu)
     Res = np.zeros(ORDEig)
     for ell in range(ORDEig):
         Res[ell] = np.real(residues(k_vals, eps[ell], ell, mu, nlam=1)[0,0])
 
-    print("done with eig/res")
+    if verbose:
+        print("done with eig/res")
     
     dels = L_poly/float(len(diag)) # path lengh of one bead
     Delta_s_vals = np.arange(len(diag))*dels
@@ -22,7 +23,8 @@ def arbitrary_int(L_poly, k_vals, diag, ORDEig = 20):
     total = 0.0
     for ell in range(len(Res)):
         total += Res[ell] * np.dot(np.exp(eps[ell]*Delta_s_vals), diag)
-    print('done')
+    if verbose:
+        print('done')
     return total*(dels**2)
 
 def test_diagonal_int():
@@ -49,11 +51,19 @@ def diagonal_int(sequence1,sequence2):
 my_diags = {}
 
 def arb_int(sequence_file, L_poly, k_vals, select='AA'):
-    
+    """Numerically intigrates the following (Euler's method)
+    .. math::
+        \sum_{l}Res_{l}\int_{0}^{N}ds_{2}\int_{0}^{s_{2}}ds_{1}e^{\\epsilon_{l}\left(s_{2}-s_{1}\\right)}\delta_{\alpha_1,\sigma(s_1)}\delta_{\alpha_2,\sigma(s_2)}
+
+    Args:
+        sequence_file (string): Filename of sequence of ASCII 1's and 0's
+        L_poly (float): Length of polymer in kuhn lengths
+        k_vals (float): magnitude of wave vector in inverse kuhn lengths
+        select (string): One of 'AA', 'AB', 'BA', 'BB'
+    """
     if (sequence_file,select) in my_diags:
         diag = my_diags[(sequence_file, select)]
     else:
-        print("Hi")
         sequence = np.loadtxt(sequence_file)
         if select == 'AA':
             diag = diagonal_int(sequence,sequence)
@@ -68,8 +78,7 @@ def arb_int(sequence_file, L_poly, k_vals, select='AA'):
     return arbitrary_int(L_poly, k_vals, diag)
     
 
-def test_arb_int():
-    filename = '../meth'
+def test_arb_int(filename = '../meth'):
     L_poly = 1.7*(10**5)
     
     k_vals = np.logspace(-3,0.2,20)
