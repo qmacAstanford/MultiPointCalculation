@@ -32,7 +32,7 @@ def scatter_pol(KV, N):
     
     s2 = np.zeros((len(KV)),dtype=type(1+1j))
     for ind, K in enumerate(KV):
-        s2[ind] = s2wlc(pset, N, FA, K, sequence=[0,0])/(N**2)
+        s2[ind] = s2wlc(pset, N, FA, K, sequence=[0,0], chainType='diblock')/(N**2)
         
     return s2.real
 
